@@ -3,7 +3,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.floranest.backend.mapper.CartMapper">
+<mapper namespace="com.example.floranest.backend.mapper.CartMapper">
     <resultMap id="cartMap" type="Cart">
         <id column="cart_id" property="cartId"/>
         <result column="user_id" property="userId"/>
