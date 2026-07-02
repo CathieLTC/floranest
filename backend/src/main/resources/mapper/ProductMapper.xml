@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.floranest.backend.mapper.ProductMapper">
+    <resultMap id="productMap" type="Product">
+        <id column="product_id" property="productId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="product_name" property="productName"/>
+        <result column="description" property="description"/>
+        <result column="price" property="price"/>
+        <result column="stock" property="stock"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="status" property="status"/>
+        <result column="sunlight" property="sunlight"/>
+        <result column="watering" property="watering"/>
+        <result column="difficulty" property="difficulty"/>
+        <result column="temperature" property="temperature"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="productMap">
+        SELECT * FROM products;
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="productMap">
+        SELECT * FROM products WHERE product_id = #{productId};
+    </select>
+
+    <insert id="insert">
+
+        INSERT INTO products
+        (category_id,
+        product_name,
+        description,
+        price,
+        stock,
+        image_url,
+        status,
+        sunlight,
+        watering,
+        difficulty,
+        temperature)
+
+        VALUES
+
+        (#{categoryId},
+        #{productName},
+        #{description},
+        #{price},
+        #{stock},
+        #{imageUrl},
+        #{status},
+        #{sunlight},
+        #{watering},
+        #{difficulty},
+        #{temperature});
+
+    </insert>
+
+    <update id="update">
+
+        UPDATE products
+
+        SET category_id=#{categoryId},
+        product_name=#{productName},
+        description=#{description},
+        price=#{price},
+        stock=#{stock},
+        image_url=#{imageUrl},
+        status=#{status},
+        sunlight=#{sunlight},
+        watering=#{watering},
+        difficulty=#{difficulty},
+        temperature=#{temperature}
+
+        WHERE product_id=#{productId};
+
+    </update>
+
+    <delete id="delete">
+        DELETE FROM products WHERE product_id=#{productId};
+    </delete>
+
+</mapper>
