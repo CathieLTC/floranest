@@ -56,6 +56,8 @@ import {
   ShoppingCart,
   Star
 } from "@element-plus/icons-vue";
+
+
 </script>
 
 <style scoped>

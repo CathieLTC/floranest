@@ -1,15 +1,16 @@
 <template>
-  <div class="products-wrapper">
+  <div class="shop-wrapper">
 
     <!-- HEADER -->
-    <div class="products-header">
-      <h1>🌿 Products</h1>
-      <p>Browse all available plants</p>
+    <div class="shop-header">
+      <h1>🌿 Shop Plants</h1>
+      <p>Browse all available plants in one place</p>
     </div>
 
-    <!-- SEARCH + FILTER -->
+    <!-- FILTER BAR -->
     <div class="toolbar">
 
+      <!-- SEARCH -->
       <el-input
         v-model="search"
         placeholder="Search plants..."
@@ -17,11 +18,19 @@
         clearable
       />
 
+      <!-- CATEGORY FILTER -->
       <el-select v-model="category" class="filter">
         <el-option label="All" value="all" />
         <el-option label="Indoor" value="indoor" />
         <el-option label="Outdoor" value="outdoor" />
         <el-option label="Succulent" value="succulent" />
+      </el-select>
+
+      <!-- SORT (optional nice touch) -->
+      <el-select v-model="sort" class="filter">
+        <el-option label="Default" value="default" />
+        <el-option label="Price Low → High" value="low" />
+        <el-option label="Price High → Low" value="high" />
       </el-select>
 
     </div>
@@ -41,19 +50,9 @@
 
         <p class="price">{{ item.price }}$</p>
 
-        <div class="actions">
-
-          <el-button type="success" size="small">
-            Add to Cart
-          </el-button>
-
-         <router-link :to="'/product/' + item.id">
-          <el-button size="small">
-            View
-          </el-button>
-        </router-link>
-
-        </div>
+        <el-button type="success" class="btn">
+          Add to Cart
+        </el-button>
 
       </div>
 
@@ -65,35 +64,32 @@
 <script setup>
 import { ref, computed } from "vue";
 
-/* FILTER STATE */
+/* STATE */
 const search = ref("");
 const category = ref("all");
+const sort = ref("default");
 
-/* PRODUCTS DATA */
+/* PRODUCTS */
 const products = ref([
   {
-    id: 1,
     name: "Monstera Deliciosa",
     price: 25,
     category: "indoor",
     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
   },
   {
-    id: 2,
     name: "Snake Plant",
     price: 18,
     category: "indoor",
     image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22"
   },
   {
-    id: 3,
     name: "Aloe Vera",
     price: 12,
     category: "succulent",
     image: "https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6"
   },
   {
-    id: 4,
     name: "Palm Tree",
     price: 35,
     category: "outdoor",
@@ -101,9 +97,10 @@ const products = ref([
   }
 ]);
 
-/* FILTER LOGIC */
+/* FILTER + SORT LOGIC */
 const filteredProducts = computed(() => {
-  return products.value.filter(p => {
+
+  let result = products.value.filter(p => {
     const matchSearch =
       p.name.toLowerCase().includes(search.value.toLowerCase());
 
@@ -112,30 +109,41 @@ const filteredProducts = computed(() => {
 
     return matchSearch && matchCategory;
   });
+
+  if (sort.value === "low") {
+    result.sort((a, b) => a.price - b.price);
+  }
+
+  if (sort.value === "high") {
+    result.sort((a, b) => b.price - a.price);
+  }
+
+  return result;
 });
+
 </script>
 
 <style scoped>
 
 /* WRAPPER */
-.products-wrapper {
+.shop-wrapper {
   padding: 40px 60px;
   background: #f4fff6;
   min-height: 100vh;
 }
 
 /* HEADER */
-.products-header {
+.shop-header {
   text-align: center;
   margin-bottom: 25px;
 }
 
-.products-header h1 {
+.shop-header h1 {
   color: #2E7D32;
-  font-size: 32px;
+  font-size: 34px;
 }
 
-.products-header p {
+.shop-header p {
   color: #666;
 }
 
@@ -145,10 +153,11 @@ const filteredProducts = computed(() => {
   justify-content: center;
   gap: 15px;
   margin-bottom: 30px;
+  flex-wrap: wrap;
 }
 
 .search {
-  width: 300px;
+  width: 280px;
 }
 
 .filter {
@@ -176,7 +185,6 @@ const filteredProducts = computed(() => {
   transform: translateY(-5px);
 }
 
-/* IMAGE */
 .card img {
   width: 100%;
   height: 180px;
@@ -191,11 +199,9 @@ const filteredProducts = computed(() => {
   margin: 8px 0;
 }
 
-/* ACTIONS */
-.actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
+/* BUTTON */
+.btn {
+  width: 100%;
 }
 
 </style>
