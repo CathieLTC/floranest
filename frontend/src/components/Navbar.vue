@@ -1,33 +1,28 @@
 <template>
   <div>
-
     <el-header class="navbar">
+
+      <!-- Logo -->
       <div class="logo">
         🌿 FloraNest
       </div>
 
-      <el-menu mode="horizontal" :ellipsis="false" class="menu" router>
+      <!-- Navigation -->
+      <nav class="nav-links">
+        <router-link to="/">Home</router-link>
+        <router-link to="/products">Products</router-link>
+        <router-link to="/shop">Shop</router-link>
+        <router-link to="/ai">AI</router-link>
+      </nav>
 
-        <el-menu-item index="/">
-          <router-link to="/" class="menu-link">Home</router-link>
-        </el-menu-item>
-
-        <el-menu-item index="/products">
-          <router-link to="/products" class="menu-link">Products</router-link>
-        </el-menu-item>
-
-        <el-menu-item index="/ai">
-          <router-link to="/ai" class="menu-link">AI</router-link>
-        </el-menu-item>
-
-      </el-menu>
-
-      <div class="grow"></div>
-
-      <!-- RIGHT SIDE -->
+      <!-- Right Section -->
       <div class="right-section">
 
-        <el-input placeholder="Search plants..." class="search">
+        <el-input
+          placeholder="Search plants..."
+          class="search"
+          clearable
+        >
           <template #prefix>
             <el-icon><Search /></el-icon>
           </template>
@@ -41,115 +36,136 @@
           <el-icon><ShoppingCart /></el-icon>
         </el-button>
 
-        <!-- AUTH LINKS -->
         <div class="auth-links">
-          <router-link to="/login" class="nav-link">Login</router-link>
+          <router-link to="/login">Login</router-link>
           <span>|</span>
-          <router-link to="/register" class="nav-link">Register</router-link>
+          <router-link to="/register">Register</router-link>
         </div>
 
       </div>
 
     </el-header>
 
-    <!-- THIS IS WHY YOUR PAGES NOW SHOW -->
     <router-view />
-
   </div>
 </template>
 
 <script setup>
-import { Search, ShoppingCart, Star } from "@element-plus/icons-vue";
+import {
+  Search,
+  ShoppingCart,
+  Star
+} from "@element-plus/icons-vue";
 </script>
 
 <style scoped>
 
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-  background: white;
-  height: 80px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+/* ======================
+   NAVBAR
+====================== */
+
+.navbar{
+  height:80px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 50px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-  color: #2E7D32;
+/* ======================
+   LOGO
+====================== */
+
+.logo{
+  font-size:30px;
+  font-weight:bold;
+  color:#2E7D32;
+  white-space:nowrap;
 }
 
-/* MENU */
-.menu {
-  flex: 1;
-  margin-left: 30px;
-  border: none;
-  display: flex;
-  align-items: center;
+/* ======================
+   NAVIGATION
+====================== */
+
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:50px;
+  margin-left:60px;
+  flex:1;
 }
 
-/* spacing between menu items */
-.menu :deep(.el-menu-item) {
-  margin-right: 25px;
+.nav-links a{
+  text-decoration:none;
+  color:#333;
+  font-size:17px;
+  font-weight:600;
+  transition:.3s;
 }
 
-/* pushes right side */
-.grow {
-  flex-grow: 1;
+.nav-links a:hover{
+  color:#2E7D32;
 }
 
-/* RIGHT SIDE */
+.router-link-active{
+  color:#2E7D32;
+  border-bottom:3px solid #2E7D32;
+  padding-bottom:5px;
+}
+
+/* ======================
+   RIGHT SIDE
+====================== */
+
 .right-section {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
-/* SEARCH */
+/* 🔥 FIX: ensures search is visible */
 .search {
   width: 240px;
+  min-width: 240px;
+  flex-shrink: 0;
+  display: block;
 }
 
-/* ICON BUTTONS */
-.icon-btn {
-  width: 36px;
-  height: 36px;
-  padding: 0;
+.icon-btn{
+  width:40px;
+  height:40px;
 }
 
-.icon-btn .el-icon {
-  font-size: 18px;
+.icon-btn .el-icon{
+  font-size:18px;
 }
 
-/* AUTH LINKS */
-.auth-links {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 10px;
-  font-size: 14px;
+.auth-links{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-left:10px;
 }
 
-.auth-links span {
-  color: #aaa;
+.auth-links a{
+  text-decoration:none;
+  color:#333;
+  font-weight:600;
 }
 
-.nav-link {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
+.auth-links a:hover{
+  color:#2E7D32;
 }
 
-.nav-link:hover {
-  color: #2E7D32;
+.auth-links span{
+  color:#bbb;
 }
 
-/* MENU LINKS */
-.menu-link {
-  text-decoration: none;
-  color: inherit;
-  font-weight: 500;
+.grow {
+  flex: 1;
 }
 
 </style>
