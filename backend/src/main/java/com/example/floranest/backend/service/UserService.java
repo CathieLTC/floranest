@@ -8,7 +8,9 @@ public interface UserService {
 
     List<User> getAllUsers();
     User getUserById(Integer id);
-    void addUser(User user);
+    User findByEmail(String email);
+    boolean register(User user);
+    boolean login(String email, String password);
     void updateUser(User user);
     void deleteUser(Integer id);
 
