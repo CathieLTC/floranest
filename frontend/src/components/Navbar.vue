@@ -1,113 +1,155 @@
 <template>
-  <el-header class="navbar">
-    <div class="logo">
-      🌿 FloraNest
-    </div>
+  <div>
 
-    <el-menu mode="horizontal" :ellipsis="false" class="menu">
+    <el-header class="navbar">
+      <div class="logo">
+        🌿 FloraNest
+      </div>
 
-      <el-menu-item index="1">Home</el-menu-item>
-      <el-menu-item index="2">Products</el-menu-item>
+      <el-menu mode="horizontal" :ellipsis="false" class="menu" router>
 
-      <!-- replaced static text with router links (safe improvement) -->
-      <el-menu-item index="3">
-        <router-link to="/login" class="nav-link">Login</router-link>
-      </el-menu-item>
+        <el-menu-item index="/">
+          <router-link to="/" class="menu-link">Home</router-link>
+        </el-menu-item>
 
-      <el-menu-item index="4">
-        <router-link to="/register" class="nav-link">Register</router-link>
-      </el-menu-item>
+        <el-menu-item index="/products">
+          <router-link to="/products" class="menu-link">Products</router-link>
+        </el-menu-item>
+
+        <el-menu-item index="/ai">
+          <router-link to="/ai" class="menu-link">AI</router-link>
+        </el-menu-item>
+
+      </el-menu>
 
       <div class="grow"></div>
 
-      <el-input placeholder="Search plants..." class="search">
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
+      <!-- RIGHT SIDE -->
+      <div class="right-section">
 
-      <el-button circle class="icon-btn">
-        <el-icon><Star /></el-icon>
-      </el-button>
+        <el-input placeholder="Search plants..." class="search">
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
 
-      <el-button circle class="icon-btn">
-        <el-icon><ShoppingCart /></el-icon>
-      </el-button>
+        <el-button circle class="icon-btn">
+          <el-icon><Star /></el-icon>
+        </el-button>
 
-    </el-menu>
+        <el-button circle class="icon-btn">
+          <el-icon><ShoppingCart /></el-icon>
+        </el-button>
 
-  </el-header>
+        <!-- AUTH LINKS -->
+        <div class="auth-links">
+          <router-link to="/login" class="nav-link">Login</router-link>
+          <span>|</span>
+          <router-link to="/register" class="nav-link">Register</router-link>
+        </div>
+
+      </div>
+
+    </el-header>
+
+    <!-- THIS IS WHY YOUR PAGES NOW SHOW -->
+    <router-view />
+
+  </div>
 </template>
 
 <script setup>
-  import { Search,ShoppingCart,Star} from "@element-plus/icons-vue";
+import { Search, ShoppingCart, Star } from "@element-plus/icons-vue";
 </script>
 
 <style scoped>
 
-  .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    background: white;
-    height: 80px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.08);
-  }
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: white;
+  height: 80px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
 
-  .logo {
-    font-size: 28px;
-    font-weight: bold;
-    color: #2E7D32;
-  }
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #2E7D32;
+}
 
-  .menu {
-    flex: 1;
-    margin-left: 30px;
-    border: none;
+/* MENU */
+.menu {
+  flex: 1;
+  margin-left: 30px;
+  border: none;
+  display: flex;
+  align-items: center;
+}
 
-    display: flex;
-    align-items: center;
-  }
+/* spacing between menu items */
+.menu :deep(.el-menu-item) {
+  margin-right: 25px;
+}
 
-  .el-menu-item {
-    font-size: 15px;
-    font-weight: 500;
-  }
+/* pushes right side */
+.grow {
+  flex-grow: 1;
+}
 
-  .grow {
-    flex-grow: 1;
-  }
+/* RIGHT SIDE */
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-  /* SEARCH BAR */
-  .search {
-    width: 240px;
-    margin-right: 15px;
-  }
+/* SEARCH */
+.search {
+  width: 240px;
+}
 
-  /* ICON BUTTON SIZE FIX */
-  .icon-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    margin-left: 8px;
-  }
+/* ICON BUTTONS */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
 
-  /* reduce icon size */
-  .icon-btn .el-icon {
-    font-size: 18px;
-  }
+.icon-btn .el-icon {
+  font-size: 18px;
+}
 
-  /* LOGIN / REGISTER LINKS */
-  .nav-link {
-    text-decoration: none;
-    color: inherit;
-    font-weight: 500;
-  }
+/* AUTH LINKS */
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  font-size: 14px;
+}
 
-  /* hover effect */
-  .nav-link:hover {
-    color: #2E7D32;
-  }
+.auth-links span {
+  color: #aaa;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #2E7D32;
+}
+
+/* MENU LINKS */
+.menu-link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+}
 
 </style>
