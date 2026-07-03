@@ -37,10 +37,22 @@
         </el-button>
 
         <div class="auth-links">
+          <div v-if="user">
+            👤 {{ user.fullName }}
+          </div>
+
+          <div v-else>
+            <router-link to="/login">Login</router-link>
+            <span>|</span>
+            <router-link to="/register">Register</router-link>
+          </div>
+        </div>
+        
+        <!-- <div class="auth-links">
           <router-link to="/login">Login</router-link>
           <span>|</span>
           <router-link to="/register">Register</router-link>
-        </div>
+        </div> -->
 
       </div>
 
@@ -51,12 +63,22 @@
 </template>
 
 <script setup>
-import {
-  Search,
-  ShoppingCart,
-  Star
-} from "@element-plus/icons-vue";
+  import {Search,ShoppingCart,Star} from "@element-plus/icons-vue";
+  import { ref, onMounted } from "vue";
 
+  const user = ref(null);
+
+  onMounted(() => {
+
+      const savedUser = localStorage.getItem("user");
+
+      if (savedUser) {
+
+          user.value = JSON.parse(savedUser);
+
+      }
+
+  });
 
 </script>
 

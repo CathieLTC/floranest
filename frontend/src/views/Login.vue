@@ -34,18 +34,46 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { Message, Lock } from "@element-plus/icons-vue";
+  import { ref } from "vue";
+  import { Message, Lock } from "@element-plus/icons-vue";
+  import { ElMessage, ElMessageBox } from "element-plus";
+  import { useRouter } from "vue-router";
+  import api from "@/api/axios";
 
-const email = ref("");
-const password = ref("");
+  const email = ref("");
+  const password = ref("");
+  const router = useRouter();
 
-const handleLogin = () => {
-  console.log("Login data:", {
-    email: email.value,
-    password: password.value
-  });
-};
+  const handleLogin = async () => {
+    try {
+
+      const response = await api.post("/auth/login", {
+        email: email.value,
+        password: password.value
+      });
+
+      if (response.data.success) {
+
+          localStorage.setItem(
+              "user",
+              JSON.stringify(response.data.user)
+          );
+
+          ElMessage.success("Login successful!");
+
+          router.push("/");
+
+      }
+
+    } catch (error) {
+
+      ElMessage.error("Unable to connect to server.");
+
+      console.error(error);
+
+    }
+
+  };
 </script>
 
 <style scoped>

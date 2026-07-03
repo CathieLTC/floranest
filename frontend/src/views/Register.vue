@@ -81,26 +81,56 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { User, Message, Lock } from "@element-plus/icons-vue";
+  import { ref } from "vue";
+  import { User, Message, Lock} from "@element-plus/icons-vue";
+  import { ElMessage,  ElMessageBox} from "element-plus";
+  import { useRouter } from "vue-router";
+  import api from "@/api/axios";
 
-const name = ref("");
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
+  const name = ref("");
+  const email = ref("");
+  const password = ref("");
+  const confirmPassword = ref("");
+  const router = useRouter();
 
-const handleRegister = () => {
-  if (password.value !== confirmPassword.value) {
-    alert("Passwords do not match!");
-    return;
-  }
+  const handleRegister = async () => {
+    if (password.value !== confirmPassword.value) {
+      ElMessage.error("Passwords do not match.");
+      return;
+    }
 
-  console.log("Register data:", {
-    name: name.value,
-    email: email.value,
-    password: password.value
-  });
-};
+    try {
+      const response = await api.post("/auth/register", {
+        fullName: name.value,
+        email: email.value,
+        password: password.value
+      });
+
+      if (response.data.success) {
+
+        await ElMessageBox.confirm(
+            "Registration successful! Go to the login page?",
+            "Success",
+            {
+                confirmButtonText: "Login",
+                cancelButtonText: "Stay Here",
+                type: "success",
+            }
+        );
+
+        router.push("/login");
+
+    }
+
+    } catch (error) {
+
+      ElMessage.error("Unable to connect to server.");
+
+      console.error(error);
+
+    }
+
+  };
 </script>
 
 <style scoped>
