@@ -27,8 +27,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
+    public User findByEmail(String email) {
+        return userMapper.findByEmail(email);
+    }
+
+    @Override
+    public boolean register(User user) {
+
+        User existingUser = userMapper.findByEmail(user.getEmail());
+
+        if (existingUser != null) {
+            return false;
+        }
+
+        user.setRole("CUSTOMER");
+
         userMapper.insert(user);
+
+        return true;
+    }
+
+    @Override
+    public boolean login(String email, String password) {
+
+        User user = userMapper.findByEmail(email);
+
+        if (user == null) {
+            return false;
+        }
+
+        return user.getPassword().equals(password);
+
     }
 
     @Override

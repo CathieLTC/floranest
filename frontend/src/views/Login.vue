@@ -1,8 +1,6 @@
 <template>
-  <div class="login-wrapper">
-
-    <div class="login-card">
-
+<div class="login-wrapper">
+  <div class="login-card">
       <!-- LEFT SIDE BRAND -->
       <div class="brand-side">
         <h1>🌿 FloraNest</h1>
@@ -11,49 +9,27 @@
 
       <!-- RIGHT SIDE FORM -->
       <div class="form-side">
-
         <h2>Login</h2>
-
         <!-- EMAIL INPUT -->
-       
-        <el-input type="text"
-          v-model="email"
-          placeholder="Enter your email"
-          class="input"
-          clearable
-        >
+        <el-input type="text" v-model="email" placeholder="Enter your email" class="input" clearable>
           <template #prefix>
             <el-icon><Message /></el-icon>
           </template>
         </el-input>
 
         <!-- PASSWORD INPUT -->
-        <el-input
-          v-model="password"
-          type="password"
-          placeholder="Enter your password"
-          class="input"
-          show-password
-        >
+        <el-input v-model="password" type="password" placeholder="Enter your password" class="input" show-password>
           <template #prefix>
             <el-icon><Lock /></el-icon>
           </template>
         </el-input>
 
         <!-- LOGIN BUTTON -->
-        <el-button type="success" class="login-btn" @click="handleLogin">
-          Login
-        </el-button>
+        <el-button type="success" class="login-btn" @click="handleLogin">Login</el-button>
 
-        <p class="footer-text">
-          Don't have an account?
-          <router-link to="/register">Register</router-link>
-        </p>
-
+        <p class="footer-text">Don't have an account?<router-link to="/register">Register</router-link></p>
       </div>
-
     </div>
-
   </div>
 </template>
 

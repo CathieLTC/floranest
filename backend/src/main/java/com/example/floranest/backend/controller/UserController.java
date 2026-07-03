@@ -27,12 +27,6 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping
-    public String addUser(@RequestBody User user) {
-        userService.addUser(user);
-        return "User added successfully.";
-    }
-
     @PutMapping("/{id}")
     public String updateUser(@PathVariable Integer id,
                              @RequestBody User user) {
