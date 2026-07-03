@@ -22,13 +22,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Integer id) {
-        return userMapper.findById(id);
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return userMapper.findByEmail(email);
+    public User getUserById(Integer userId) {
+        return userMapper.findById(userId);
     }
 
     @Override
@@ -42,32 +37,28 @@ public class UserServiceImpl implements UserService {
 
         user.setRole("CUSTOMER");
 
-        userMapper.insert(user);
-
-        return true;
+        return userMapper.insert(user) > 0;
     }
 
     @Override
-    public boolean login(String email, String password) {
+    public User login(String email, String password) {
 
         User user = userMapper.findByEmail(email);
 
-        if (user == null) {
-            return false;
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
         }
 
-        return user.getPassword().equals(password);
-
+        return null;
     }
 
     @Override
-    public void updateUser(User user) {
-        userMapper.update(user);
+    public boolean updateUser(User user) {
+        return userMapper.update(user) > 0;
     }
 
     @Override
-    public void deleteUser(Integer id) {
-        userMapper.delete(id);
+    public boolean deleteUser(Integer userId) {
+        return userMapper.delete(userId) > 0;
     }
-
 }
