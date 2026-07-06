@@ -9,6 +9,10 @@ import AiAssistant from "../views/AiAssistant.vue";
 import ProductDetails from "../views/ProductDetails.vue";
 import PlantCare from "../views/PlantCare.vue";
 import Cart from "../views/Cart.vue";
+import OrderConfirmation from "../views/OrderConfirmation.vue";
+import MyOrders from "../views/MyOrders.vue";
+import OrderHistory from "../views/OrderHistory.vue";
+import Checkout from "../views/Checkout.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -20,6 +24,10 @@ const routes = [
   {path: "/product/:id",component: ProductDetails},
   { path: "/plant-care", component: PlantCare },
   { path: "/Cart", component: Cart },
+  { path: "/OrderConfirmation", component: OrderConfirmation },
+  { path: "/MyOrders", component: MyOrders },
+  { path: "/OrderHistory", component: OrderHistory },
+  { path: "/Checkout", component: Checkout }
 ];
 
 const router = createRouter({
