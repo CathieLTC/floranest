@@ -28,7 +28,7 @@
     <update id="update">
         UPDATE categories
         SET category_name = #{categoryName},
-        description = #{description}
+            description = #{description}
         WHERE category_id = #{categoryId};
     </update>
 

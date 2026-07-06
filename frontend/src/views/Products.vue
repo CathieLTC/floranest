@@ -10,36 +10,21 @@
     <!-- SEARCH + FILTER -->
     <div class="toolbar">
 
-      <el-input
-        v-model="search"
-        placeholder="Search plants..."
-        class="search"
-        clearable
-      />
+      <el-input v-model="search" placeholder="Search plants..." class="search" clearable/>
 
       <el-select v-model="category" class="filter">
         <el-option label="All" value="all" />
-        <el-option label="Indoor" value="indoor" />
-        <el-option label="Outdoor" value="outdoor" />
-        <el-option label="Succulent" value="succulent" />
+        <el-option v-for="c in categories" :key="c.categoryId" :label="c.categoryName" :value="c.categoryId"/>
       </el-select>
-
     </div>
 
     <!-- PRODUCTS GRID -->
     <div class="grid">
 
-      <div
-        class="card"
-        v-for="(item, i) in filteredProducts"
-        :key="i"
-      >
-
-        <img :src="item.image" />
-
-        <h3>{{ item.name }}</h3>
-
-        <p class="price">{{ item.price }}$</p>
+      <div class="card" v-for="(item, i) in filteredProducts" :key="i">
+        <img :src="item.imageUrl" />
+        <h3>{{ item.productName }}</h3>
+        <p class="price">$ {{ item.price }}</p>
 
         <div class="actions">
 
@@ -47,7 +32,7 @@
             Add to Cart
           </el-button>
 
-         <router-link :to="'/product/' + item.id">
+         <router-link :to="'/product/' + item.productId">
           <el-button size="small">
             View
           </el-button>
@@ -63,56 +48,113 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+  import { ref, computed, onMounted } from "vue";
+  import api from "@/api/axios";
 
-/* FILTER STATE */
-const search = ref("");
-const category = ref("all");
+  const search = ref("");
+  const category = ref("all");
+  const products = ref([]);
+  const categories = ref([]);
 
-/* PRODUCTS DATA */
-const products = ref([
-  {
-    id: 1,
-    name: "Monstera Deliciosa",
-    price: 25,
-    category: "indoor",
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  },
-  {
-    id: 2,
-    name: "Snake Plant",
-    price: 18,
-    category: "indoor",
-    image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22"
-  },
-  {
-    id: 3,
-    name: "Aloe Vera",
-    price: 12,
-    category: "succulent",
-    image: "https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6"
-  },
-  {
-    id: 4,
-    name: "Palm Tree",
-    price: 35,
-    category: "outdoor",
-    image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a"
-  }
-]);
+  const loadData = async () => {
+    try {
 
-/* FILTER LOGIC */
-const filteredProducts = computed(() => {
-  return products.value.filter(p => {
-    const matchSearch =
-      p.name.toLowerCase().includes(search.value.toLowerCase());
+      const productResponse = await api.get("/products");
+      products.value = productResponse.data;
 
-    const matchCategory =
-      category.value === "all" || p.category === category.value;
+      const categoryResponse = await api.get("/categories");
+      categories.value = categoryResponse.data;
 
-    return matchSearch && matchCategory;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  onMounted(loadData);
+
+  const filteredProducts = computed(() => {
+
+    return products.value.filter(product => {
+
+      const matchSearch =
+        product.productName
+          .toLowerCase()
+          .includes(search.value.toLowerCase());
+
+      const matchCategory =
+        category.value === "all" ||
+        product.categoryId == category.value;
+
+      return matchSearch && matchCategory;
+
+    });
+
   });
-});
+  // import { ref, computed, onMounted } from "vue";
+  // import api from "@/api/axios";
+
+  // /* FILTER STATE */
+  // const search = ref("");
+  // const categories = ref([]);
+  // const category = ref("all");
+
+  // /* Load Categories from Backend */
+  // onMounted(async () => {
+  //   try {
+  //     const res = await api.get("/categories");
+  //     categories.value = res.data;
+  //   } catch (error) {
+  //     console.error("Failed to load categories", error);
+  //   }
+  // });
+
+  // /* TEMPORARY PRODUCTS (until Product API is finished) */
+  // const products = ref([
+  //   {
+  //     id: 1,
+  //     name: "Monstera Deliciosa",
+  //     price: 25,
+  //     categoryId: 1,
+  //     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Snake Plant",
+  //     price: 18,
+  //     categoryId: 1,
+  //     image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Aloe Vera",
+  //     price: 12,
+  //     categoryId: 2,
+  //     image: "https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6"
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Palm Tree",
+  //     price: 35,
+  //     categoryId: 3,
+  //     image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a"
+  //   }
+  // ]);
+
+  // /* FILTER */
+  // const filteredProducts = computed(() => {
+  //   return products.value.filter(product => {
+
+  //     const matchSearch =
+  //       product.name.toLowerCase().includes(search.value.toLowerCase());
+
+  //     const matchCategory =
+  //       category.value === "all" ||
+  //       product.categoryId === category.value;
+
+  //     return matchSearch && matchCategory;
+
+  //   });
+  // });
 </script>
 
 <style scoped>

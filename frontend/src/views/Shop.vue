@@ -20,10 +20,8 @@
 
       <!-- CATEGORY FILTER -->
       <el-select v-model="category" class="filter">
-        <el-option label="All" value="all" />
-        <el-option label="Indoor" value="indoor" />
-        <el-option label="Outdoor" value="outdoor" />
-        <el-option label="Succulent" value="succulent" />
+        <el-option label="All" value="all"/>
+        <el-option v-for="c in categories" :key="c.categoryId" :label="c.categoryName" :value="c.categoryId"/>
       </el-select>
 
       <!-- SORT (optional nice touch) -->
@@ -37,22 +35,17 @@
 
     <!-- PRODUCTS GRID -->
     <div class="grid">
+      <div class="card" v-for="(item, i) in filteredProducts" :key="i">
+        <img :src="item.imageUrl" />
+        <h3>{{ item.productName }}</h3>
+        <p class="price">$ {{ item.price }}</p>
 
-      <div
-        class="card"
-        v-for="(item, i) in filteredProducts"
-        :key="i"
-      >
-
-        <img :src="item.image" />
-
-        <h3>{{ item.name }}</h3>
-
-        <p class="price">{{ item.price }}$</p>
-
-        <el-button type="success" class="btn">
-          Add to Cart
-        </el-button>
+        <div class="actions">
+          <el-button type="success" size="small">Add to Cart</el-button>
+          <router-link :to="'/product/' + item.productId">
+            <el-button size="small">View Details</el-button>
+          </router-link>
+        </div>
 
       </div>
 
@@ -62,146 +55,153 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+  import { ref, computed, onMounted } from "vue";
+  import api from "@/api/axios";
 
-/* STATE */
-const search = ref("");
-const category = ref("all");
-const sort = ref("default");
+  const search = ref("");
+  const category = ref("all");
+  const sort = ref("default");
 
-/* PRODUCTS */
-const products = ref([
-  {
-    name: "Monstera Deliciosa",
-    price: 25,
-    category: "indoor",
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  },
-  {
-    name: "Snake Plant",
-    price: 18,
-    category: "indoor",
-    image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22"
-  },
-  {
-    name: "Aloe Vera",
-    price: 12,
-    category: "succulent",
-    image: "https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6"
-  },
-  {
-    name: "Palm Tree",
-    price: 35,
-    category: "outdoor",
-    image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a"
-  }
-]);
+  const products = ref([]);
+  const categories = ref([]);
 
-/* FILTER + SORT LOGIC */
-const filteredProducts = computed(() => {
+  const loadData = async () => {
 
-  let result = products.value.filter(p => {
-    const matchSearch =
-      p.name.toLowerCase().includes(search.value.toLowerCase());
+    try {
 
-    const matchCategory =
-      category.value === "all" || p.category === category.value;
+      const productResponse = await api.get("/products");
+      products.value = productResponse.data;
 
-    return matchSearch && matchCategory;
+      const categoryResponse = await api.get("/categories");
+      categories.value = categoryResponse.data;
+
+    } catch (error) {
+      console.error(error);
+    }
+
+  };
+
+  onMounted(loadData);
+
+  const filteredProducts = computed(() => {
+
+    let result = products.value.filter(product => {
+
+      const matchSearch =
+        product.productName
+          .toLowerCase()
+          .includes(search.value.toLowerCase());
+
+      const matchCategory =
+        category.value === "all" ||
+        product.categoryId == category.value;
+
+      return matchSearch && matchCategory;
+
+    });
+
+    if (sort.value === "low") {
+      result.sort((a, b) => a.price - b.price);
+    }
+
+    if (sort.value === "high") {
+      result.sort((a, b) => b.price - a.price);
+    }
+
+    return result;
+
   });
-
-  if (sort.value === "low") {
-    result.sort((a, b) => a.price - b.price);
-  }
-
-  if (sort.value === "high") {
-    result.sort((a, b) => b.price - a.price);
-  }
-
-  return result;
-});
-
 </script>
 
 <style scoped>
 
-/* WRAPPER */
-.shop-wrapper {
-  padding: 40px 60px;
-  background: #f4fff6;
-  min-height: 100vh;
-}
+  /* WRAPPER */
+  .shop-wrapper {
+    padding: 40px 60px;
+    background: #f4fff6;
+    min-height: 100vh;
+  }
 
-/* HEADER */
-.shop-header {
-  text-align: center;
-  margin-bottom: 25px;
-}
+  /* HEADER */
+  .shop-header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
 
-.shop-header h1 {
-  color: #2E7D32;
-  font-size: 34px;
-}
+  .shop-header h1 {
+    color: #2E7D32;
+    font-size: 34px;
+  }
 
-.shop-header p {
-  color: #666;
-}
+  .shop-header p {
+    color: #666;
+  }
 
-/* TOOLBAR */
-.toolbar {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
 
-.search {
-  width: 280px;
-}
+  .search {
+    width: 280px;
+  }
 
-.filter {
-  width: 180px;
-}
+  .filter {
+    width: 180px;
+  }
 
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
-}
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+  }
 
-/* CARD */
-.card {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-  transition: 0.3s;
-}
+  /* CARD */
+  .card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: 0.3s;
+  }
 
-.card:hover {
-  transform: translateY(-5px);
-}
+  .card:hover {
+    transform: translateY(-5px);
+  }
 
-.card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 10px;
-}
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
 
-/* PRICE */
-.price {
-  font-weight: bold;
-  color: #2E7D32;
-  margin: 8px 0;
-}
+  /* PRICE */
+  .price {
+    font-weight: bold;
+    color: #2E7D32;
+    margin: 8px 0;
+  }
 
-/* BUTTON */
-.btn {
-  width: 100%;
-}
+  /* BUTTON */
+  .btn {
+    width: 100%;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .actions .el-button{
+      flex:1;
+  }
 
 </style>

@@ -54,13 +54,12 @@
 
         <div class="product-card" v-for="(item, i) in products" :key="i">
 
-          <img :src="item.image" />
+          <img :src="item.imageUrl" />
+          <h3>{{ item.productName }}</h3>
+          <p>$ {{ item.price }}</p>
 
-          <h3>{{ item.name }}</h3>
-          <p>{{ item.price }}$</p>
-
-          <router-link to="/shop">
-            <el-button type="success" size="small">
+          <router-link :to="'/product/' + item.productId">
+              <el-button type="success" size="small">
               Buy Now
             </el-button>
           </router-link>
@@ -75,70 +74,88 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+  import { ref, onMounted } from "vue";
+  import api from "@/api/axios";
 
-const products = ref([
-  {
-    name: "Monstera",
-    price: 25,
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  },
-  {
-    name: "Snake Plant",
-    price: 18,
-   image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
-  },
-  {
-    name: "Aloe Vera",
-    price: 12,
-    image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
-  },
-  {
-    name: "Monstera",
-    price: 25,
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  },
-  {
-    name: "Snake Plant",
-    price: 18,
-   image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
-  },
-  {
-    name: "Aloe Vera",
-    price: 12,
-    image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
-  },
-  {
-    name: "Monstera",
-    price: 25,
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  },
-  {
-    name: "Snake Plant",
-    price: 18,
-   image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
-  },
-  {
-    name: "Aloe Vera",
-    price: 12,
-    image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
-  },
-  {
-    name: "Monstera",
-    price: 25,
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  },
-  {
-    name: "Snake Plant",
-    price: 18,
-   image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
-  },
-  {
-    name: "Aloe Vera",
-    price: 12,
-    image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
-  }
-]);
+  const products = ref([]);
+
+  const loadFeaturedProducts = async () => {
+    try {
+      const response = await api.get("/products");
+      products.value = response.data
+      .filter(product => product.status === "ACTIVE")
+      .slice(0,8);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  onMounted(() => {
+    loadFeaturedProducts();
+  });
+
+// const products = ref([
+//   {
+//     name: "Monstera",
+//     price: 25,
+//     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+//   },
+//   {
+//     name: "Snake Plant",
+//     price: 18,
+//    image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
+//   },
+//   {
+//     name: "Aloe Vera",
+//     price: 12,
+//     image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
+//   },
+//   {
+//     name: "Monstera",
+//     price: 25,
+//     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+//   },
+//   {
+//     name: "Snake Plant",
+//     price: 18,
+//    image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
+//   },
+//   {
+//     name: "Aloe Vera",
+//     price: 12,
+//     image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
+//   },
+//   {
+//     name: "Monstera",
+//     price: 25,
+//     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+//   },
+//   {
+//     name: "Snake Plant",
+//     price: 18,
+//    image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
+//   },
+//   {
+//     name: "Aloe Vera",
+//     price: 12,
+//     image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
+//   },
+//   {
+//     name: "Monstera",
+//     price: 25,
+//     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+//   },
+//   {
+//     name: "Snake Plant",
+//     price: 18,
+//    image: "https://images.unsplash.com/photo-1687552212914-03a30c82053c"
+//   },
+//   {
+//     name: "Aloe Vera",
+//     price: 12,
+//     image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943"
+//   }
+// ]);
 </script>
 
 <style scoped>

@@ -17,7 +17,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping
+    @GetMapping()
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
@@ -25,6 +25,16 @@ public class ProductController {
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Integer id) {
         return productService.getProductById(id);
+    }
+
+    @GetMapping("/category/{id}")
+    public List<Product> getByCategory(@PathVariable Integer id){
+        return productService.getByCategory(id);
+    }
+
+    @GetMapping("/search")
+    public List<Product> search(@RequestParam String keyword){
+        return productService.search(keyword);
     }
 
     @PostMapping

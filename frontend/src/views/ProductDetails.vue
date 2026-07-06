@@ -6,24 +6,25 @@
 
       <!-- IMAGE -->
       <div class="image-section">
-        <img :src="product.image" />
+        <img :src="product.imageUrl">      
       </div>
 
       <!-- INFO -->
       <div class="info-section">
 
-        <h1>{{ product.name }}</h1>
-
-        <p class="price">{{ product.price }}$</p>
-
+        <h1>{{ product.productName }}</h1>
         <p class="desc">
           {{ product.description }}
         </p>
-
+        <p class="price">{{ product.price }}$</p>
         <p class="category">
-          Category: <b>{{ product.category }}</b>
+          Category: <b>{{ product.categoryName }}</b>
         </p>
-
+        <p>Difficulty: {{ product.difficulty }}</p>
+        <p>Sunlight: {{ product.sunlight }}</p>
+        <p>Watering: {{ product.watering }}</p>
+        <p>Temperature: {{ product.temperature }}</p>
+        
         <el-button type="success" class="btn">
           Add to Cart
         </el-button>
@@ -42,43 +43,31 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRoute } from "vue-router";
+  import { ref, onMounted } from "vue";
+  import { useRoute } from "vue-router";
+  import api from "@/api/axios";
 
-const route = useRoute();
+  const route = useRoute();
 
-/* SAMPLE PRODUCTS (same as shop for now) */
-const products = [
-  {
-    id: 1,
-    name: "Monstera Deliciosa",
-    price: 25,
-    category: "indoor",
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
-    description: "A beautiful tropical plant perfect for indoor decoration."
-  },
-  {
-    id: 2,
-    name: "Snake Plant",
-    price: 18,
-    category: "indoor",
-    image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22",
-    description: "Very easy to care for and improves air quality."
-  },
-  {
-    id: 3,
-    name: "Aloe Vera",
-    price: 12,
-    category: "succulent",
-    image: "https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6",
-    description: "Medicinal plant used for skin care and healing."
-  }
-];
+  const product = ref({});
 
-/* GET PRODUCT BY ID */
-const product = ref(
-  products.find(p => p.id === Number(route.params.id))
-);
+  const loadProduct = async () => {
+
+    try {
+
+      const response = await api.get(
+        `/products/${route.params.id}`
+      );
+
+      product.value = response.data;
+
+    } catch (error) {
+      console.error(error);
+    }
+
+  };
+
+  onMounted(loadProduct);
 </script>
 
 <style scoped>

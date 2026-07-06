@@ -29,6 +29,14 @@
         SELECT * FROM products WHERE product_id = #{productId};
     </select>
 
+    <select id="findByCategory" parameterType="int" resultMap="productMap">
+        SELECT * FROM products WHERE category_id = #{categoryId};
+    </select>
+
+    <select id="search" parameterType="string" resultMap="productMap">
+        SELECT * FROM products WHERE product_name LIKE CONCAT('%',#{keyword},'%');
+    </select>
+
     <insert id="insert">
 
         INSERT INTO products

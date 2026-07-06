@@ -27,6 +27,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getByCategory(Integer categoryId) {
+        return productMapper.findByCategory(categoryId);
+    }
+
+    @Override
+    public List<Product> search(String keyword) {
+        return productMapper.search(keyword);
+    }
+
+    @Override
     public void addProduct(Product product) {
         productMapper.insert(product);
     }

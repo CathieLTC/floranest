@@ -1,7 +1,6 @@
 package com.example.floranest.backend.entity;
 
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data
