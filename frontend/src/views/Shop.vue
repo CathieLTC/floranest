@@ -41,7 +41,7 @@
         <p class="price">$ {{ item.price }}</p>
 
         <div class="actions">
-          <el-button type="success" size="small">Add to Cart</el-button>
+          <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>          
           <router-link :to="'/product/' + item.productId">
             <el-button size="small">View Details</el-button>
           </router-link>
@@ -56,8 +56,11 @@
 
 <script setup>
   import { ref, computed, onMounted } from "vue";
+  import { ElMessage } from "element-plus";
   import api from "@/api/axios";
+  import { useCartStore } from "@/stores/cart";
 
+  const cartStore = useCartStore();
   const search = ref("");
   const category = ref("all");
   const sort = ref("default");
@@ -66,22 +69,23 @@
   const categories = ref([]);
 
   const loadData = async () => {
-
     try {
-
       const productResponse = await api.get("/products");
       products.value = productResponse.data;
 
       const categoryResponse = await api.get("/categories");
       categories.value = categoryResponse.data;
-
     } catch (error) {
       console.error(error);
+      ElMessage.error("Failed to load products.");
     }
-
   };
 
   onMounted(loadData);
+
+  /* ==========================
+    FILTER + SORT
+  ========================== */
 
   const filteredProducts = computed(() => {
 

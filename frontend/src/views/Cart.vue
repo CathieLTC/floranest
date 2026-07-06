@@ -8,53 +8,29 @@
     </div>
 
     <div class="cart-content">
-
       <!-- Cart Items -->
       <div class="cart-items">
 
-        <div
-          class="cart-item"
-          v-for="item in cartItems"
-          :key="item.id"
-        >
-          <img :src="item.image" :alt="item.name">
+        <div class="cart-item"v-for="item in cartItems":key="item.id">
+          <img :src="item.imageUrl" :alt="item.productName">
 
           <div class="item-info">
-            <h3>{{ item.name }}</h3>
-            <p class="category">{{ item.category }}</p>
+            <h3>{{ item.productName }}</h3>
+            <p class="category">{{ item.categoryName }}</p>
             <p class="price">${{ item.price }}</p>
           </div>
 
           <div class="quantity">
-
-            <el-button
-              circle
-              @click="decrease(item)"
-            >
-              -
-            </el-button>
-
+            <el-button circle @click="decrease(item)"> - </el-button>
             <span>{{ item.quantity }}</span>
-
-            <el-button
-              circle
-              @click="increase(item)"
-            >
-              +
-            </el-button>
-
+            <el-button circle @click="increase(item)"> + </el-button>
           </div>
 
           <div class="total">
             ${{ (item.price * item.quantity).toFixed(2) }}
           </div>
 
-          <el-button
-            type="danger"
-            @click="removeItem(item.id)"
-          >
-            Remove
-          </el-button>
+          <el-button type="danger" @click="removeItem(item.cartId)">Remove </el-button>
 
         </div>
 
@@ -90,40 +66,62 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import api from "@/api/axios";
+import { ElMessage } from "element-plus";
 
-const cartItems = ref([
-  {
-    id: 1,
-    name: "Monstera Deliciosa",
-    category: "Indoor",
-    price: 25,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=400"
-  },
-  {
-    id: 2,
-    name: "Snake Plant",
-    category: "Indoor",
-    price: 18,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22?w=400"
+const cartItems = ref([]);
+const loadCart = async () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) {
+    ElMessage.warning("Please login first.");
+    return;
   }
-]);
 
-const increase = (item) => {
-  item.quantity++;
-};
+  try {
 
-const decrease = (item) => {
-  if (item.quantity > 1) {
-    item.quantity--;
+    const response = await api.get(`/cart/${user.userId}`);
+
+    cartItems.value = response.data;
+
+  } catch (error) {
+
+    console.error(error);
+
+    ElMessage.error("Failed to load cart.");
+
   }
+
 };
 
-const removeItem = (id) => {
-  cartItems.value = cartItems.value.filter(item => item.id !== id);
+onMounted(() => {
+  loadCart();
+});
+
+const increase = async (item) => {
+    await api.put(`/cart/increase/${item.cartId}`);
+    loadCart();
 };
+
+const decrease = async (item) => {
+
+    if(item.quantity==1){
+
+        return;
+
+    }
+
+    await api.put(`/cart/decrease/${item.cartId}`);
+
+    loadCart();
+
+};
+
+const removeItem = async (id)=>{
+    await api.delete(`/cart/${id}`);
+    loadCart();
+}
 
 const totalItems = computed(() =>
   cartItems.value.reduce((sum, item) => sum + item.quantity, 0)

@@ -17,28 +17,48 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<Cart> getAllCartItems() {
-        return cartMapper.findAll();
+    public List<Cart> getCart(Integer userId) {
+        return cartMapper.findByUserId(userId);
     }
 
     @Override
-    public Cart getCartItemById(Integer id) {
-        return cartMapper.findById(id);
+    public void addToCart(Cart cart) {
+
+        Cart existing =
+                cartMapper.findByUserAndProduct(
+                        cart.getUserId(),
+                        cart.getProductId()
+                );
+
+        if(existing != null){
+
+            cartMapper.increaseQuantity(existing.getCartId());
+
+        }else{
+
+            cartMapper.insert(cart);
+
+        }
+
     }
 
     @Override
-    public void addCartItem(Cart cart) {
-        cartMapper.insert(cart);
+    public void increaseQuantity(Integer cartId) {
+        cartMapper.increaseQuantity(cartId);
     }
 
     @Override
-    public void updateCartItem(Cart cart) {
-        cartMapper.update(cart);
+    public void decreaseQuantity(Integer cartId) {
+        cartMapper.decreaseQuantity(cartId);
     }
 
     @Override
-    public void deleteCartItem(Integer id) {
-        cartMapper.delete(id);
+    public void removeItem(Integer cartId) {
+        cartMapper.delete(cartId);
     }
 
+    @Override
+    public void clearCart(Integer userId) {
+        cartMapper.clearCart(userId);
+    }
 }

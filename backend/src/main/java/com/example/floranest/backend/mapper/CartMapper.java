@@ -8,14 +8,13 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    List<Cart> findAll();
-
-    Cart findById(Integer cartId);
-
+    List<Cart> findByUserId(Integer userId);
+    Cart findByUserAndProduct(Integer userId, Integer productId);
     int insert(Cart cart);
-
-    int update(Cart cart);
-
+    int updateQuantity(Cart cart);
     int delete(Integer cartId);
+    int clearCart(Integer userId);
+    int increaseQuantity(Integer cartId);
+    int decreaseQuantity(Integer cartId);
 
 }

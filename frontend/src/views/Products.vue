@@ -28,9 +28,7 @@
 
         <div class="actions">
 
-          <el-button type="success" size="small">
-            Add to Cart
-          </el-button>
+          <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>
 
          <router-link :to="'/product/' + item.productId">
           <el-button size="small">
@@ -50,7 +48,12 @@
 <script setup>
   import { ref, computed, onMounted } from "vue";
   import api from "@/api/axios";
+  import { ElMessage } from "element-plus";
+  import { useRouter } from "vue-router";
+  import { useCartStore } from "@/stores/cart";
 
+  const cartStore = useCartStore();
+  const router = useRouter();
   const search = ref("");
   const category = ref("all");
   const products = ref([]);
@@ -72,6 +75,34 @@
 
   onMounted(loadData);
 
+  const addToCart = async (product)=>{
+
+    const user =
+        JSON.parse(localStorage.getItem("user"));
+
+    if(!user){
+
+        ElMessage.warning("Please login first.");
+
+        router.push("/login");
+
+        return;
+
+    }
+
+    await api.post("/cart",{
+
+        userId:user.userId,
+
+        productId:product.productId,
+
+        quantity:1
+
+    });
+
+    ElMessage.success("Added to cart.");
+
+  }
   const filteredProducts = computed(() => {
 
     return products.value.filter(product => {
@@ -90,71 +121,8 @@
     });
 
   });
-  // import { ref, computed, onMounted } from "vue";
-  // import api from "@/api/axios";
-
-  // /* FILTER STATE */
-  // const search = ref("");
-  // const categories = ref([]);
-  // const category = ref("all");
-
-  // /* Load Categories from Backend */
-  // onMounted(async () => {
-  //   try {
-  //     const res = await api.get("/categories");
-  //     categories.value = res.data;
-  //   } catch (error) {
-  //     console.error("Failed to load categories", error);
-  //   }
-  // });
-
-  // /* TEMPORARY PRODUCTS (until Product API is finished) */
-  // const products = ref([
-  //   {
-  //     id: 1,
-  //     name: "Monstera Deliciosa",
-  //     price: 25,
-  //     categoryId: 1,
-  //     image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Snake Plant",
-  //     price: 18,
-  //     categoryId: 1,
-  //     image: "https://images.unsplash.com/photo-1593691509543-c55fb32e5e22"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Aloe Vera",
-  //     price: 12,
-  //     categoryId: 2,
-  //     image: "https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6"
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Palm Tree",
-  //     price: 35,
-  //     categoryId: 3,
-  //     image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a"
-  //   }
-  // ]);
-
-  // /* FILTER */
-  // const filteredProducts = computed(() => {
-  //   return products.value.filter(product => {
-
-  //     const matchSearch =
-  //       product.name.toLowerCase().includes(search.value.toLowerCase());
-
-  //     const matchCategory =
-  //       category.value === "all" ||
-  //       product.categoryId === category.value;
-
-  //     return matchSearch && matchCategory;
-
-  //   });
-  // });
+  
+  
 </script>
 
 <style scoped>
