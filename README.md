@@ -57,3 +57,20 @@ This folder contains the official shared database for the FloraNest project.
 4. Update `application.properties` with your local MySQL username and password if necessary.
 
 Each team member should import this database before running the backend.
+⚠️ Do not commit changes to `application.properties` if you only modified your local database credentials.
+
+## Running the project
+-Frontend
+    Open a new terminal and run:
+    ```
+    cd frontend
+    npm install
+    npm run serve
+    ```
+-Backend
+    Open another new terminal and run:
+    ```
+    cd backend
+    ./mvnw spring-boot:run
+    ```
+Then the frontend and backend will be running on `localhost:5173` and `localhost:8080` respectively.
