@@ -5,7 +5,7 @@ import Products from "../views/Products.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Shop from "../views/Shop.vue";
-import Ai from "../views/Ai.vue";
+import AiAssistant from "../views/AiAssistant.vue";
 import ProductDetails from "../views/ProductDetails.vue";
 import PlantCare from "../views/PlantCare.vue";
 import Cart from "../views/Cart.vue";
@@ -16,7 +16,7 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/register", component: Register },
   { path: "/Shop", component: Shop },
-  { path: "/Ai", component: Ai },
+  { path: "/ai", component: AiAssistant },
   {path: "/product/:id",component: ProductDetails},
   { path: "/plant-care", component: PlantCare },
   { path: "/Cart", component: Cart },
