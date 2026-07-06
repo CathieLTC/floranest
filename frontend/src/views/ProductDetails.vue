@@ -25,9 +25,7 @@
         <p>Watering: {{ product.watering }}</p>
         <p>Temperature: {{ product.temperature }}</p>
         
-        <el-button type="success" class="btn">
-          Add to Cart
-        </el-button>
+        <el-button type="success" @click="cartStore.addToCart(product)">Add to Cart</el-button>
 
         <router-link to="/shop">
           <el-button class="btn secondary">
@@ -46,9 +44,11 @@
   import { ref, onMounted } from "vue";
   import { useRoute } from "vue-router";
   import api from "@/api/axios";
+  import { ElMessage } from "element-plus";
+  import { useCartStore } from "@/stores/cart";
 
+  const cartStore = useCartStore();
   const route = useRoute();
-
   const product = ref({});
 
   const loadProduct = async () => {
@@ -68,6 +68,7 @@
   };
 
   onMounted(loadProduct);
+
 </script>
 
 <style scoped>

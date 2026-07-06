@@ -17,34 +17,59 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @GetMapping
-    public List<Cart> getAllCartItems() {
-        return cartService.getAllCartItems();
-    }
+    @GetMapping("/{userId}")
+    public List<Cart> getCart(
+            @PathVariable Integer userId){
 
-    @GetMapping("/{id}")
-    public Cart getCartItemById(@PathVariable Integer id) {
-        return cartService.getCartItemById(id);
+        return cartService.getCart(userId);
+
     }
 
     @PostMapping
-    public String addCartItem(@RequestBody Cart cart) {
-        cartService.addCartItem(cart);
-        return "Cart item added successfully.";
+    public String addToCart(@RequestBody Cart cart){
+
+        cartService.addToCart(cart);
+
+        return "Added to cart.";
+
     }
 
-    @PutMapping("/{id}")
-    public String updateCartItem(@PathVariable Integer id,
-                                 @RequestBody Cart cart) {
-        cart.setCartId(id);
-        cartService.updateCartItem(cart);
-        return "Cart item updated successfully.";
+    @DeleteMapping("/{cartId}")
+    public String removeItem(
+            @PathVariable Integer cartId){
+
+        cartService.removeItem(cartId);
+
+        return "Removed.";
+
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteCartItem(@PathVariable Integer id) {
-        cartService.deleteCartItem(id);
-        return "Cart item deleted successfully.";
+    @PutMapping("/increase/{cartId}")
+    public String increase(@PathVariable Integer cartId){
+
+        cartService.increaseQuantity(cartId);
+
+        return "Quantity increased.";
+
+    }
+
+    @PutMapping("/decrease/{cartId}")
+    public String decrease(@PathVariable Integer cartId){
+
+        cartService.decreaseQuantity(cartId);
+
+        return "Quantity decreased.";
+
+    }
+
+    @DeleteMapping("/clear/{userId}")
+    public String clearCart(
+            @PathVariable Integer userId){
+
+        cartService.clearCart(userId);
+
+        return "Cart cleared.";
+
     }
 
 }

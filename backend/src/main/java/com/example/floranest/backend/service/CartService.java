@@ -6,14 +6,11 @@ import java.util.List;
 
 public interface CartService {
 
-    List<Cart> getAllCartItems();
-
-    Cart getCartItemById(Integer id);
-
-    void addCartItem(Cart cart);
-
-    void updateCartItem(Cart cart);
-
-    void deleteCartItem(Integer id);
+    List<Cart> getCart(Integer userId);
+    void addToCart(Cart cart);
+    void removeItem(Integer cartId);
+    void clearCart(Integer userId);
+    void increaseQuantity(Integer cartId);
+    void decreaseQuantity(Integer cartId);
 
 }
