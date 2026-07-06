@@ -8,6 +8,7 @@ import Shop from "../views/Shop.vue";
 import Ai from "../views/Ai.vue";
 import ProductDetails from "../views/ProductDetails.vue";
 import PlantCare from "../views/PlantCare.vue";
+import Cart from "../views/Cart.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -17,7 +18,8 @@ const routes = [
   { path: "/Shop", component: Shop },
   { path: "/Ai", component: Ai },
   {path: "/product/:id",component: ProductDetails},
-  { path: "/plant-care", component: PlantCare }
+  { path: "/plant-care", component: PlantCare },
+  { path: "/Cart", component: Cart },
 ];
 
 const router = createRouter({
