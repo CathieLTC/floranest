@@ -1,38 +1,63 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import Home from "../views/Home.vue";
-import Products from "../views/Products.vue";
-import Login from "../views/Login.vue";
-import Register from "../views/Register.vue";
-import Shop from "../views/Shop.vue";
-import AiAssistant from "../views/AiAssistant.vue";
-import ProductDetails from "../views/ProductDetails.vue";
-import PlantCare from "../views/PlantCare.vue";
-import Cart from "../views/Cart.vue";
-import OrderConfirmation from "../views/OrderConfirmation.vue";
-import MyOrders from "../views/MyOrders.vue";
-import OrderHistory from "../views/OrderHistory.vue";
-import Checkout from "../views/Checkout.vue";
-import MyProfile from "../views/MyProfile.vue";
-import Payment from "@/views/Payment.vue";
+// Home
+import Home from "@/views/home/Home.vue";
+
+// Auth
+import Login    from "@/views/auth/Login.vue";
+import Register from "@/views/auth/Register.vue";
+
+// Product
+import Products      from "@/views/product/Products.vue";
+import ProductDetails from "@/views/product/ProductDetails.vue";
+import Shop          from "@/views/product/Shop.vue";
+
+// Cart
+import Cart from "@/views/cart/Cart.vue";
+
+// Order
+import Checkout         from "@/views/order/Checkout.vue";
+import Payment          from "@/views/order/Payment.vue";
+import OrderConfirmation from "@/views/order/OrderConfirmation.vue";
+import MyOrders         from "@/views/order/MyOrders.vue";
+import OrderHistory     from "@/views/order/OrderHistory.vue";
+
+// User
+import MyProfile from "@/views/user/MyProfile.vue";
+
+// AI
+import AiAssistant from "@/views/ai/AiAssistant.vue";
+import PlantCare   from "@/views/ai/PlantCare.vue";
 
 const routes = [
-  { path: "/", component: Home },
-  { path: "/products", component: Products },
-  { path: "/login", component: Login },
-  { path: "/register", component: Register },
-  { path: "/Shop", component: Shop },
-  { path: "/ai", component: AiAssistant },
-  {path: "/product/:id",component: ProductDetails},
-  { path: "/plant-care", component: PlantCare },
-  { path: "/Cart", component: Cart },
-  { path: "/OrderConfirmation", component: OrderConfirmation },
-  { path: "/MyOrders", component: MyOrders },
-  { path: "/OrderHistory", component: OrderHistory },
-  { path: "/Checkout", component: Checkout },
-  { path: "/MyProfile", component: MyProfile },
-  { path: "/payment",component: Payment},
-  
+  // Home
+  { path: "/",           component: Home },
+
+  // Auth
+  { path: "/login",      component: Login },
+  { path: "/register",   component: Register },
+
+  // Product
+  { path: "/products",       component: Products },
+  { path: "/product/:id",    component: ProductDetails },
+  { path: "/shop",           component: Shop },
+
+  // Cart
+  { path: "/cart",           component: Cart },
+
+  // Order
+  { path: "/checkout",            component: Checkout },
+  { path: "/payment",             component: Payment },
+  { path: "/order-confirmation",  component: OrderConfirmation },
+  { path: "/my-orders",           component: MyOrders },
+  { path: "/order-history",       component: OrderHistory },
+
+  // User
+  { path: "/my-profile",     component: MyProfile },
+
+  // AI
+  { path: "/ai",             component: AiAssistant },
+  { path: "/plant-care",     component: PlantCare },
 ];
 
 const router = createRouter({

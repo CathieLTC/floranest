@@ -10,10 +10,12 @@ import java.util.List;
 public interface OrderMapper {
 
     List<Order> findAll();
-    int insert(Order order);
-    List<Cart> getCartItems(Integer userId);
-    void clearCart(Integer userId);
     Order findById(Integer orderId);
+    List<Order> findByUserId(Integer userId);   // for order history page
+    int insert(Order order);
     void update(Order order);
     void delete(Integer id);
+    List<Cart> getCartItems(Integer userId);
+    void clearCart(Integer userId);
+
 }

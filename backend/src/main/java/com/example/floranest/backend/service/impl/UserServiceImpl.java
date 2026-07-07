@@ -3,6 +3,7 @@ package com.example.floranest.backend.service.impl;
 import com.example.floranest.backend.entity.User;
 import com.example.floranest.backend.mapper.UserMapper;
 import com.example.floranest.backend.service.UserService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +12,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserMapper userMapper) {
+    public UserServiceImpl(UserMapper userMapper,
+                           BCryptPasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -29,13 +33,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean register(User user) {
 
-        User existingUser = userMapper.findByEmail(user.getEmail());
-
-        if (existingUser != null) {
+        User existing = userMapper.findByEmail(user.getEmail());
+        if (existing != null) {
             return false;
         }
 
-        user.setRole("CUSTOMER");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        user.setRole("USER");
 
         return userMapper.insert(user) > 0;
     }
@@ -45,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.findByEmail(email);
 
-        if (user != null && user.getPassword().equals(password)) {
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
             return user;
         }
 

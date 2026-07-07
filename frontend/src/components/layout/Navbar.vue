@@ -57,6 +57,7 @@
       </div>
     </el-header>
        <router-view />
+    <AppFooter />
   </div>
 </template>
 
@@ -66,6 +67,7 @@
   import { useRouter } from "vue-router";
   import { ElMessageBox } from "element-plus";
   import { useUserStore } from "@/stores/user";
+  import AppFooter from '@/components/layout/Footer.vue';
 
   const router = useRouter();
   const userStore = useUserStore();

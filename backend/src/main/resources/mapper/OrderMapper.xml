@@ -4,6 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.floranest.backend.mapper.OrderMapper">
+
     <resultMap id="orderMap" type="Order">
         <id column="order_id" property="orderId"/>
         <result column="user_id" property="userId"/>
@@ -12,6 +13,7 @@
         <result column="order_date" property="orderDate"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="order_number" property="orderNumber"/>
+        <result column="address" property="address"/>
     </resultMap>
 
     <resultMap id="cartMap" type="Cart">
@@ -19,7 +21,6 @@
         <result column="user_id" property="userId"/>
         <result column="product_id" property="productId"/>
         <result column="quantity" property="quantity"/>
-
         <result column="product_name" property="productName"/>
         <result column="price" property="price"/>
         <result column="image_url" property="imageUrl"/>
@@ -30,36 +31,32 @@
     </select>
 
     <select id="findById" resultMap="orderMap">
-        SELECT * FROM orders WHERE order_id=#{orderId}
+        SELECT * FROM orders WHERE order_id = #{orderId}
+    </select>
+
+    <!-- Used by order history page — returns only this user's orders -->
+    <select id="findByUserId" resultMap="orderMap">
+        SELECT * FROM orders WHERE user_id = #{userId} ORDER BY order_date DESC
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="orderId">
-        INSERT INTO orders ( user_id, total_amount, order_status, order_number )
-        VALUES ( #{userId}, #{totalAmount}, #{orderStatus}, #{orderNumber} )
+        INSERT INTO orders (user_id, total_amount, order_status, order_number, address)
+        VALUES (#{userId}, #{totalAmount}, #{orderStatus}, #{orderNumber}, #{address})
     </insert>
 
     <select id="getCartItems" resultMap="cartMap">
         SELECT
-
         c.cart_id,
         c.user_id,
         c.product_id,
         c.quantity,
-
         p.product_name,
         p.price,
         p.image_url,
-
         cat.category_name
-
         FROM cart c
-
-        JOIN products p
-        ON c.product_id = p.product_id
-
-        JOIN categories cat
-        ON p.category_id = cat.category_id
-
+        JOIN products p   ON c.product_id = p.product_id
+        JOIN categories cat ON p.category_id = cat.category_id
         WHERE c.user_id = #{userId}
     </select>
 

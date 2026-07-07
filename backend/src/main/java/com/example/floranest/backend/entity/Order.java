@@ -15,5 +15,5 @@ public class Order {
     private LocalDateTime orderDate;
     private LocalDateTime updatedAt;
     private String orderNumber;
-
+    private String address;
 }

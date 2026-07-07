@@ -19,7 +19,7 @@
 
       </div>
 
-      <router-link to="/orders">
+      <router-link to="/MyOrders">
         <el-button type="success" size="large">
           View My Orders
         </el-button>

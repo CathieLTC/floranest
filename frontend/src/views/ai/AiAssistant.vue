@@ -85,9 +85,9 @@
     ChatDotRound,
     InfoFilled,
   } from "@element-plus/icons-vue";
-  import SmartSearch from "@/components/SmartSearch.vue";
-  import PlantRecommendation from "@/components/PlantRecommendation.vue";
-  import GardeningChat from "@/components/GardeningChat.vue";
+  import SmartSearch from "@/components/ai/SmartSearch.vue";
+  import PlantRecommendation from "@/components/ai/PlantRecommendation.vue";
+  import GardeningChat from "@/components/ai/GardeningChat.vue";
 
   const activeTab = ref("search");
 </script>
