@@ -51,12 +51,9 @@
           <span>${{ totalPrice.toFixed(2) }}</span>
         </div>
 
-        <el-button
-          type="success"
-          class="checkout-btn"
-        >
-          Proceed to Checkout
-        </el-button>
+        <router-link to="/checkout">
+          <el-button type="success" class="checkout-btn">Proceed to Checkout</el-button>
+        </router-link>
 
       </div>
 
