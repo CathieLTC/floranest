@@ -22,6 +22,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public List<Cart> getCartByUserId(Integer userId) {
+        return cartMapper.findByUserId(userId);
+    }
+
+    @Override
     public void addToCart(Cart cart) {
 
         Cart existing =

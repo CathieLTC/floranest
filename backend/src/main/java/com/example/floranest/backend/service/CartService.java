@@ -12,5 +12,5 @@ public interface CartService {
     void clearCart(Integer userId);
     void increaseQuantity(Integer cartId);
     void decreaseQuantity(Integer cartId);
-
+    List<Cart> getCartByUserId(Integer userId);
 }

@@ -31,11 +31,24 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+  import { ref, onMounted } from "vue";
 
-const orderId = ref(Math.floor(Math.random() * 100000));
-const total = ref(45.99); // later from cart
-</script>
+  const orderId = ref("");
+  const total = ref(0);
+
+  onMounted(() => {
+
+    const order = JSON.parse(sessionStorage.getItem("order"));
+
+    if(order){
+
+      orderId.value = order.orderNumber;
+      total.value = order.totalAmount;
+
+    }
+
+  });
+</script>>
 
 <style scoped>
 .confirm-page{

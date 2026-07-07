@@ -14,6 +14,7 @@ import MyOrders from "../views/MyOrders.vue";
 import OrderHistory from "../views/OrderHistory.vue";
 import Checkout from "../views/Checkout.vue";
 import MyProfile from "../views/MyProfile.vue";
+import Payment from "@/views/Payment.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -29,7 +30,9 @@ const routes = [
   { path: "/MyOrders", component: MyOrders },
   { path: "/OrderHistory", component: OrderHistory },
   { path: "/Checkout", component: Checkout },
-  { path: "/MyProfile", component: MyProfile }
+  { path: "/MyProfile", component: MyProfile },
+  { path: "/payment",component: Payment},
+  
 ];
 
 const router = createRouter({

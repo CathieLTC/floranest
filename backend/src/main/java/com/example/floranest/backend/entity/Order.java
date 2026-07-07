@@ -9,17 +9,11 @@ import java.time.LocalDateTime;
 public class Order {
 
     private Integer orderId;
-
     private Integer userId;
-
     private BigDecimal totalAmount;
-
     private String orderStatus;
-
     private LocalDateTime orderDate;
-
     private LocalDateTime updatedAt;
-
     private String orderNumber;
 
 }

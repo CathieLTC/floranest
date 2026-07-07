@@ -1,5 +1,6 @@
 package com.example.floranest.backend.mapper;
 
+import com.example.floranest.backend.entity.Cart;
 import com.example.floranest.backend.entity.Order;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -9,13 +10,10 @@ import java.util.List;
 public interface OrderMapper {
 
     List<Order> findAll();
-
-    Order findById(Integer orderId);
-
     int insert(Order order);
-
-    int update(Order order);
-
-    int delete(Integer orderId);
-
+    List<Cart> getCartItems(Integer userId);
+    void clearCart(Integer userId);
+    Order findById(Integer orderId);
+    void update(Order order);
+    void delete(Integer id);
 }

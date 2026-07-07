@@ -65,7 +65,7 @@ Each team member should import this database before running the backend.
     ```
     cd frontend
     npm install
-    npm run serve
+    npm run dev
     ```
 -Backend
     Open another new terminal and run:

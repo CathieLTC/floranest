@@ -18,8 +18,8 @@
         <el-input v-model="form.phone" placeholder="Phone Number" />
 
         <el-select v-model="form.payment" placeholder="Payment Method">
-          <el-option label="Cash on Delivery" value="cod" />
-          <el-option label="Credit Card" value="card" />
+          <el-option label="🏧Cash on Delivery" value="cod" />
+          <el-option label="💳Credit Card" value="card" />
           <el-option label="PayPal" value="paypal" />
         </el-select>
 
@@ -30,13 +30,9 @@
 
         <h2>🛒 Order Summary</h2>
 
-        <div
-          class="item"
-          v-for="item in cart"
-          :key="item.name"
-        >
-          <span>{{ item.name }} x{{ item.qty }}</span>
-          <span>${{ item.price * item.qty }}</span>
+        <div class="item" v-for="item in cart" :key="item.cartId">
+          <span>{{ item.productName }} × {{ item.quantity }}</span>
+          <span>${{ (item.price * item.quantity).toFixed(2) }}</span>
         </div>
 
         <hr />
@@ -46,14 +42,7 @@
           <strong>${{ total }}</strong>
         </div>
 
-        <el-button
-          type="success"
-          size="large"
-          class="place-btn"
-          @click="placeOrder"
-        >
-          Place Order
-        </el-button>
+        <el-button type="success" size="large" class="place-btn" @click="placeOrder">Place Order</el-button>
 
       </div>
 
@@ -63,51 +52,76 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+  import { ref, computed, onMounted } from "vue";
+  import { useRouter } from "vue-router";
+  import { ElMessage } from "element-plus";
+  import api from "@/api/axios";
 
-const router = useRouter();
+  const router = useRouter();
 
-/* SAMPLE CART (later from Pinia) */
-const cart = ref([
-  { name: "Monstera", price: 25, qty: 1 },
-  { name: "Aloe Vera", price: 15, qty: 2 }
-]);
+  const user = JSON.parse(localStorage.getItem("user"));
 
-/* FORM */
-const form = ref({
-  name: "",
-  email: "",
-  address: "",
-  city: "",
-  phone: "",
-  payment: ""
-});
+  const cart = ref([]);
 
-/* TOTAL */
-const total = computed(() =>
-  cart.value.reduce((sum, item) => sum + item.price * item.qty, 0)
-);
+  const form = ref({
+    name: user.fullName,
+    email: user.email,
+    address: user.address || "",
+    city: "",
+    phone: user.phone || "",
+    payment: ""
+  });
 
-/* PLACE ORDER */
-const placeOrder = () => {
+  const loadCart = async () => {
 
-  if (!form.value.name || !form.value.address || !form.value.payment) {
+    try{
+
+        const response = await api.get(
+            `/cart/user/${user.userId}`
+        );
+
+        cart.value = response.data;
+
+    }
+    catch(error){
+        console.error(error);
+    }
+
+  };
+
+  onMounted(loadCart);
+
+  const total = computed(() =>
+      cart.value.reduce(
+          (sum,item)=>sum + item.price * item.quantity,
+          0
+      )
+  );
+
+ const placeOrder = () => {
+
+  if (
+    !form.value.name ||
+    !form.value.email ||
+    !form.value.address ||
+    !form.value.city ||
+    !form.value.phone ||
+    !form.value.payment
+  ) {
     alert("Please fill all required fields");
     return;
   }
 
-  // Simulate order creation
-  const orderId = Math.floor(Math.random() * 100000);
-
-  // Navigate to confirmation page
-  router.push({
-    path: "/order-confirmation",
-    query: {
-      id: orderId,
+  sessionStorage.setItem(
+    "checkoutData",
+    JSON.stringify({
+      shipping: form.value,
+      cart: cart.value,
       total: total.value
-    }
-  });
+    })
+  );
+
+  router.push("/payment");
 
 };
 </script>

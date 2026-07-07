@@ -18,11 +18,13 @@ public class CartController {
     }
 
     @GetMapping("/{userId}")
-    public List<Cart> getCart(
-            @PathVariable Integer userId){
-
+    public List<Cart> getCart(@PathVariable Integer userId){
         return cartService.getCart(userId);
+    }
 
+    @GetMapping("/user/{userId}")
+    public List<Cart> getCartByUserId(@PathVariable Integer userId) {
+        return cartService.getCartByUserId(userId);
     }
 
     @PostMapping
