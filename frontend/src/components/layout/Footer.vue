@@ -18,8 +18,8 @@
         <h4>Account</h4>
         <router-link to="/login">Login</router-link>
         <router-link to="/register">Register</router-link>
-        <router-link to="/MyProfile">My Profile</router-link>
-        <router-link to="/MyOrders">My Orders</router-link>
+        <router-link to="/my-profile">My Profile</router-link>
+        <router-link to="/my-orders">My Orders</router-link>
       </div>
 
       <div class="col">

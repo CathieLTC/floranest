@@ -3,6 +3,7 @@ package com.example.floranest.backend.mapper;
 import com.example.floranest.backend.entity.Cart;
 import com.example.floranest.backend.entity.Order;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,5 +18,7 @@ public interface OrderMapper {
     void delete(Integer id);
     List<Cart> getCartItems(Integer userId);
     void clearCart(Integer userId);
-
-}
+    void updateStatus(
+            @Param("orderId") Integer orderId,
+            @Param("status") String status
+    );}

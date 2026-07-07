@@ -92,8 +92,7 @@
 
             sessionStorage.setItem("order", JSON.stringify(response.data));
             sessionStorage.removeItem("checkoutData");
-
-            router.push("/OrderConfirmation");
+            router.push("/order-confirmation");
 
         } catch (error) {
             console.error(error);

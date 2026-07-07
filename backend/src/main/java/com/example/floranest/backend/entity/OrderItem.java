@@ -12,5 +12,6 @@ public class OrderItem {
     private Integer productId;
     private Integer quantity;
     private BigDecimal price;
-
+    private String productName;
+    private String imageUrl;
 }

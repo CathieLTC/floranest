@@ -37,8 +37,33 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> getOrderByUserId(Integer userId) {
-        return orderMapper.findByUserId(userId);
+
+        List<Order> orders = orderMapper.findByUserId(userId);
+
+        for (Order order : orders) {
+            order.setItems(
+                    orderItemMapper.findByOrderId(order.getOrderId())
+            );
+        }
+
+        return orders;
     }
+
+    @Override
+    public void addOrder(Order order) {
+        orderMapper.insert(order);
+    }
+
+    @Override
+    public void updateOrder(Order order) {
+        orderMapper.update(order);
+    }
+
+    @Override
+    public void deleteOrder(Integer id) {
+        orderMapper.delete(id);
+    }
+
 
     @Override
     @Transactional
@@ -66,8 +91,9 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus("PENDING");
         order.setAddress(address);
         order.setOrderNumber(
-                "FN" + LocalDate.now().toString().replace("-", "")
-                        + System.currentTimeMillis()
+                "FN" +
+                        LocalDate.now().toString().replace("-", "") +
+                        String.format("%06d", System.currentTimeMillis() % 1000000)
         );
 
         orderMapper.insert(order);
@@ -88,30 +114,13 @@ public class OrderServiceImpl implements OrderService {
         // 5. Clear the cart
         orderMapper.clearCart(userId);
 
-        return order;
+        return orderMapper.findById(orderId);
     }
 
     @Override
-    public void addOrder(Order order) {
-        orderMapper.insert(order);
-    }
+    public void cancelOrder(Integer orderId) {
 
-    @Override
-    public void updateOrder(Order order) {
-        orderMapper.update(order);
-    }
+        orderMapper.updateStatus(orderId, "CANCELLED");
 
-    @Override
-    public void deleteOrder(Integer id) {
-        orderMapper.delete(id);
-    }
-
-    /**
-     * @param userId
-     * @return
-     */
-    @Override
-    public Order checkout(Integer userId) {
-        return null;
     }
 }

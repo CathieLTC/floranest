@@ -19,61 +19,92 @@
         </thead>
 
         <tbody>
+          <tr v-if="orders.length === 0">
+            <td colspan="5" style="text-align:center;padding:40px;">
+                You haven't placed any orders yet 🌱
+            </td>
+          </tr>
 
           <!-- MAIN ROW -->
-          <template v-for="order in orders" :key="order.id">
+          <template v-for="order in orders" :key="order.orderId">
 
             <tr>
 
-              <td>#{{ order.id }}</td>
-              <td>{{ order.date }}</td>
+              <td>#{{ order.orderNumber }}</td>
+              <td>{{ order.orderDate }}</td>
 
               <td>
                 <span
                   class="status"
-                  :class="statusClass(order.status)"
+                  :class="statusClass(order.orderStatus)"
                 >
-                  {{ order.status }}
+                  {{ order.orderStatus }}
                 </span>
               </td>
 
-              <td>${{ order.total }}</td>
+              <td>$${{ order.totalAmount }}</td>
 
               <td>
                 <el-button
                   size="small"
                   type="success"
-                  @click="toggleDetails(order.id)"
+                  @click="toggleDetails(order.orderId)"
                 >
-                  {{ expanded === order.id ? "Hide" : "View" }} Details
+                  {{ expanded === order.orderId ? "Hide" : "View" }} Details
                 </el-button>
+                <el-button v-if="order.orderStatus === 'PENDING'" type="danger" size="small" 
+                @click="cancelOrder(order.orderId)">Cancel</el-button>
               </td>
 
             </tr>
 
             <!-- EXPANDED ROW -->
-            <tr v-if="expanded === order.id" class="details-row">
-
+            <tr v-if="expanded === order.orderId" class="details-row">
               <td colspan="5">
 
                 <div class="details-box">
 
-                  <h4>🛒 Order Items</h4>
+                  <h3>Order Information</h3>
+
+                  <p><strong>Order Number:</strong> {{ order.orderNumber }}</p>
+                  <p><strong>Shipping Address:</strong> {{ order.address }}</p>
+                  <p><strong>Status:</strong> {{ order.orderStatus }}</p>
+
+                  <hr>
+
+                  <h4>Purchased Items</h4>
 
                   <div
-                    v-for="item in order.items"
-                    :key="item.name"
-                    class="item"
+                      v-for="item in order.items"
+                      :key="item.orderItemId"
+                      class="item"
                   >
-                    🌿 {{ item.name }} — Qty: {{ item.qty }}
+
+                    <img
+                        :src="item.imageUrl"
+                        class="thumb"
+                    >
+
+                    <div class="info">
+
+                      <strong>{{ item.productName }}</strong>
+
+                      <div>
+                        Quantity: {{ item.quantity }}
+                      </div>
+
+                      <div>
+                        ${{ item.price }}
+                      </div>
+
+                    </div>
+
                   </div>
 
                 </div>
 
               </td>
-
             </tr>
-
           </template>
 
         </tbody>
@@ -86,55 +117,71 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+  import { ref, onMounted } from "vue";
+  import api from "@/api/axios";
 
-/* ORDERS */
-const orders = ref([
-  {
-    id: 1001,
-    date: "2026-07-01",
-    status: "Delivered",
-    total: 65,
-    items: [
-      { name: "Monstera", qty: 1 },
-      { name: "Aloe Vera", qty: 2 }
-    ]
-  },
-  {
-    id: 1002,
-    date: "2026-07-03",
-    status: "Processing",
-    total: 40,
-    items: [
-      { name: "Snake Plant", qty: 1 }
-    ]
-  },
-  {
-    id: 1003,
-    date: "2026-07-05",
-    status: "Shipped",
-    total: 80,
-    items: [
-      { name: "Rose Plant", qty: 2 },
-      { name: "Cactus", qty: 1 }
-    ]
-  }
-]);
+  const orders = ref([]);
+  const expanded = ref(null);
 
-/* EXPAND CONTROL */
-const expanded = ref(null);
+  // Logged in user
+  const user = JSON.parse(localStorage.getItem("user"));
 
-const toggleDetails = (id) => {
-  expanded.value = expanded.value === id ? null : id;
-};
+  const loadOrders = async () => {
+    try {
+      const response = await api.get(`/orders/user/${user.userId}`);
+      orders.value = response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-/* STATUS COLORS */
-const statusClass = (status) => {
-  if (status === "Delivered") return "delivered";
-  if (status === "Processing") return "processing";
-  if (status === "Shipped") return "shipped";
-  return "";
-};
+  onMounted(loadOrders);
+
+  const toggleDetails = (orderId) => {
+    expanded.value =
+      expanded.value === orderId ? null : orderId;
+  };
+
+  const statusClass = (status) => {
+
+    switch (status) {
+
+      case "PENDING":
+        return "processing";
+
+      case "PROCESSING":
+        return "processing";
+
+      case "SHIPPED":
+        return "shipped";
+
+      case "DELIVERED":
+        return "delivered";
+
+      case "CANCELLED":
+        return "cancelled";
+
+      default:
+        return "";
+
+    }
+
+  };
+  const cancelOrder = async (orderId) => {
+
+      try{
+
+          await api.put(`/orders/cancel/${orderId}`);
+
+          loadOrders();
+
+      }catch(error){
+
+          console.error(error);
+
+      }
+
+  };
 </script>
 
 <style scoped>
@@ -199,6 +246,10 @@ h1{
   background:#1976d2;
 }
 
+.cancelled{
+    background:#e53935;
+}
+
 /* DETAILS ROW */
 .details-row td{
   background:#f9fff9;
@@ -217,6 +268,26 @@ h1{
 .item{
   padding:5px 0;
   color:#555;
+}
+
+.thumb{
+    width:70px;
+    height:70px;
+    object-fit:cover;
+    border-radius:8px;
+}
+
+.item{
+    display:flex;
+    gap:15px;
+    align-items:center;
+    margin:12px 0;
+}
+
+.info{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
 }
 
 </style>

@@ -13,4 +13,5 @@ public interface OrderService {
     void updateOrder(Order order);
     void deleteOrder(Integer id);
     Order checkout(Integer userId, String address);
+    void cancelOrder(Integer orderId);
 }

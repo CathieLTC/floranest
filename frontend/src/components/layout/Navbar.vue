@@ -40,9 +40,9 @@
             
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="router.push('/Myprofile')"><el-icon><UserFilled /></el-icon>My Profile</el-dropdown-item>
-                <el-dropdown-item @click="router.push('/MyOrders')"><el-icon><Box /></el-icon>My Orders</el-dropdown-item>
-                <el-dropdown-item @click="router.push('/OrderHistory')"><el-icon><Document /></el-icon>Order History</el-dropdown-item>
+                <el-dropdown-item @click="router.push('/my-profile')"><el-icon><UserFilled /></el-icon>My Profile</el-dropdown-item>
+                <el-dropdown-item @click="router.push('/my-orders')"><el-icon><Box /></el-icon>My Orders</el-dropdown-item>
+                <el-dropdown-item @click="router.push('/order-history')"><el-icon><Document /></el-icon>Order History</el-dropdown-item>
                 <el-dropdown-item divided @click="logout">🚪 Logout</el-dropdown-item>
               </el-dropdown-menu>
             </template>

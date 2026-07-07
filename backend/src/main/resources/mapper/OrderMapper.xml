@@ -60,6 +60,18 @@
         WHERE c.user_id = #{userId}
     </select>
 
+    <update id="updateStatus">
+
+        UPDATE orders
+
+        SET
+        order_status = #{status},
+        updated_at = NOW()
+
+        WHERE order_id = #{orderId}
+
+    </update>
+
     <delete id="clearCart">
         DELETE FROM cart WHERE user_id = #{userId}
     </delete>
