@@ -88,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setUserId(userId);
         order.setTotalAmount(total);
-        order.setOrderStatus("PENDING");
+        order.setOrderStatus(Order.OrderStatus.PENDING);
         order.setAddress(address);
         order.setOrderNumber(
                 "FN" +
