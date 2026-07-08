@@ -40,7 +40,7 @@
 
     <div>
 
-      <h1>{{ user.name }}</h1>
+      <h1>{{ user.fullName }}</h1>
 
       <p>{{ user.email }}</p>
 
@@ -124,7 +124,7 @@
 
 
 <el-input
-v-model="user.name"
+v-model="user.fullName"
 placeholder="Full Name"
 />
 
@@ -170,6 +170,7 @@ placeholder="Address"
 
 <el-button
 type="success"
+:loading="profileSaving"
 @click="saveProfile"
 >
 Save Changes
@@ -851,6 +852,17 @@ Logout
 
 import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
+import api from "@/api/axios";
+import { useUserStore } from "@/stores/user";
+
+const router = useRouter();
+const userStore = useUserStore();
+const loggedInUser = userStore.user;
+
+if (!loggedInUser) {
+  router.push("/login");
+}
 
 
 
@@ -880,7 +892,7 @@ profileImage.value = savedImage;
 
 }
 
-
+loadProfile();
 
 });
 
@@ -948,9 +960,11 @@ reader.readAsDataURL(file);
 
 const user = ref({
 
-name:"Leonel",
+userId: null,
 
-email:"user@example.com",
+fullName:"",
+
+email:"",
 
 phone:"",
 
@@ -962,16 +976,76 @@ address:""
 
 });
 
+const profileLoading = ref(false);
+const profileSaving = ref(false);
 
+const loadProfile = async () => {
 
+  if (!loggedInUser) return;
 
-const saveProfile=()=>{
+  profileLoading.value = true;
 
+  try {
 
-ElMessage.success(
-"Profile saved successfully"
-);
+    const response = await api.get(`/users/${loggedInUser.userId}`);
 
+    user.value = {
+      userId: response.data.userId,
+      fullName: response.data.fullName || "",
+      email: response.data.email || "",
+      phone: response.data.phone || "",
+      country: response.data.country || "",
+      city: response.data.city || "",
+      address: response.data.address || ""
+    };
+
+  } catch (error) {
+
+    console.error(error);
+    ElMessage.error("Failed to load your profile.");
+
+  } finally {
+
+    profileLoading.value = false;
+
+  }
+
+};
+
+const saveProfile = async () => {
+
+  if (!loggedInUser) return;
+
+  if (!user.value.fullName || !user.value.email) {
+    ElMessage.warning("Full name and email are required.");
+    return;
+  }
+
+  profileSaving.value = true;
+
+  try {
+
+    await api.put(`/users/${loggedInUser.userId}`, {
+      fullName: user.value.fullName,
+      email: user.value.email,
+      phone: user.value.phone,
+      country: user.value.country,
+      city: user.value.city,
+      address: user.value.address
+    });
+
+    ElMessage.success("Profile saved successfully");
+
+  } catch (error) {
+
+    console.error(error);
+    ElMessage.error("Failed to save your profile.");
+
+  } finally {
+
+    profileSaving.value = false;
+
+  }
 
 };
 

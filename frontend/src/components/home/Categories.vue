@@ -6,7 +6,7 @@
       <router-link
         v-for="cat in categories"
         :key="cat.categoryId"
-        :to="`/products?category=${cat.categoryId}`"
+        :to="`/shop?category=${cat.categoryId}`"
         class="category-card"
       >
         <img

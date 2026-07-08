@@ -3,8 +3,12 @@
 
     <!-- HEADER -->
     <div class="shop-header">
-      <h1>🌿 Shop Plants</h1>
-      <p>Browse all available plants in one place</p>
+      <h1>🌿 {{ activeCategoryName ? activeCategoryName : 'Shop Plants' }}</h1>
+      <p v-if="activeCategoryName">
+        Showing plants in "{{ activeCategoryName }}"
+        <a href="#" class="clear-filter" @click.prevent="clearCategory">(clear filter)</a>
+      </p>
+      <p v-else>Browse all available plants in one place</p>
     </div>
 
     <!-- FILTER BAR -->
@@ -55,18 +59,33 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from "vue";
+  import { ref, computed, onMounted, watch } from "vue";
+  import { useRoute, useRouter } from "vue-router";
   import { ElMessage } from "element-plus";
   import api from "@/api/axios";
   import { useCartStore } from "@/stores/cart";
 
   const cartStore = useCartStore();
+  const route = useRoute();
+  const router = useRouter();
+
   const search = ref("");
-  const category = ref("all");
+  const category = ref(route.query.category ? String(route.query.category) : "all");
   const sort = ref("default");
 
   const products = ref([]);
   const categories = ref([]);
+
+  const activeCategoryName = computed(() => {
+    if (category.value === "all") return "";
+    const match = categories.value.find(c => String(c.categoryId) === String(category.value));
+    return match ? match.categoryName : "";
+  });
+
+  const clearCategory = () => {
+    category.value = "all";
+    router.replace({ path: "/shop" });
+  };
 
   const loadData = async () => {
     try {
@@ -82,6 +101,22 @@
   };
 
   onMounted(loadData);
+
+  // Keep the category filter in sync if the URL changes (e.g. clicking a
+  // different category card while already on the shop page)
+  watch(
+    () => route.query.category,
+    (newVal) => {
+      category.value = newVal ? String(newVal) : "all";
+    }
+  );
+
+  // Reflect manual dropdown changes back into the URL so the filter is
+  // shareable/bookmarkable and survives a refresh
+  watch(category, (newVal) => {
+    const query = newVal === "all" ? {} : { category: newVal };
+    router.replace({ path: "/shop", query });
+  });
 
   /* ==========================
     FILTER + SORT
@@ -139,6 +174,12 @@
 
   .shop-header p {
     color: #666;
+  }
+
+  .clear-filter {
+    color: #2E7D32;
+    font-weight: 600;
+    text-decoration: underline;
   }
 
   /* TOOLBAR */

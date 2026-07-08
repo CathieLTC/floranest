@@ -10,7 +10,7 @@
         <router-link to="/shop">
           <el-button type="success" size="large">Shop Now</el-button>
         </router-link>
-        <router-link to="/products">
+        <router-link to="/shop">
           <el-button size="large">View Products</el-button>
         </router-link>
       </div>

@@ -11,11 +11,36 @@
 
         <h2>🚚 Shipping Details</h2>
 
-        <el-input v-model="form.name" placeholder="Full Name" />
-        <el-input v-model="form.email" placeholder="Email" />
-        <el-input v-model="form.address" placeholder="Address" />
-        <el-input v-model="form.city" placeholder="City" />
-        <el-input v-model="form.phone" placeholder="Phone Number" />
+        <!-- SAVED DETAILS SUMMARY (shown when we have a saved address and aren't editing) -->
+        <div v-if="hasSavedAddress && !editingShipping" class="saved-shipping">
+          <p><strong>{{ form.name }}</strong></p>
+          <p>{{ form.address }}, {{ form.city }}<span v-if="form.country">, {{ form.country }}</span></p>
+          <p>{{ form.phone }}</p>
+          <el-button size="small" @click="editingShipping = true">Change shipping details</el-button>
+        </div>
+
+        <!-- EDITABLE FORM -->
+        <template v-else>
+          <el-input v-model="form.name" placeholder="Full Name" />
+          <el-input v-model="form.email" placeholder="Email" />
+          <el-input v-model="form.address" placeholder="Address" />
+          <el-input v-model="form.city" placeholder="City" />
+          <el-input v-model="form.country" placeholder="Country" />
+          <el-input v-model="form.phone" placeholder="Phone Number" />
+
+          <el-checkbox v-model="saveToProfile" class="save-checkbox">
+            Save these details to my profile for next time
+          </el-checkbox>
+
+          <el-button
+            v-if="hasSavedAddress"
+            size="small"
+            class="cancel-edit-btn"
+            @click="cancelEditShipping"
+          >
+            Cancel
+          </el-button>
+        </template>
 
         <el-select v-model="form.payment" placeholder="Payment Method">
           <el-option label="🏧Cash on Delivery" value="cod" />
@@ -61,16 +86,30 @@
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  if (!user) {
+    router.push("/login");
+  }
+
   const cart = ref([]);
 
   const form = ref({
-    name: user.fullName,
-    email: user.email,
-    address: user.address || "",
+    name: user?.fullName || "",
+    email: user?.email || "",
+    address: "",
     city: "",
-    phone: user.phone || "",
+    country: "",
+    phone: "",
     payment: ""
   });
+
+  // Whether the account already has a usable saved address on file
+  const hasSavedAddress = ref(false);
+  // Whether the shipping form is currently open for editing
+  const editingShipping = ref(false);
+  // Whether to persist any edits back to the user's profile
+  const saveToProfile = ref(true);
+  // Snapshot of the last-saved details, used to restore on "Cancel"
+  let savedSnapshot = null;
 
   const loadCart = async () => {
 
@@ -89,7 +128,48 @@
 
   };
 
-  onMounted(loadCart);
+  const loadShippingDetails = async () => {
+
+    try {
+
+      const response = await api.get(`/users/${user.userId}`);
+      const profile = response.data;
+
+      if (profile.address && profile.city && profile.phone) {
+
+        form.value.address = profile.address;
+        form.value.city = profile.city;
+        form.value.country = profile.country || "";
+        form.value.phone = profile.phone;
+
+        hasSavedAddress.value = true;
+        editingShipping.value = false;
+
+        savedSnapshot = { ...form.value };
+
+      } else {
+        // No complete saved address yet — go straight to the editable form
+        editingShipping.value = true;
+      }
+
+    } catch (error) {
+      console.error(error);
+      editingShipping.value = true;
+    }
+
+  };
+
+  const cancelEditShipping = () => {
+    if (savedSnapshot) {
+      form.value = { ...savedSnapshot };
+    }
+    editingShipping.value = false;
+  };
+
+  onMounted(() => {
+    loadCart();
+    loadShippingDetails();
+  });
 
   const total = computed(() =>
       cart.value.reduce(
@@ -98,7 +178,7 @@
       )
   );
 
- const placeOrder = () => {
+ const placeOrder = async () => {
 
   if (
     !form.value.name ||
@@ -108,8 +188,30 @@
     !form.value.phone ||
     !form.value.payment
   ) {
-    alert("Please fill all required fields");
+    ElMessage.warning("Please fill all required fields");
     return;
+  }
+
+  // Persist the shipping details to the profile so the next checkout can
+  // skip the form, unless the user unchecked "save for next time"
+  if (editingShipping.value && saveToProfile.value) {
+
+    try {
+
+      await api.put(`/users/${user.userId}`, {
+        fullName: form.value.name,
+        email: form.value.email,
+        phone: form.value.phone,
+        address: form.value.address,
+        city: form.value.city,
+        country: form.value.country
+      });
+
+    } catch (error) {
+      console.error(error);
+      // Non-fatal: don't block checkout just because saving the profile failed
+    }
+
   }
 
   sessionStorage.setItem(
@@ -163,6 +265,33 @@ h1{
 .form-box .el-select{
   margin-bottom:15px;
   width:100%;
+}
+
+/* SAVED SHIPPING SUMMARY */
+.saved-shipping{
+  background:#f5fff7;
+  border:1px solid #d5ecd8;
+  border-radius:10px;
+  padding:15px 18px;
+  margin-bottom:15px;
+}
+
+.saved-shipping p{
+  margin:0 0 6px;
+  color:#333;
+}
+
+.saved-shipping .el-button{
+  margin-top:8px;
+}
+
+.save-checkbox{
+  display:block;
+  margin-bottom:15px;
+}
+
+.cancel-edit-btn{
+  margin-bottom:15px;
 }
 
 /* ORDER ITEMS */

@@ -1,8 +1,5 @@
 <template>
   <section class="tips">
-    <h2>Gardening Tips 🌻</h2>
-    <p class="subtitle">Seasonal advice to keep your plants thriving</p>
-
     <div class="tips-grid">
       <div class="tip-card" v-for="tip in tips" :key="tip.title">
         <div class="tip-icon">{{ tip.icon }}</div>
@@ -50,17 +47,7 @@ const tips = [
 
 <style scoped>
 .tips { margin: 50px 0; }
-.tips h2 {
-  text-align: center;
-  color: #2E7D32;
-  font-size: 26px;
-  margin-bottom: 8px;
-}
-.subtitle {
-  text-align: center;
-  color: #888;
-  margin-bottom: 30px;
-}
+
 .tips-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
