@@ -65,6 +65,8 @@
 
     </section>
 
+    <GardeningTips />
+
     <!-- Quick Tips -->
     <section class="tips">
 
@@ -229,6 +231,7 @@
 <script setup>
 import { ref } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
+import GardeningTips  from '@/components/home/GardeningTips.vue';
 
 const plant = ref("");
 
