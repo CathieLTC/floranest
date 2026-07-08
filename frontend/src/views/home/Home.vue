@@ -10,8 +10,8 @@
       <div class="feature-card">💚 Eco Friendly</div>
     </section>
 
-    <Categories />
-    <FeaturedProduct />
+  <FeaturedProduct />
+  <Categories />
 
   </div>
 </template>
