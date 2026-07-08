@@ -1,0 +1,25 @@
+# Copy this file to: src/main/resources/application-local.properties
+# Then paste your API key below and restart the backend.
+#
+# FREE option (Groq — recommended for students):
+#   1. Sign up at https://console.groq.com
+#   2. Create an API key
+#   3. Uncomment and fill in the Groq block below
+#
+# floranest.ai.api-key=gsk_your_groq_key_here
+# floranest.ai.base-url=https://api.groq.com/openai/v1
+# floranest.ai.model=llama-3.3-70b-versatile
+#
+# OpenAI option:
+# floranest.ai.api-key=sk-your_openai_key_here
+# floranest.ai.base-url=https://api.openai.com/v1
+# floranest.ai.model=gpt-4o-mini
+#
+# Local Ollama (no cloud key — install from https://ollama.com first):
+# floranest.ai.api-key=ollama
+# floranest.ai.base-url=http://localhost:11434/v1
+# floranest.ai.model=llama3.2
+
+floranest.ai.api-key=
+floranest.ai.base-url=https://api.groq.com/openai/v1
+floranest.ai.model=llama-3.3-70b-versatile

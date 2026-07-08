@@ -69,8 +69,7 @@
     <section class="info-banner">
       <el-icon><InfoFilled /></el-icon>
       <span>
-        Demo mode — responses use local mock data. Connect the backend via
-        <code>src/api/ai.js</code> when APIs are ready.
+        Gardening Chat is powered by a real AI model and can answer open-ended plant questions. Search and recommendations use live catalog data.
       </span>
     </section>
   </div>
