@@ -119,6 +119,7 @@
 <script setup>
   import { ref, onMounted } from "vue";
   import api from "@/api/axios";
+  import { ElMessage, ElMessageBox } from "element-plus";
 
   const orders = ref([]);
   const expanded = ref(null);
@@ -147,7 +148,7 @@
     switch (status) {
 
       case "PENDING":
-        return "processing";
+        return "pending";
 
       case "PROCESSING":
         return "processing";
@@ -171,8 +172,17 @@
 
       try{
 
-          await api.put(`/orders/cancel/${orderId}`);
+         await ElMessageBox.confirm(
+            "Are you sure you want to cancel this order?",
+            "Confirm Cancellation",
+            {
+              confirmButtonText: "Yes, Cancel",
+              cancelButtonText: "No, Keep",
+              type: "warning",
+            }
+          );
 
+          await api.put(`/orders/cancel/${orderId}`);
           loadOrders();
 
       }catch(error){
@@ -180,6 +190,7 @@
           console.error(error);
 
       }
+      ElMessage.success("Order cancelled");
 
   };
 </script>
@@ -231,6 +242,10 @@ h1{
   font-size:12px;
   font-weight:bold;
   color:white;
+}
+
+.pending{
+    background:#9e9e9e;
 }
 
 .delivered{
