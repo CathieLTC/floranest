@@ -1,32 +1,13 @@
-<div id="chat-widget">
-  <div id="chat-log"></div>
-  <input id="chat-input" placeholder="Ask something..." />
-  <button id="chat-send">Send</button>
-</div>
-
-<script>
-  const history = [];
-  const log = document.getElementById("chat-log");
-  const input = document.getElementById("chat-input");
-
-  async function send() {
-    const text = input.value.trim();
-    if (!text) return;
-    history.push({ role: "user", content: text });
-    log.innerHTML += `<div><b>You:</b> ${text}</div>`;
-    input.value = "";
-
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history }),
-    });
-    const data = await res.json();
-    const reply = data.reply || `Error: ${data.error}`;
-    history.push({ role: "assistant", content: reply });
-    log.innerHTML += `<div><b>AI:</b> ${reply}</div>`;
-  }
-
-  document.getElementById("chat-send").addEventListener("click", send);
-  input.addEventListener("keydown", (e) => e.key === "Enter" && send());
-</script>
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

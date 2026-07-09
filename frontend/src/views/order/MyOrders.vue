@@ -170,29 +170,34 @@
   };
   const cancelOrder = async (orderId) => {
 
-      try{
+  try {
 
-         await ElMessageBox.confirm(
-            "Are you sure you want to cancel this order?",
-            "Confirm Cancellation",
-            {
-              confirmButtonText: "Yes, Cancel",
-              cancelButtonText: "No, Keep",
-              type: "warning",
-            }
-          );
-
-          await api.put(`/orders/cancel/${orderId}`);
-          loadOrders();
-
-      }catch(error){
-
-          console.error(error);
-
+    await ElMessageBox.confirm(
+      "Are you sure you want to cancel this order?",
+      "Confirm Cancellation",
+      {
+        confirmButtonText: "Yes, Cancel",
+        cancelButtonText: "Keep Order",
+        type: "warning",
       }
-      ElMessage.success("Order cancelled");
+    );
 
-  };
+    await api.put(`/orders/cancel/${orderId}`);
+
+    await loadOrders();
+
+    ElMessage.success("Order cancelled successfully.");
+
+  } catch (error) {
+
+    if (error !== "cancel") {
+      console.error(error);
+      ElMessage.error("Unable to cancel order.");
+    }
+
+  }
+
+};
 </script>
 
 <style scoped>
