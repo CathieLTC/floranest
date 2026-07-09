@@ -1,27 +1,34 @@
-# IntelliJ
+# ─── IntelliJ / IDE ───────────────────────────────────────────
 .idea/
 *.iml
 
-# Maven
+# ─── Maven ────────────────────────────────────────────────────
 target/
 
-# Logs
+# ─── Logs ─────────────────────────────────────────────────────
 *.log
 
-# OS files
+# ─── OS files ─────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Node
+# ─── Node / Frontend ──────────────────────────────────────────
 node_modules/
-
-# Vue build
 dist/
 
-# Environment files
-.env
+# ─── Frontend env (API keys, OpenRouter key etc.) ─────────────
+frontend/.env
+frontend/.env.local
+frontend/.env.production
 
-# VS Code settings (optional)
-.vscode/
-*.properties
+# ─── VS Code (keep shared settings, ignore personal overrides) ─
+.vscode/settings.json
+
+# ─── AI assistant tool folders ────────────────────────────────
+.trae/
+.cursor/
+.aider/
+AGENTS.md
+
+# ─── Other sensitive files ─────────────────────────────────────
 backend/src/main/resources/application.properties
