@@ -46,11 +46,10 @@ public class OrderController {
             @PathVariable Integer orderId,
             @RequestBody Map<String,String> body){
 
-        orderMapper.updateStatus(
+        orderService.updateStatus(
                 orderId,
-                body.get("status")
+                Order.OrderStatus.valueOf(body.get("status"))
         );
-
     }
 
     // Checkout — receives address in request body alongside userId in path

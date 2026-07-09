@@ -20,5 +20,6 @@ public interface OrderMapper {
     void clearCart(Integer userId);
     void updateStatus(
             @Param("orderId") Integer orderId,
-            @Param("status") String status
-    );}
+            @Param("status") Order.OrderStatus status
+    );
+}

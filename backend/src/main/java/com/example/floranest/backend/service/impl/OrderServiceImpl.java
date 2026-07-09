@@ -119,8 +119,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void cancelOrder(Integer orderId) {
+        orderMapper.updateStatus(
+                orderId,
+                Order.OrderStatus.CANCELLED
+        );
+    }
 
-        orderMapper.updateStatus(orderId, "CANCELLED");
+    @Override
+    public void updateStatus(
+            Integer orderId,
+            Order.OrderStatus status){
+
+        orderMapper.updateStatus(orderId, status);
 
     }
 }
