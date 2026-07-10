@@ -1,105 +1,101 @@
 <template>
-  <div class="chat-message" :class="message.role">
+  <div class="message" :class="message.role">
+
+    <!-- Avatar -->
     <div class="avatar">
-      <el-avatar :size="36" :class="message.role">
-        <el-icon v-if="message.role === 'assistant'"><Cpu /></el-icon>
-        <el-icon v-else><User /></el-icon>
-      </el-avatar>
+      <span v-if="message.role === 'assistant'">🌿</span>
+      <span v-else>👤</span>
     </div>
 
+    <!-- Bubble -->
     <div class="bubble">
-      <div class="bubble-header">
-        <span class="sender">{{ message.role === "assistant" ? "FloraNest AI" : "You" }}</span>
-        <span class="time">{{ formattedTime }}</span>
-      </div>
-      <p class="content">{{ message.content }}</p>
+      <p>{{ message.content }}</p>
+      <span class="time">{{ formattedTime }}</span>
     </div>
+
   </div>
 </template>
 
 <script setup>
-  import { computed } from "vue";
-  import { Cpu, User } from "@element-plus/icons-vue";
+import { computed } from "vue";
 
-  const props = defineProps({
-    message: {
-      type: Object,
-      required: true,
-    },
-  });
+const props = defineProps({
+  message: { type: Object, required: true }
+  // message shape: { role: "user"|"assistant", content: String, timestamp: ISO String }
+});
 
-  const formattedTime = computed(() => {
-    if (!props.message.timestamp) return "";
-    return new Date(props.message.timestamp).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+const formattedTime = computed(() => {
+  if (!props.message.timestamp) return "";
+  return new Date(props.message.timestamp).toLocaleTimeString([], {
+    hour:   "2-digit",
+    minute: "2-digit"
   });
+});
 </script>
 
 <style scoped>
-  .chat-message {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    max-width: 85%;
-  }
+.message {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
 
-  .chat-message.user {
-    flex-direction: row-reverse;
-    margin-left: auto;
-  }
+/* User messages — push to right */
+.message.user {
+  flex-direction: row-reverse;
+}
 
-  .avatar .el-avatar {
-    background: #e8f5e9;
-    color: #2e7d32;
-  }
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
 
-  .avatar .el-avatar.user {
-    background: #2e7d32;
-    color: #fff;
-  }
+.message.user .avatar {
+  background: #c8e6c9;
+}
 
-  .bubble {
-    background: #f5f7fa;
-    border-radius: 14px;
-    padding: 12px 16px;
-    flex: 1;
-  }
+.bubble {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: #f1f8e9;
+  border: 1px solid #c8e6c9;
+}
 
-  .chat-message.user .bubble {
-    background: #e8f5e9;
-  }
+.message.user .bubble {
+  background: #2E7D32;
+  border-color: #2E7D32;
+  color: white;
+  border-radius: 16px 16px 4px 16px;
+}
 
-  .bubble-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 6px;
-  }
+.message.assistant .bubble {
+  border-radius: 16px 16px 16px 4px;
+}
 
-  .sender {
-    font-weight: 600;
-    font-size: 0.82rem;
-    color: #2e7d32;
-  }
+.bubble p {
+  margin: 0 0 4px;
+  line-height: 1.6;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
 
-  .chat-message.user .sender {
-    color: #1b5e20;
-  }
+.message.user .bubble p { color: white; }
 
-  .time {
-    font-size: 0.75rem;
-    color: #999;
-    white-space: nowrap;
-  }
+.time {
+  font-size: 11px;
+  color: #999;
+  display: block;
+  text-align: right;
+}
 
-  .content {
-    margin: 0;
-    line-height: 1.55;
-    color: #333;
-    font-size: 0.95rem;
-    white-space: pre-wrap;
-  }
+.message.user .time { color: rgba(255,255,255,0.7); }
 </style>

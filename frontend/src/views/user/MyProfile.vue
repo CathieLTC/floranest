@@ -85,502 +85,410 @@
       <!-- =========================
             PAYMENT METHODS
       ========================= -->
+    <section class="section">
+    <div class="section-header">
+      <h2>💳 Payment Methods</h2>
+      <el-button type="success" plain @click="openAddCard"> Add Card</el-button>
+    </div>
+    <div class="payment-card" v-for="(card,index) in cards" :key="index">
+    <div class="payment-info">
+      <h3>💳 {{card.type}}</h3>
+      <p>**** **** **** {{card.number}}</p>
+      <p>Expiry: {{card.expiry}}</p>
+    </div>
 
 
-  <section class="section">
+
+    <el-button
+    type="danger"
+    size="small"
+    @click="removeCard(index)"
+    >
+    Remove
+    </el-button>
 
 
-  <div class="section-header">
 
-  <h2>💳 Payment Methods</h2>
-
-
-  <el-button
-  type="success"
-  plain
-  @click="openAddCard"
-  >
-  Add Card
-  </el-button>
+    </div>
 
 
+
+
+
+    <!-- ADD CARD FORM -->
+
+
+    <div
+    v-if="showCardForm"
+    class="edit-box"
+    >
+
+
+    <h3>
+    Add New Card
+    </h3>
+
+
+
+    <el-input
+    v-model="cardForm.type"
+    placeholder="Card Type (Visa/Mastercard)"
+    />
+
+
+
+    <el-input
+    v-model="cardForm.number"
+    placeholder="Card Number"
+    />
+
+
+
+    <el-input
+    v-model="cardForm.expiry"
+    placeholder="Expiry Date"
+    />
+
+
+
+    <el-button
+    type="success"
+    @click="saveCard"
+    >
+    Save Card
+    </el-button>
+
+
+
+    <el-button
+    @click="showCardForm=false"
+    >
+    Cancel
+    </el-button>
+
+
+
+    </div>
+
+
+
+    </section>
+
+    <!-- =========================
+              WISHLIST
+    ========================= -->
+    <section class="section">
+
+
+    <div class="section-header">
+
+
+    <h2>❤️ Wishlist</h2>
+
+
+    <router-link to="/wishlist">
+
+    <el-button type="success">
+
+    View Wishlist
+
+    </el-button>
+
+    </router-link>
+
+
+
+    </div>
+
+
+
+
+
+    <div class="wishlist-grid">
+
+
+
+    <div
+    class="wishlist-card"
+    v-for="plant in wishlist"
+    :key="plant.name"
+    >
+
+
+    <img
+    :src="plant.image"
+    />
+
+
+
+    <h3>
+    {{plant.name}}
+    </h3>
+
+
+
+    </div>
+
+
+
+    </div>
+
+
+    </section>
+
+    <!-- =========================
+          NOTIFICATIONS
+    ========================= -->
+    <section class="section">
+
+
+    <h2>
+    🔔 Notification Settings
+    </h2>
+
+
+
+
+    <div class="setting">
+
+
+    <span>
+    Email Notifications
+    </span>
+
+
+    <el-switch
+    v-model="notifications.email"
+    />
+
+
+    </div>
+
+
+
+
+
+    <div class="setting">
+
+
+    <span>
+    Order Updates
+    </span>
+
+
+    <el-switch
+    v-model="notifications.orders"
+    />
+
+
+    </div>
+
+
+
+
+
+    <div class="setting">
+
+
+    <span>
+    Promotional Offers
+    </span>
+
+
+    <el-switch
+    v-model="notifications.promotions"
+    />
+
+
+    </div>
+
+
+
+    </section>
+    <!-- =========================
+          RECENT ORDERS
+    ========================= -->
+    <section class="section">
+
+
+    <div class="section-header">
+
+
+    <h2>
+    📦 Recent Orders
+    </h2>
+
+
+
+    <router-link to="/orders">
+
+    <el-button type="success">
+    View All
+    </el-button>
+
+    </router-link>
+
+
+    </div>
+
+
+
+
+
+
+    <table class="orders-table">
+
+
+    <thead>
+
+    <tr>
+
+    <th>
+    Order ID
+    </th>
+
+
+    <th>
+    Status
+    </th>
+
+
+    <th>
+    Total
+    </th>
+
+
+    </tr>
+
+    </thead>
+
+
+
+    <tbody>
+
+
+
+    <tr
+    v-for="order in recentOrders"
+    :key="order.id"
+    >
+
+
+    <td>
+    #{{order.id}}
+    </td>
+
+
+
+    <td>
+
+
+    <span
+    class="status"
+    :class="order.status.toLowerCase()"
+    >
+
+    {{order.status}}
+
+    </span>
+
+
+    </td>
+
+
+
+    <td>
+    ${{order.total}}
+    </td>
+
+
+
+    </tr>
+
+
+    </tbody>
+
+
+
+    </table>
+
+
+    </section>
+    <!-- =========================
+          PASSWORD
+    ========================= -->
+    <section class="section">
+
+
+    <h2>
+    🔒 Change Password
+    </h2>
+
+
+
+
+    <div class="form-grid">
+
+
+    <el-input
+    v-model="password.current"
+    type="password"
+    placeholder="Current Password"
+    show-password
+    />
+
+
+
+    <el-input
+    v-model="password.new"
+    type="password"
+    placeholder="New Password"
+    show-password
+    />
+
+
+
+    <el-input
+    v-model="password.confirm"
+    type="password"
+    placeholder="Confirm Password"
+    show-password
+    />
+
+
+
+    </div>
+
+
+
+
+    <el-button
+    type="warning"
+    @click="updatePassword"
+    >
+    Update Password
+    </el-button>
+
+
+
+    </section>
+    <!-- =========================
+              LOGOUT
+    ========================= -->
+    <section class="logout">
+
+
+    <el-button
+    type="danger"
+    size="large"
+    @click="logout"
+    >
+    Logout
+    </el-button>
+
+
+    </section>
   </div>
-
-
-
-
-
-  <div
-  class="payment-card"
-  v-for="(card,index) in cards"
-  :key="index"
-  >
-
-
-
-  <div class="payment-info">
-
-
-  <h3>
-  💳 {{card.type}}
-  </h3>
-
-
-  <p>
-  **** **** **** {{card.number}}
-  </p>
-
-
-  <p>
-  Expiry: {{card.expiry}}
-  </p>
-
-
-
-  </div>
-
-
-
-  <el-button
-  type="danger"
-  size="small"
-  @click="removeCard(index)"
-  >
-  Remove
-  </el-button>
-
-
-
-  </div>
-
-
-
-
-
-  <!-- ADD CARD FORM -->
-
-
-  <div
-  v-if="showCardForm"
-  class="edit-box"
-  >
-
-
-  <h3>
-  Add New Card
-  </h3>
-
-
-
-  <el-input
-  v-model="cardForm.type"
-  placeholder="Card Type (Visa/Mastercard)"
-  />
-
-
-
-  <el-input
-  v-model="cardForm.number"
-  placeholder="Card Number"
-  />
-
-
-
-  <el-input
-  v-model="cardForm.expiry"
-  placeholder="Expiry Date"
-  />
-
-
-
-  <el-button
-  type="success"
-  @click="saveCard"
-  >
-  Save Card
-  </el-button>
-
-
-
-  <el-button
-  @click="showCardForm=false"
-  >
-  Cancel
-  </el-button>
-
-
-
-  </div>
-
-
-
-  </section>
-
-
-
-
-
-
-
-  <!-- =========================
-            WISHLIST
-  ========================= -->
-
-
-  <section class="section">
-
-
-  <div class="section-header">
-
-
-  <h2>❤️ Wishlist</h2>
-
-
-  <router-link to="/wishlist">
-
-  <el-button type="success">
-
-  View Wishlist
-
-  </el-button>
-
-  </router-link>
-
-
-
-  </div>
-
-
-
-
-
-  <div class="wishlist-grid">
-
-
-
-  <div
-  class="wishlist-card"
-  v-for="plant in wishlist"
-  :key="plant.name"
-  >
-
-
-  <img
-  :src="plant.image"
-  />
-
-
-
-  <h3>
-  {{plant.name}}
-  </h3>
-
-
-
-  </div>
-
-
-
-  </div>
-
-
-  </section>
-
-
-
-
-
-
-
-
-  <!-- =========================
-        NOTIFICATIONS
-  ========================= -->
-
-
-  <section class="section">
-
-
-  <h2>
-  🔔 Notification Settings
-  </h2>
-
-
-
-
-  <div class="setting">
-
-
-  <span>
-  Email Notifications
-  </span>
-
-
-  <el-switch
-  v-model="notifications.email"
-  />
-
-
-  </div>
-
-
-
-
-
-  <div class="setting">
-
-
-  <span>
-  Order Updates
-  </span>
-
-
-  <el-switch
-  v-model="notifications.orders"
-  />
-
-
-  </div>
-
-
-
-
-
-  <div class="setting">
-
-
-  <span>
-  Promotional Offers
-  </span>
-
-
-  <el-switch
-  v-model="notifications.promotions"
-  />
-
-
-  </div>
-
-
-
-  </section>
-
-
-
-
-
-
-
-  <!-- =========================
-        RECENT ORDERS
-  ========================= -->
-
-
-  <section class="section">
-
-
-  <div class="section-header">
-
-
-  <h2>
-  📦 Recent Orders
-  </h2>
-
-
-
-  <router-link to="/orders">
-
-  <el-button type="success">
-  View All
-  </el-button>
-
-  </router-link>
-
-
-  </div>
-
-
-
-
-
-
-  <table class="orders-table">
-
-
-  <thead>
-
-  <tr>
-
-  <th>
-  Order ID
-  </th>
-
-
-  <th>
-  Status
-  </th>
-
-
-  <th>
-  Total
-  </th>
-
-
-  </tr>
-
-  </thead>
-
-
-
-  <tbody>
-
-
-
-  <tr
-  v-for="order in recentOrders"
-  :key="order.id"
-  >
-
-
-  <td>
-  #{{order.id}}
-  </td>
-
-
-
-  <td>
-
-
-  <span
-  class="status"
-  :class="order.status.toLowerCase()"
-  >
-
-  {{order.status}}
-
-  </span>
-
-
-  </td>
-
-
-
-  <td>
-  ${{order.total}}
-  </td>
-
-
-
-  </tr>
-
-
-  </tbody>
-
-
-
-  </table>
-
-
-  </section>
-
-
-
-
-
-
-
-  <!-- =========================
-        PASSWORD
-  ========================= -->
-
-
-  <section class="section">
-
-
-  <h2>
-  🔒 Change Password
-  </h2>
-
-
-
-
-  <div class="form-grid">
-
-
-  <el-input
-  v-model="password.current"
-  type="password"
-  placeholder="Current Password"
-  show-password
-  />
-
-
-
-  <el-input
-  v-model="password.new"
-  type="password"
-  placeholder="New Password"
-  show-password
-  />
-
-
-
-  <el-input
-  v-model="password.confirm"
-  type="password"
-  placeholder="Confirm Password"
-  show-password
-  />
-
-
-
-  </div>
-
-
-
-
-  <el-button
-  type="warning"
-  @click="updatePassword"
-  >
-  Update Password
-  </el-button>
-
-
-
-  </section>
-
-
-
-
-
-
-
-  <!-- =========================
-            LOGOUT
-  ========================= -->
-
-
-  <section class="logout">
-
-
-  <el-button
-  type="danger"
-  size="large"
-  @click="logout"
-  >
-  Logout
-  </el-button>
-
-
-  </section>
-
-
-
-
-  </div>
-
-
 </template>
 <script setup>
 

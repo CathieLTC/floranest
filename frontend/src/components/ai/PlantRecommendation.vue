@@ -1,82 +1,107 @@
 <template>
   <div class="plant-recommendation">
-    <el-form label-position="top" class="preferences-form">
+
+    <!-- Preference form -->
+    <div class="form-card">
       <el-row :gutter="20">
+
         <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item label="Where will you grow it?">
+          <div class="field">
+            <label>Where will you grow it?</label>
             <el-radio-group v-model="preferences.location">
-              <el-radio-button value="indoor">Indoor</el-radio-button>
-              <el-radio-button value="outdoor">Outdoor</el-radio-button>
+              <el-radio-button value="indoor">🏠 Indoor</el-radio-button>
+              <el-radio-button value="outdoor">🌳 Outdoor</el-radio-button>
             </el-radio-group>
-          </el-form-item>
+          </div>
         </el-col>
 
         <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item label="Your experience level">
-            <el-select v-model="preferences.experience" placeholder="Select level" style="width: 100%">
-              <el-option label="Beginner" value="beginner" />
-              <el-option label="Intermediate" value="intermediate" />
-              <el-option label="Expert" value="expert" />
+          <div class="field">
+            <label>Your experience level</label>
+            <el-select v-model="preferences.experience" style="width:100%">
+              <el-option label="🌱 Beginner"     value="beginner" />
+              <el-option label="🌿 Intermediate"  value="intermediate" />
+              <el-option label="🌳 Experienced"   value="expert" />
             </el-select>
-          </el-form-item>
+          </div>
         </el-col>
 
         <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item label="Available space">
-            <el-select v-model="preferences.space" placeholder="Select space" style="width: 100%">
-              <el-option label="Small (desk / shelf)" value="small" />
-              <el-option label="Medium (floor plant)" value="medium" />
-              <el-option label="Large (garden bed)" value="large" />
+          <div class="field">
+            <label>Available space</label>
+            <el-select v-model="preferences.space" style="width:100%">
+              <el-option label="Small (desk / shelf)"  value="small" />
+              <el-option label="Medium (floor plant)"  value="medium" />
+              <el-option label="Large (garden bed)"    value="large" />
             </el-select>
-          </el-form-item>
+          </div>
         </el-col>
 
         <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item label="Light conditions">
-            <el-select v-model="preferences.light" placeholder="Select light" style="width: 100%">
-              <el-option label="Low light" value="low" />
-              <el-option label="Bright indirect" value="bright" />
-              <el-option label="Direct sunlight" value="direct" />
+          <div class="field">
+            <label>Light conditions</label>
+            <el-select v-model="preferences.light" style="width:100%">
+              <el-option label="Low light"        value="low light" />
+              <el-option label="Bright indirect"  value="bright indirect" />
+              <el-option label="Direct sunlight"  value="direct sunlight" />
             </el-select>
-          </el-form-item>
+          </div>
         </el-col>
 
         <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item label="Primary goal">
-            <el-select v-model="preferences.purpose" placeholder="What's your goal?" style="width: 100%">
-              <el-option label="Decoration" value="decoration" />
-              <el-option label="Air purifying" value="air-purifying" />
-              <el-option label="Herbs & cooking" value="herbs" />
-              <el-option label="Low maintenance" value="low-maintenance" />
+          <div class="field">
+            <label>How often can you water?</label>
+            <el-select v-model="preferences.watering" style="width:100%">
+              <el-option label="Rarely (once a week+)" value="rarely" />
+              <el-option label="Occasionally (2-3x/week)" value="occasionally" />
+              <el-option label="Daily"                 value="daily" />
             </el-select>
-          </el-form-item>
+          </div>
         </el-col>
+
+        <el-col :xs="24" :sm="12" :md="8">
+          <div class="field">
+            <label>Primary goal</label>
+            <el-select v-model="preferences.purpose" style="width:100%">
+              <el-option label="🎨 Decoration"        value="decoration" />
+              <el-option label="💨 Air purifying"     value="air purifying" />
+              <el-option label="🌿 Herbs & cooking"   value="herbs and cooking" />
+              <el-option label="😌 Low maintenance"   value="low maintenance" />
+            </el-select>
+          </div>
+        </el-col>
+
       </el-row>
 
-      <el-button type="success" size="large" :loading="loading" @click="handleRecommend">
-        <el-icon><Star /></el-icon>
-        Get AI Recommendations
+      <el-button
+        type="success"
+        size="large"
+        :loading="loading"
+        class="recommend-btn"
+        @click="handleRecommend"
+      >
+        ✨ Get AI Recommendations
       </el-button>
-    </el-form>
-
-    <div v-if="loading" class="state-block">
-      <el-skeleton :rows="4" animated />
-      <p class="loading-text">Analyzing your preferences…</p>
     </div>
 
-    <div v-else-if="recommendations.length" class="results">
+    <!-- Loading state -->
+    <div v-if="loading" class="state-block">
+      <el-skeleton :rows="3" animated />
+      <p class="loading-text">Analysing your preferences…</p>
+    </div>
+
+    <!-- Results -->
+    <div v-else-if="results.length" class="results">
       <div class="results-header">
         <h3>Recommended for you</h3>
-        <el-tag type="success">{{ recommendations.length }} matches</el-tag>
+        <el-tag type="success">{{ results.length }} matches</el-tag>
       </div>
-
       <el-row :gutter="20">
         <el-col
-          v-for="plant in recommendations"
+          v-for="plant in results"
           :key="plant.id"
-          :xs="24"
-          :sm="12"
-          :lg="6"
+          :xs="24" :sm="12" :lg="8"
+          style="margin-bottom: 20px"
         >
           <RecommendationCard
             :plant="plant"
@@ -87,112 +112,104 @@
       </el-row>
     </div>
 
+    <!-- Empty state -->
     <div v-else class="state-block hint">
-      <el-icon :size="32"><Collection /></el-icon>
-      <p>Tell us about your space and experience — we'll suggest plants tailored to your needs.</p>
+      <p>🌱 Tell us about your space and experience — we'll suggest the perfect plants for you.</p>
     </div>
+
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive } from "vue";
-  import { useRouter } from "vue-router";
-  import { Star, Collection } from "@element-plus/icons-vue";
-  import { ElMessage } from "element-plus";
-  import RecommendationCard from "./RecommendationCard.vue";
-  import { getPlantRecommendations } from "@/api/ai";
+import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import RecommendationCard from "./RecommendationCard.vue";
+import { getPlantRecommendations } from "@/api/ai";
 
-  const router = useRouter();
+const router  = useRouter();
+const loading = ref(false);
+const results = ref([]);
 
-  const loading = ref(false);
-  const recommendations = ref([]);
-  const preferences = reactive({
-    location: "indoor",
-    experience: "beginner",
-    space: "medium",
-    light: "bright",
-    purpose: "decoration",
-  });
+const preferences = reactive({
+  location:   "indoor",
+  experience: "beginner",
+  space:      "medium",
+  light:      "bright indirect",
+  watering:   "occasionally",
+  purpose:    "decoration"
+});
 
-  async function handleRecommend() {
-    loading.value = true;
+async function handleRecommend() {
+  loading.value = true;
+  results.value = [];
 
-    try {
-      recommendations.value = await getPlantRecommendations({ ...preferences });
-    } catch {
-      ElMessage.error("Could not generate recommendations. Please try again.");
-      recommendations.value = [];
-    } finally {
-      loading.value = false;
-    }
+  try {
+    results.value = await getPlantRecommendations({ ...preferences });
+  } catch {
+    ElMessage.error("Could not generate recommendations. Please try again.");
+  } finally {
+    loading.value = false;
   }
+}
 
-  function onViewDetails(plant) {
-    ElMessage.info(`Details for ${plant.name} — connect product API to enable.`);
+function onViewDetails(plant) {
+  if (plant.id && !String(plant.id).startsWith("ai-")) {
+    router.push(`/product/${plant.id}`);
+  } else {
+    ElMessage.info(`Search for "${plant.name}" in the shop to find it.`);
   }
+}
 
-  function onAddToShop() {
-    router.push("/shop");
-  }
+function onAddToShop() {
+  router.push("/shop");
+}
 </script>
 
 <style scoped>
-  .plant-recommendation {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+.plant-recommendation { display: flex; flex-direction: column; gap: 24px; }
 
-  .preferences-form {
-    background: #fafafa;
-    padding: 24px;
-    border-radius: 12px;
-    border: 1px solid #e8f5e9;
-  }
+.form-card {
+  background: #fafafa;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #e8f5e9;
+}
 
-  .results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
+.field { margin-bottom: 20px; }
 
-  .results-header h3 {
-    margin: 0;
-    color: #1b5e20;
-    font-size: 1.15rem;
-  }
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 8px;
+}
 
-  .results .el-col {
-    margin-bottom: 20px;
-  }
+.recommend-btn { width: 100%; margin-top: 8px; }
 
-  .state-block {
-    padding: 32px 16px;
-    text-align: center;
-    color: #666;
-  }
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
 
-  .loading-text {
-    margin-top: 12px;
-    color: #2e7d32;
-    font-weight: 500;
-  }
+.results-header h3 { margin: 0; color: #1B5E20; }
 
-  .state-block.hint {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    background: #fafafa;
-    border-radius: 12px;
-    border: 1px dashed #c8e6c9;
-  }
+.loading-text {
+  text-align: center;
+  color: #2E7D32;
+  margin-top: 12px;
+  font-weight: 500;
+}
 
-  .state-block.hint p {
-    max-width: 420px;
-    margin: 0;
-    line-height: 1.5;
-  }
+.state-block {
+  text-align: center;
+  padding: 32px;
+  color: #666;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px dashed #c8e6c9;
+}
 </style>

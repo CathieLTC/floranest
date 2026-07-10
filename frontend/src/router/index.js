@@ -8,6 +8,7 @@ import Login    from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 
 // Product
+import Products    from "@/views/product/Products.vue";
 import ProductDetails from "@/views/product/ProductDetails.vue";
 import Shop          from "@/views/product/Shop.vue";
 
@@ -37,11 +38,9 @@ const routes = [
   { path: "/register",   component: Register },
 
   // Product
-  // "/products" is kept as an alias for "/shop" so old links/bookmarks
-  // still work, but Shop.vue is now the single canonical listing page.
-  { path: "/products",       redirect: (to) => ({ path: "/shop", query: to.query }) },
   { path: "/product/:id",    component: ProductDetails },
   { path: "/shop",           component: Shop },
+  { path: "/products",        component: Products },
 
   // Cart
   { path: "/cart",           component: Cart },

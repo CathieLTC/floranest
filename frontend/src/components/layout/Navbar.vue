@@ -9,6 +9,7 @@
       <!-- Navigation -->
       <nav class="nav-links">
         <router-link to="/">Home</router-link>
+        <router-link to="/products">Products</router-link>
         <router-link to="/shop">Shop</router-link>
         <router-link to="/plant-care">Plant Care</router-link>
         <router-link to="/ai">AI Assistant</router-link>

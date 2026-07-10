@@ -1,76 +1,55 @@
 /**
- * FloraNest AI service — powered by OpenRouter
- * Docs: https://openrouter.ai/docs
- *
- * The free model used here: meta-llama/llama-3.1-8b-instruct:free
- * You can swap it for any model listed at openrouter.ai/models
+ * FloraNest AI Service
+ * All AI calls go through our Spring Boot backend at /ai/chat
+ * The backend holds the API key — it never touches the frontend.
  */
 
-const OPENROUTER_URL  = "https://api.deepseek.com";
-const OPENROUTER_KEY  = import.meta.env.VITE_API_KEY;
-const MODEL = "llama-3.3-70b-versatile";
+const BACKEND_URL = "http://localhost:8080/ai/chat";
 
-// System prompt — tells the AI who it is and what it should focus on
-const SYSTEM_PROMPT = `You are FloraNest AI, a friendly and knowledgeable gardening assistant 
-for an online plant shop. You help users with:
+const SYSTEM_PROMPT = `You are FloraNest AI, a friendly and knowledgeable gardening
+assistant for an online plant shop. You help users with:
 - Plant care advice (watering, light, soil, fertilizing, repotting)
 - Diagnosing plant problems (yellow leaves, pests, root rot)
 - Recommending plants based on lifestyle and space
 - Seasonal gardening tips
 
-Keep responses concise (3-5 sentences), friendly, and practical. 
-If a question is completely unrelated to plants or gardening, 
-politely redirect the user back to plant topics.`;
+Keep responses concise (3-5 sentences), warm, and practical.
+If a question is unrelated to plants or gardening, politely redirect
+the user back to plant topics.`;
 
-/**
- * Core function — sends a message to OpenRouter and returns the AI reply.
- * Called by GardeningChat.vue.
- *
- * @param {string}  message  - The user's latest message
- * @param {Array}   history  - Full conversation history (role + content objects)
- * @returns {Object}         - Message object { role, content, timestamp }
- */
+// ─── Core caller — sends to our backend, not AI directly ─────────────────────
+async function callAI(messages, maxTokens = 500) {
+    const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            messages:   messages,
+            max_tokens: maxTokens,
+            temperature: 0.7
+        })
+    });
+
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || `Backend error ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
+
+// ─── FEATURE 1: Gardening Chat ────────────────────────────────────────────────
 export async function sendChatMessage(message, history = []) {
-
-    // Build the messages array OpenRouter expects:
-    // [system prompt] + [conversation history] + [new user message]
     const messages = [
         { role: "system", content: SYSTEM_PROMPT },
-        // Include history but skip the first greeting message (it's from the UI, not a real exchange)
         ...history.slice(1).map(m => ({
-            role:    m.role,
+            role:    m.role === "assistant" ? "assistant" : "user",
             content: m.content
         })),
         { role: "user", content: message }
     ];
 
-    const response = await fetch(OPENROUTER_URL, {
-        method:  "POST",
-        headers: {
-            "Content-Type":  "application/json",
-            "Authorization": `Bearer ${OPENROUTER_KEY}`,
-            "HTTP-Referer":  "http://localhost:5173",   // your local dev URL
-            "X-Title":       "FloraNest"
-        },
-        body: JSON.stringify({
-            model:       MODEL,
-            messages:    messages,
-            max_tokens:  500,
-            temperature: 0.7    // 0 = very factual, 1 = more creative
-        })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("OpenRouter error code:", error.error?.code);
-      console.error("OpenRouter error message:", error.error?.message);
-      throw new Error(error.error?.message || "OpenRouter request failed");
-  
-    }
-
-    const data    = await response.json();
-    const content = data.choices[0].message.content;
-
+    const content = await callAI(messages, 500);
     return {
         role:      "assistant",
         content:   content,
@@ -78,100 +57,109 @@ export async function sendChatMessage(message, history = []) {
     };
 }
 
-
-// ─── Smart Search ─────────────────────────────────────────────────────────────
-// Uses AI to interpret a natural language search query,
-// then filters your real product database.
-
+// ─── FEATURE 2: Smart Search ──────────────────────────────────────────────────
 export async function searchPlants(query, filters = {}) {
-
-    const messages = [
-        {
-            role: "system",
-            content: `You are a plant search assistant. The user will describe what they're 
-looking for. Extract 2-3 relevant keywords from their description that could match 
-plant names or descriptions in a database. Respond with ONLY a comma-separated list 
-of keywords, nothing else. Example: "monstera, tropical, large leaves"`
-        },
-        { role: "user", content: query }
-    ];
-
     try {
-        const response = await fetch(OPENROUTER_URL, {
-            method:  "POST",
-            headers: {
-                "Content-Type":  "application/json",
-                "Authorization": `Bearer ${OPENROUTER_KEY}`,
-                "HTTP-Referer":  "http://localhost:5173",
-                "X-Title":       "FloraNest"
+        const messages = [
+            {
+                role:    "system",
+                content: `You are a plant search keyword extractor.
+Extract 2-3 relevant keywords from the user's plant description.
+Respond with ONLY a comma-separated list of keywords, nothing else.
+Example: low light, shade tolerant, indoor`
             },
-            body: JSON.stringify({ model: MODEL, messages, max_tokens: 50 })
-        });
+            { role: "user", content: query }
+        ];
 
-        const data     = await response.json();
-        const keywords = data.choices[0].message.content
-            .split(",")
-            .map(k => k.trim().toLowerCase());
+        const keywordText = await callAI(messages, 50);
+        const keywords    = keywordText.split(",").map(k => k.trim().toLowerCase());
 
-        // Now fetch real products and filter by AI-extracted keywords
-        const productsRes = await fetch("http://localhost:8080/products");
-        const products    = await productsRes.json();
+        const res      = await fetch("http://localhost:8080/products");
+        const products = await res.json();
 
-        return products.filter(p =>
-            keywords.some(kw =>
-                p.productName?.toLowerCase().includes(kw) ||
-                p.description?.toLowerCase().includes(kw)
-            )
-        );
+        return products
+            .filter(p => {
+                const nameMatch = keywords.some(kw =>
+                    p.productName?.toLowerCase().includes(kw) ||
+                    p.description?.toLowerCase().includes(kw)
+                );
+                const lightMatch = !filters.light ||
+                    p.sunlight?.toLowerCase().includes(filters.light.toLowerCase());
+                return nameMatch && lightMatch;
+            })
+            .map(p => ({
+                id:          p.productId,
+                name:        p.productName,
+                description: p.description || "A beautiful plant for your space.",
+                imageUrl:    p.imageUrl    || "https://images.unsplash.com/photo-1446071103084-c257b5f70672?w=400",
+                careLevel:   p.difficulty  || "Easy",
+                light:       p.sunlight    || "Varies",
+                category:    "Indoor",
+                matchScore:  null,
+                reason:      null
+            }));
 
     } catch (e) {
         console.error("Smart search error:", e);
-        return [];
+        throw e;
     }
 }
 
-
-// ─── Plant Recommendations ────────────────────────────────────────────────────
-// Sends user preferences to the AI and returns structured recommendations.
-
+// ─── FEATURE 3: Plant Recommendations ────────────────────────────────────────
 export async function getPlantRecommendations(preferences = {}) {
-
-    const prefText = Object.entries(preferences)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(", ");
-
-    const messages = [
-        {
-            role: "system",
-            content: `You are a plant recommendation assistant. Given user preferences, 
-suggest 3 specific plant names that would suit them. Respond with ONLY a JSON array 
-of objects with this exact format, no other text:
-[{"name":"Plant Name","reason":"One sentence why it fits","careLevel":"Easy/Moderate/Hard"}]`
-        },
-        { role: "user", content: `My preferences: ${prefText}` }
-    ];
-
     try {
-        const response = await fetch(OPENROUTER_URL, {
-            method:  "POST",
-            headers: {
-                "Content-Type":  "application/json",
-                "Authorization": `Bearer ${OPENROUTER_KEY}`,
-                "HTTP-Referer":  "http://localhost:5173",
-                "X-Title":       "FloraNest"
+        const prefText = [
+            `Location: ${preferences.location}`,
+            `Experience: ${preferences.experience}`,
+            `Space: ${preferences.space}`,
+            `Light: ${preferences.light}`,
+            `Watering: ${preferences.watering}`,
+            `Goal: ${preferences.purpose}`
+        ].join(", ");
+
+        const messages = [
+            {
+                role:    "system",
+                content: `You are a plant recommendation assistant.
+Suggest exactly 3 plants based on user preferences.
+Respond with ONLY a valid JSON array, no markdown, no extra text:
+[{"name":"Plant Name","reason":"One sentence why","careLevel":"Easy","light":"Low to bright","category":"Indoor"}]`
             },
-            body: JSON.stringify({ model: MODEL, messages, max_tokens: 300 })
+            { role: "user", content: `Preferences: ${prefText}` }
+        ];
+
+        const text        = await callAI(messages, 600);
+        const clean       = text.replace(/```json|```/g, "").trim();
+        const suggestions = JSON.parse(clean);
+
+        // Try to match against real backend products
+        let products = [];
+        try {
+            const res = await fetch("http://localhost:8080/products");
+            products  = await res.json();
+        } catch { /* backend unavailable, use AI data only */ }
+
+        return suggestions.map((s, i) => {
+            const match = products.find(p =>
+                p.productName?.toLowerCase().includes(
+                    s.name.toLowerCase().split(" ")[0]
+                )
+            );
+            return {
+                id:          match?.productId || `ai-${i}`,
+                name:        s.name,
+                reason:      s.reason,
+                careLevel:   s.careLevel || "Easy",
+                light:       s.light     || "Varies",
+                category:    s.category  || "Indoor",
+                description: s.reason,
+                imageUrl:    match?.imageUrl || "https://images.unsplash.com/photo-1463936575829-25148e1db1b8?w=400",
+                matchScore:  95 - (i * 5)
+            };
         });
-
-        const data = await response.json();
-        const text = data.choices[0].message.content
-            .replace(/```json|```/g, "")
-            .trim();
-
-        return JSON.parse(text);
 
     } catch (e) {
         console.error("Recommendation error:", e);
-        return [];
+        throw e;
     }
 }
