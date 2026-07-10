@@ -102,13 +102,10 @@
     payment: ""
   });
 
-  // Whether the account already has a usable saved address on file
+ 
   const hasSavedAddress = ref(false);
-  // Whether the shipping form is currently open for editing
   const editingShipping = ref(false);
-  // Whether to persist any edits back to the user's profile
   const saveToProfile = ref(true);
-  // Snapshot of the last-saved details, used to restore on "Cancel"
   let savedSnapshot = null;
 
   const loadCart = async () => {
@@ -192,8 +189,6 @@
     return;
   }
 
-  // Persist the shipping details to the profile so the next checkout can
-  // skip the form, unless the user unchecked "save for next time"
   if (editingShipping.value && saveToProfile.value) {
 
     try {
@@ -209,7 +204,7 @@
 
     } catch (error) {
       console.error(error);
-      // Non-fatal: don't block checkout just because saving the profile failed
+     
     }
 
   }

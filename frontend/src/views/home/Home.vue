@@ -3,7 +3,7 @@
 
     <HeroBanner />
 
-    <!-- Feature badges -->
+    
     <section class="features">
       <div class="feature-card">🌱 Healthy Plants</div>
       <div class="feature-card">🚚 Fast Delivery</div>
