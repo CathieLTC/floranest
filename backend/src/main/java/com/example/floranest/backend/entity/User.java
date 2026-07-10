@@ -13,6 +13,8 @@ public class User {
     private String phone;
     private String address;
     private String role;
+    private String city;
+    private String country;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

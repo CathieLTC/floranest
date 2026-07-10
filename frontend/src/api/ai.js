@@ -6,10 +6,9 @@
  * You can swap it for any model listed at openrouter.ai/models
  */
 
-const OPENROUTER_URL  = "https://console.groq.com/keys";
-const OPENROUTER_KEY  = import.meta.env.VITE_GROQ_API_KEY;
+const OPENROUTER_URL  = "https://api.deepseek.com";
+const OPENROUTER_KEY  = import.meta.env.VITE_API_KEY;
 const MODEL = "llama-3.3-70b-versatile";
-
 
 // System prompt — tells the AI who it is and what it should focus on
 const SYSTEM_PROMPT = `You are FloraNest AI, a friendly and knowledgeable gardening assistant 

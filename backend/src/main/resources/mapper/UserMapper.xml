@@ -14,6 +14,8 @@
         <result column="role" property="role"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
+        <result column="city" property="city"/>
+        <result column="country" property="country"/>
     </resultMap>
 
     <select id="findAll" resultMap="userMap">
@@ -29,20 +31,46 @@
     </select>
 
     <insert id="insert">
-        INSERT INTO users (email, password, full_name, phone, address, role)
-        VALUES (#{email}, #{password}, #{fullName}, #{phone}, #{address}, #{role});
+        INSERT INTO users
+        (
+        email,
+        password,
+        full_name,
+        phone,
+        address,
+        city,
+        country,
+        role
+        )
+
+        VALUES
+        (
+        #{email},
+        #{password},
+        #{fullName},
+        #{phone},
+        #{address},
+        #{city},
+        #{country},
+        #{role}
+        )
 
     </insert>
 
     <update id="update">
         UPDATE users
-        SET email=#{email},
+        SET
+
+        email=#{email},
         password=#{password},
         full_name=#{fullName},
         phone=#{phone},
         address=#{address},
+        city=#{city},
+        country=#{country},
         role=#{role}
-        WHERE user_id=#{userId};
+
+        WHERE user_id=#{userId}
     </update>
 
     <delete id="delete">

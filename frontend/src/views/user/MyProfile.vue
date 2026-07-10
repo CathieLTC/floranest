@@ -1,850 +1,584 @@
 <template>
   <div class="profile-page">
+    <section class="profile-header">
+      <div class="profile-left">
+        <div class="profile-photo">
+          <img :src="profileImage" class="profile-image"/>
+          <input ref="fileInput" type="file" accept="image/*" class="hidden-input" @change="changePhoto"/>
+          <el-button type="success"plain @click="fileInput.click()">Change Photo</el-button>
+        </div>
+        <div>
+          <h1>{{ user.fullName }}</h1>
+          <p>{{ user.email }}</p>
+        </div>
+      </div>
+    </section>
+        <!-- =========================
+              DASHBOARD CARDS
+        ========================= -->
+    <section class="dashboard">
+      <div class="card">
+        <h2>{{stats.orders}}</h2>
+        <p>📦 Orders</p>
+      </div>
+
+      <div class="card">
+        <h2>{{stats.wishlist}}</h2>
+        <p>❤️ Wishlist</p>
+      </div>
+
+      <div class="card">
+        <h2>{{stats.cart}}</h2>
+        <p>🛒 Cart Items</p>
+      </div>
+
+      <div class="card">
+        <h2>{{stats.plants}}</h2>
+        <p>🌿 Plants Bought</p>
+      </div>
+    </section>
+        <!-- =========================
+              PERSONAL INFORMATION
+        ========================= -->
+    <section class="section">
+      <h2>👤 Personal Information</h2>
+      <div class="form-grid">
+        <el-input v-model="user.fullName" placeholder="Full Name"/>
+        <el-input v-model="user.email" placeholder="Email"/>
+        <el-input v-model="user.phone" placeholder="Phone"/>
+        <el-input v-model="user.country" placeholder="Country"/>
+        <el-input v-model="user.city" placeholder="City"/>
+        <el-input v-model="user.address" placeholder="Address"/>
+      </div>
+      <el-button type="success" :loading="profileSaving" @click="saveProfile">Save Changes</el-button>
+    </section>
+      <!-- =========================
+              ADDRESS BOOK
+        ========================= -->
+    <section class="section">
+      <div class="section-header">
+        <h2>📍 Shipping Addresses</h2>
+        <el-button type="success" plain @click="openAddAddress">Add New Address</el-button>
+      </div>
+      <div class="address-card" v-for="(address,index) in addresses" :key="index">
+        <h3>{{address.title}}</h3>
+        <p>{{address.address}}</p>
+        <p>{{address.city}},{{address.country}}</p>
+
+        <div class="address-buttons">
+          <el-button size="small" @click="openEditAddress(index)">Edit</el-button>
+          <el-button type="danger" size="small" @click="deleteAddress(index)">Delete</el-button>
+        </div>
+      </div>
+      <!-- ADDRESS FORM -->
+      <div v-if="showAddressForm"class="edit-box">
+        <h3>{{editingIndex === null ?"Add New Address":"Edit Address"}}</h3>
+        <el-input v-model="addressForm.title" placeholder="Address Name"/>
+        <el-input v-model="addressForm.address"placeholder="Street Address"/>
+        <el-input v-model="addressForm.city" placeholder="City"/>
+        <el-input v-model="addressForm.country" placeholder="Country"/>
+        <el-button type="success" @click="saveAddress">Save Address</el-button>
+        <el-button @click="showAddressForm=false">Cancel</el-button>
+      </div>
+    </section>
+
+      <!-- =========================
+            PAYMENT METHODS
+      ========================= -->
 
 
-<!-- =========================
-      PROFILE HEADER
-========================= -->
-
-<section class="profile-header">
-
-  <div class="profile-left">
-
-    <div class="profile-photo">
-
-      <img
-        :src="profileImage"
-        class="profile-image"
-      />
+  <section class="section">
 
 
-      <input
-        ref="fileInput"
-        type="file"
-        accept="image/*"
-        class="hidden-input"
-        @change="changePhoto"
-      />
+  <div class="section-header">
+
+  <h2>💳 Payment Methods</h2>
 
 
-      <el-button
-        type="success"
-        plain
-        @click="fileInput.click()"
-      >
-        Change Photo
-      </el-button>
-
-    </div>
-
-
-    <div>
-
-      <h1>{{ user.fullName }}</h1>
-
-      <p>{{ user.email }}</p>
-
-    </div>
+  <el-button
+  type="success"
+  plain
+  @click="openAddCard"
+  >
+  Add Card
+  </el-button>
 
 
   </div>
 
 
-</section>
 
 
 
-<!-- =========================
-      DASHBOARD CARDS
-========================= -->
+  <div
+  class="payment-card"
+  v-for="(card,index) in cards"
+  :key="index"
+  >
 
 
-<section class="dashboard">
 
+  <div class="payment-info">
 
-<div class="card">
 
-<h2>{{stats.orders}}</h2>
+  <h3>
+  💳 {{card.type}}
+  </h3>
 
-<p>📦 Orders</p>
 
-</div>
+  <p>
+  **** **** **** {{card.number}}
+  </p>
 
 
+  <p>
+  Expiry: {{card.expiry}}
+  </p>
 
-<div class="card">
 
-<h2>{{stats.wishlist}}</h2>
 
-<p>❤️ Wishlist</p>
+  </div>
 
-</div>
 
 
+  <el-button
+  type="danger"
+  size="small"
+  @click="removeCard(index)"
+  >
+  Remove
+  </el-button>
 
-<div class="card">
 
-<h2>{{stats.cart}}</h2>
 
-<p>🛒 Cart Items</p>
+  </div>
 
-</div>
 
 
 
-<div class="card">
 
-<h2>{{stats.plants}}</h2>
+  <!-- ADD CARD FORM -->
 
-<p>🌿 Plants Bought</p>
 
-</div>
+  <div
+  v-if="showCardForm"
+  class="edit-box"
+  >
 
 
+  <h3>
+  Add New Card
+  </h3>
 
-</section>
 
 
+  <el-input
+  v-model="cardForm.type"
+  placeholder="Card Type (Visa/Mastercard)"
+  />
 
 
 
-<!-- =========================
-      PERSONAL INFORMATION
-========================= -->
+  <el-input
+  v-model="cardForm.number"
+  placeholder="Card Number"
+  />
 
 
-<section class="section">
 
+  <el-input
+  v-model="cardForm.expiry"
+  placeholder="Expiry Date"
+  />
 
-<h2>👤 Personal Information</h2>
 
 
+  <el-button
+  type="success"
+  @click="saveCard"
+  >
+  Save Card
+  </el-button>
 
-<div class="form-grid">
 
 
-<el-input
-v-model="user.fullName"
-placeholder="Full Name"
-/>
+  <el-button
+  @click="showCardForm=false"
+  >
+  Cancel
+  </el-button>
 
 
 
-<el-input
-v-model="user.email"
-placeholder="Email"
-/>
+  </div>
 
 
 
-<el-input
-v-model="user.phone"
-placeholder="Phone"
-/>
+  </section>
 
 
 
-<el-input
-v-model="user.country"
-placeholder="Country"
-/>
 
 
 
-<el-input
-v-model="user.city"
-placeholder="City"
-/>
 
+  <!-- =========================
+            WISHLIST
+  ========================= -->
 
 
-<el-input
-v-model="user.address"
-placeholder="Address"
-/>
+  <section class="section">
 
 
-</div>
+  <div class="section-header">
 
 
+  <h2>❤️ Wishlist</h2>
 
-<el-button
-type="success"
-:loading="profileSaving"
-@click="saveProfile"
->
-Save Changes
-</el-button>
 
+  <router-link to="/wishlist">
 
+  <el-button type="success">
 
-</section>
+  View Wishlist
 
+  </el-button>
 
+  </router-link>
 
 
 
+  </div>
 
 
-<!-- =========================
-      ADDRESS BOOK
-========================= -->
 
 
-<section class="section">
 
+  <div class="wishlist-grid">
 
-<div class="section-header">
 
 
-<h2>📍 Shipping Addresses</h2>
+  <div
+  class="wishlist-card"
+  v-for="plant in wishlist"
+  :key="plant.name"
+  >
 
 
+  <img
+  :src="plant.image"
+  />
 
-<el-button
-type="success"
-plain
-@click="openAddAddress"
->
-Add New Address
-</el-button>
 
 
-</div>
+  <h3>
+  {{plant.name}}
+  </h3>
 
 
 
+  </div>
 
 
-<div
-class="address-card"
-v-for="(address,index) in addresses"
-:key="index"
->
 
+  </div>
 
 
-<h3>
-{{address.title}}
-</h3>
+  </section>
 
 
 
-<p>
-{{address.address}}
-</p>
 
 
-<p>
 
-{{address.city}},
-{{address.country}}
 
-</p>
 
+  <!-- =========================
+        NOTIFICATIONS
+  ========================= -->
 
 
-<div class="address-buttons">
+  <section class="section">
 
 
-<el-button
-size="small"
-@click="openEditAddress(index)"
->
-Edit
-</el-button>
+  <h2>
+  🔔 Notification Settings
+  </h2>
 
 
 
-<el-button
-type="danger"
-size="small"
-@click="deleteAddress(index)"
->
-Delete
-</el-button>
 
+  <div class="setting">
 
 
-</div>
+  <span>
+  Email Notifications
+  </span>
 
 
-</div>
+  <el-switch
+  v-model="notifications.email"
+  />
 
 
+  </div>
 
 
 
 
 
-<!-- ADDRESS FORM -->
+  <div class="setting">
 
 
-<div
-v-if="showAddressForm"
-class="edit-box"
->
+  <span>
+  Order Updates
+  </span>
 
 
-<h3>
+  <el-switch
+  v-model="notifications.orders"
+  />
 
-{{editingIndex === null ?
-"Add New Address":
-"Edit Address"}}
 
-</h3>
+  </div>
 
 
 
-<el-input
-v-model="addressForm.title"
-placeholder="Address Name"
-/>
 
 
+  <div class="setting">
 
-<el-input
-v-model="addressForm.address"
-placeholder="Street Address"
-/>
 
+  <span>
+  Promotional Offers
+  </span>
 
 
-<el-input
-v-model="addressForm.city"
-placeholder="City"
-/>
+  <el-switch
+  v-model="notifications.promotions"
+  />
 
 
+  </div>
 
-<el-input
-v-model="addressForm.country"
-placeholder="Country"
-/>
 
 
+  </section>
 
 
-<el-button
-type="success"
-@click="saveAddress"
->
-Save Address
-</el-button>
 
 
 
-<el-button
-@click="showAddressForm=false"
->
-Cancel
-</el-button>
 
 
+  <!-- =========================
+        RECENT ORDERS
+  ========================= -->
 
-</div>
 
+  <section class="section">
 
 
-</section>
+  <div class="section-header">
 
-<!-- =========================
-      PAYMENT METHODS
-========================= -->
 
+  <h2>
+  📦 Recent Orders
+  </h2>
 
-<section class="section">
 
 
-<div class="section-header">
+  <router-link to="/orders">
 
-<h2>💳 Payment Methods</h2>
+  <el-button type="success">
+  View All
+  </el-button>
 
+  </router-link>
 
-<el-button
-type="success"
-plain
-@click="openAddCard"
->
-Add Card
-</el-button>
 
+  </div>
 
-</div>
 
 
 
 
 
-<div
-class="payment-card"
-v-for="(card,index) in cards"
-:key="index"
->
+  <table class="orders-table">
 
 
+  <thead>
 
-<div class="payment-info">
+  <tr>
 
+  <th>
+  Order ID
+  </th>
 
-<h3>
-💳 {{card.type}}
-</h3>
 
+  <th>
+  Status
+  </th>
 
-<p>
-**** **** **** {{card.number}}
-</p>
 
+  <th>
+  Total
+  </th>
 
-<p>
-Expiry: {{card.expiry}}
-</p>
 
+  </tr>
 
+  </thead>
 
-</div>
 
 
+  <tbody>
 
-<el-button
-type="danger"
-size="small"
-@click="removeCard(index)"
->
-Remove
-</el-button>
 
 
+  <tr
+  v-for="order in recentOrders"
+  :key="order.id"
+  >
 
-</div>
 
+  <td>
+  #{{order.id}}
+  </td>
 
 
 
+  <td>
 
-<!-- ADD CARD FORM -->
 
+  <span
+  class="status"
+  :class="order.status.toLowerCase()"
+  >
 
-<div
-v-if="showCardForm"
-class="edit-box"
->
+  {{order.status}}
 
+  </span>
 
-<h3>
-Add New Card
-</h3>
 
+  </td>
 
 
-<el-input
-v-model="cardForm.type"
-placeholder="Card Type (Visa/Mastercard)"
-/>
 
+  <td>
+  ${{order.total}}
+  </td>
 
 
-<el-input
-v-model="cardForm.number"
-placeholder="Card Number"
-/>
 
+  </tr>
 
 
-<el-input
-v-model="cardForm.expiry"
-placeholder="Expiry Date"
-/>
+  </tbody>
 
 
 
-<el-button
-type="success"
-@click="saveCard"
->
-Save Card
-</el-button>
+  </table>
 
 
+  </section>
 
-<el-button
-@click="showCardForm=false"
->
-Cancel
-</el-button>
 
 
 
-</div>
 
 
 
-</section>
+  <!-- =========================
+        PASSWORD
+  ========================= -->
 
 
+  <section class="section">
 
 
+  <h2>
+  🔒 Change Password
+  </h2>
 
 
 
-<!-- =========================
-          WISHLIST
-========================= -->
 
+  <div class="form-grid">
 
-<section class="section">
 
+  <el-input
+  v-model="password.current"
+  type="password"
+  placeholder="Current Password"
+  show-password
+  />
 
-<div class="section-header">
 
 
-<h2>❤️ Wishlist</h2>
+  <el-input
+  v-model="password.new"
+  type="password"
+  placeholder="New Password"
+  show-password
+  />
 
 
-<router-link to="/wishlist">
 
-<el-button type="success">
+  <el-input
+  v-model="password.confirm"
+  type="password"
+  placeholder="Confirm Password"
+  show-password
+  />
 
-View Wishlist
 
-</el-button>
 
-</router-link>
+  </div>
 
 
 
-</div>
 
+  <el-button
+  type="warning"
+  @click="updatePassword"
+  >
+  Update Password
+  </el-button>
 
 
 
+  </section>
 
-<div class="wishlist-grid">
 
 
 
-<div
-class="wishlist-card"
-v-for="plant in wishlist"
-:key="plant.name"
->
 
 
-<img
-:src="plant.image"
-/>
 
+  <!-- =========================
+            LOGOUT
+  ========================= -->
 
 
-<h3>
-{{plant.name}}
-</h3>
+  <section class="logout">
 
 
+  <el-button
+  type="danger"
+  size="large"
+  @click="logout"
+  >
+  Logout
+  </el-button>
 
-</div>
 
+  </section>
 
 
-</div>
 
 
-</section>
-
-
-
-
-
-
-
-
-<!-- =========================
-      NOTIFICATIONS
-========================= -->
-
-
-<section class="section">
-
-
-<h2>
-🔔 Notification Settings
-</h2>
-
-
-
-
-<div class="setting">
-
-
-<span>
-Email Notifications
-</span>
-
-
-<el-switch
-v-model="notifications.email"
-/>
-
-
-</div>
-
-
-
-
-
-<div class="setting">
-
-
-<span>
-Order Updates
-</span>
-
-
-<el-switch
-v-model="notifications.orders"
-/>
-
-
-</div>
-
-
-
-
-
-<div class="setting">
-
-
-<span>
-Promotional Offers
-</span>
-
-
-<el-switch
-v-model="notifications.promotions"
-/>
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-
-<!-- =========================
-       RECENT ORDERS
-========================= -->
-
-
-<section class="section">
-
-
-<div class="section-header">
-
-
-<h2>
-📦 Recent Orders
-</h2>
-
-
-
-<router-link to="/orders">
-
-<el-button type="success">
-View All
-</el-button>
-
-</router-link>
-
-
-</div>
-
-
-
-
-
-
-<table class="orders-table">
-
-
-<thead>
-
-<tr>
-
-<th>
-Order ID
-</th>
-
-
-<th>
-Status
-</th>
-
-
-<th>
-Total
-</th>
-
-
-</tr>
-
-</thead>
-
-
-
-<tbody>
-
-
-
-<tr
-v-for="order in recentOrders"
-:key="order.id"
->
-
-
-<td>
-#{{order.id}}
-</td>
-
-
-
-<td>
-
-
-<span
-class="status"
-:class="order.status.toLowerCase()"
->
-
-{{order.status}}
-
-</span>
-
-
-</td>
-
-
-
-<td>
-${{order.total}}
-</td>
-
-
-
-</tr>
-
-
-</tbody>
-
-
-
-</table>
-
-
-</section>
-
-
-
-
-
-
-
-<!-- =========================
-       PASSWORD
-========================= -->
-
-
-<section class="section">
-
-
-<h2>
-🔒 Change Password
-</h2>
-
-
-
-
-<div class="form-grid">
-
-
-<el-input
-v-model="password.current"
-type="password"
-placeholder="Current Password"
-show-password
-/>
-
-
-
-<el-input
-v-model="password.new"
-type="password"
-placeholder="New Password"
-show-password
-/>
-
-
-
-<el-input
-v-model="password.confirm"
-type="password"
-placeholder="Confirm Password"
-show-password
-/>
-
-
-
-</div>
-
-
-
-
-<el-button
-type="warning"
-@click="updatePassword"
->
-Update Password
-</el-button>
-
-
-
-</section>
-
-
-
-
-
-
-
-<!-- =========================
-          LOGOUT
-========================= -->
-
-
-<section class="logout">
-
-
-<el-button
-type="danger"
-size="large"
-@click="logout"
->
-Logout
-</el-button>
-
-
-</section>
-
-
-
-
-</div>
+  </div>
 
 
 </template>

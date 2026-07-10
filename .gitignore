@@ -16,11 +16,6 @@ Thumbs.db
 node_modules/
 dist/
 
-# ─── Frontend env (API keys, OpenRouter key etc.) ─────────────
-frontend/.env
-frontend/.env.local
-frontend/.env.production
-
 # ─── VS Code (keep shared settings, ignore personal overrides) ─
 .vscode/settings.json
 
