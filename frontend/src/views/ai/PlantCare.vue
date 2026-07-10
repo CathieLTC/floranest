@@ -11,61 +11,21 @@
     </section>
 
     <!-- Plant Care Cards -->
-    <section class="care-grid">
-
-      <div class="care-card">
-        <div class="icon">💧</div>
-        <h2>Watering</h2>
-        <p>
-          Water your plants only when the top layer of soil feels dry.
-          Overwatering can cause root rot.
-        </p>
-      </div>
-
-      <div class="care-card">
-        <div class="icon">☀️</div>
-        <h2>Sunlight</h2>
-        <p>
-          Most indoor plants need bright indirect sunlight.
-          Keep them away from harsh afternoon sun.
-        </p>
-      </div>
-
-      <div class="care-card">
-        <div class="icon">🌱</div>
-        <h2>Fertilizer</h2>
-        <p>
-          Feed your plants every 4–6 weeks using a balanced fertilizer.
-        </p>
-      </div>
-
-      <div class="care-card">
-        <div class="icon">🌡️</div>
-        <h2>Temperature</h2>
-        <p>
-          Keep plants between 18°C and 27°C for healthy growth.
-        </p>
-      </div>
-
-      <div class="care-card">
-        <div class="icon">🪴</div>
-        <h2>Repotting</h2>
-        <p>
-          Repot every 1–2 years to encourage healthy root development.
-        </p>
-      </div>
-
-      <div class="care-card">
-        <div class="icon">🐛</div>
-        <h2>Pest Control</h2>
-        <p>
-          Inspect leaves regularly and remove pests before they spread.
-        </p>
-      </div>
-
-    </section>
-
     <GardeningTips />
+    <section class="tools">
+ 
+      <h2>🛠️ Gardening Tools</h2>
+      <p class="tools-subtitle">The essentials every plant parent should keep on hand</p>
+ 
+      <div class="tools-grid">
+        <div class="tool-card" v-for="tool in tools" :key="tool.title">
+          <div class="tool-icon">{{ tool.icon }}</div>
+          <h3>{{ tool.title }}</h3>
+          <p>{{ tool.text }}</p>
+        </div>
+      </div>
+ 
+    </section>
 
     <!-- Quick Tips -->
     <section class="tips">
@@ -233,6 +193,39 @@ import { ref } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
 import GardeningTips  from '@/components/home/GardeningTips.vue';
 
+const tools = [
+  {
+    icon: "✂️",
+    title: "Pruning Shears",
+    text: "For clean cuts that remove dead or overgrown leaves without crushing the stem."
+  },
+  {
+    icon: "🚿",
+    title: "Watering Can",
+    text: "A narrow spout gives you control so you water the soil, not the leaves."
+  },
+  {
+    icon: "🧤",
+    title: "Gardening Gloves",
+    text: "Protect your hands when repotting, pruning, or handling thorny or irritant plants."
+  },
+  {
+    icon: "🪴",
+    title: "Pots with Drainage",
+    text: "Good drainage holes prevent root rot by letting excess water escape."
+  },
+  {
+    icon: "🌡️",
+    title: "Soil Moisture Meter",
+    text: "Takes the guesswork out of watering by telling you exactly when soil is dry."
+  },
+  {
+    icon: "🧹",
+    title: "Soft Cleaning Brush",
+    text: "Keep leaves dust-free so they can absorb light efficiently."
+  }
+];
+
 const plant = ref("");
 
 const showResult = ref(false);
@@ -359,6 +352,61 @@ function analyzePlant(){
   padding:10px 0;
   border-bottom:1px solid #eee;
   color:#555;
+}
+
+/* ================= GARDENING TOOLS ================= */
+ 
+.tools{
+  margin-bottom:60px;
+}
+ 
+.tools h2{
+  text-align:center;
+  color:#2E7D32;
+  font-size:26px;
+  margin-bottom:8px;
+}
+ 
+.tools-subtitle{
+  text-align:center;
+  color:#888;
+  margin-bottom:30px;
+}
+ 
+.tools-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+ 
+.tool-card{
+  background:white;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+  border-left:4px solid #2E7D32;
+  transition:.25s;
+}
+ 
+.tool-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 20px rgba(46,125,50,.15);
+}
+ 
+.tool-icon{
+  font-size:30px;
+  margin-bottom:10px;
+}
+ 
+.tool-card h3{
+  color:#2E7D32;
+  margin-bottom:8px;
+}
+ 
+.tool-card p{
+  color:#555;
+  font-size:14px;
+  line-height:1.6;
 }
 
 /* ================= DISEASE SECTION ================= */
