@@ -61,7 +61,9 @@
           action="#"
           :auto-upload="false"
           :show-file-list="true"
-        >
+          :limit="1"
+          :on-change="handleFileChange"
+      >
 
           <el-icon class="upload-icon">
             <UploadFilled />
@@ -88,13 +90,14 @@
           <el-option label="Aloe Vera" value="Aloe Vera"/>
           <el-option label="Monstera" value="Monstera"/>
         </el-select>
-
+        
         <el-button
-          type="success"
-          size="large"
-          @click="analyzePlant"
+            type="success"
+            size="large"
+            :loading="loading"
+            @click="analyzePlant"
         >
-          Analyze Plant
+            Analyze Plant
         </el-button>
 
       </div>
@@ -190,8 +193,10 @@
 
 <script setup>
 import { ref } from "vue";
+import { ElMessage } from "element-plus";
 import { UploadFilled } from "@element-plus/icons-vue";
-import GardeningTips  from '@/components/home/GardeningTips.vue';
+import GardeningTips from "@/components/home/GardeningTips.vue";
+import { analyzePlantImage } from "@/api/ai";
 
 const tools = [
   {
@@ -227,48 +232,79 @@ const tools = [
 ];
 
 const plant = ref("");
-
+const imageFile = ref(null);
+const loading = ref(false);
 const showResult = ref(false);
 
-const disease = ref({});
+const disease = ref({
+  name: "",
+  confidence: "",
+  cause: "",
+  symptoms: [],
+  treatment: [],
+  prevention: []
+});
 
-function analyzePlant(){
+function handleFileChange(file) {
+  imageFile.value = file.raw;
+}
+
+async function analyzePlant() {
+
+  if (!imageFile.value) {
+    ElMessage.warning("Please upload a plant image first.");
+    return;
+  }
+
+  loading.value = true;
+  showResult.value = false;
+
+  try {
+
+    const response = await analyzePlantImage(imageFile.value);
+
+    const aiText =
+      response.choices[0].message.content
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+    const result = JSON.parse(aiText);
 
     disease.value = {
+      name: result.healthy
+        ? `${result.plantName} (Healthy)`
+        : result.disease,
 
-        name:"Leaf Spot",
+      confidence: result.confidence,
 
-        confidence:"96%",
+      cause: result.cause,
 
-        cause:"Leaf Spot is a fungal disease caused by excessive moisture and poor air circulation.",
+      symptoms: result.symptoms || [],
 
-        symptoms:[
-            "Brown circular spots",
-            "Yellow leaf edges",
-            "Dry patches",
-            "Leaf drop"
-        ],
+      treatment: result.treatment || [],
 
-        treatment:[
-            "Remove infected leaves",
-            "Apply fungicide",
-            "Avoid overwatering",
-            "Improve air circulation"
-        ],
-
-        prevention:[
-            "Water the soil instead of leaves",
-            "Keep plants well spaced",
-            "Use clean gardening tools",
-            "Inspect plants weekly"
-        ]
-
-    }
+      prevention: result.prevention || []
+    };
 
     showResult.value = true;
 
+    ElMessage.success("Plant analyzed successfully!");
+
+  } catch (error) {
+
+    console.error(error);
+
+    ElMessage.error("Failed to analyze plant.");
+
+  } finally {
+
+    loading.value = false;
+
+  }
 }
 </script>
+
 <style scoped>
 .care-page{
   padding:50px;
@@ -357,7 +393,11 @@ function analyzePlant(){
 /* ================= GARDENING TOOLS ================= */
  
 .tools{
-  margin-bottom:60px;
+  background: white;
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08);
+  margin-bottom: 60px;
 }
  
 .tools h2{
@@ -370,13 +410,15 @@ function analyzePlant(){
 .tools-subtitle{
   text-align:center;
   color:#888;
-  margin-bottom:30px;
+  margin-bottom:35px;
+  font-size:15px;
 }
  
 .tools-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px;
+  gap:25px;
+  margin-top:30px;
 }
  
 .tool-card{

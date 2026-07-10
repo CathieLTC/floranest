@@ -163,3 +163,28 @@ Respond with ONLY a valid JSON array, no markdown, no extra text:
         throw e;
     }
 }
+
+// ─────────────────────────────────────────────────────────────
+// FEATURE 4: Plant Image Analysis
+// ─────────────────────────────────────────────────────────────
+
+export async function analyzePlantImage(imageFile) {
+
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const response = await fetch(
+        "http://localhost:8080/ai/analyzePlant",
+        {
+            method: "POST",
+            body: formData
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to analyze plant.");
+    }
+
+    return await response.json();
+
+}
