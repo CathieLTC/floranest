@@ -106,59 +106,59 @@
 
     <!-- Result -->
 
-    <section
-      class="result"
-      v-if="showResult"
-    >
+   <!-- Result -->
+    <section class="result" v-if="showResult">
 
       <h2>Diagnosis Result</h2>
 
-      <div class="result-card">
+      <div class="result-card" :class="disease.healthy ? 'healthy' : 'diseased'">
 
-        <h3>{{ disease.name }}</h3>
+        <!-- Status banner -->
+        <div class="status-banner">
+          <span class="status-icon">{{ disease.healthy ? '✅' : '⚠️' }}</span>
+          <h3>{{ disease.name }}</h3>
+        </div>
 
-        <p>
-          <strong>Confidence:</strong>
-          {{ disease.confidence }}
-        </p>
+        <div class="meta-row">
+          <p><strong>Confidence:</strong> {{ disease.confidence }}</p>
+          <p v-if="!disease.healthy"><strong>Cause:</strong> {{ disease.cause }}</p>
+        </div>
 
-        <p>
-          <strong>Cause:</strong>
-          {{ disease.cause }}
-        </p>
+        <!-- Healthy message -->
+        <div v-if="disease.healthy" class="healthy-message">
+          <p>🎉 Your plant looks healthy! Keep up the great care.</p>
+        </div>
 
-        <h4>Symptoms</h4>
+        <!-- Disease details — only shown when not healthy -->
+        <template v-else>
+          <div class="detail-block">
+            <h4>🔍 Symptoms</h4>
+            <ul>
+              <li v-for="item in disease.symptoms" :key="item">{{ item }}</li>
+            </ul>
+          </div>
 
-        <ul>
-          <li
-            v-for="item in disease.symptoms"
-            :key="item"
-          >
-            {{ item }}
-          </li>
-        </ul>
+          <div class="detail-block">
+            <h4>💊 Treatment</h4>
+            <ul>
+              <li v-for="item in disease.treatment" :key="item">{{ item }}</li>
+            </ul>
+          </div>
+        </template>
 
-        <h4>Treatment</h4>
-
-        <ul>
-          <li
-            v-for="item in disease.treatment"
-            :key="item"
-          >
-            {{ item }}
-          </li>
-        </ul>
-
-        <h4>Prevention</h4>
-
-        <ul>
-          <li
-            v-for="item in disease.prevention"
-            :key="item"
-          >
-            {{ item }}
-          </li>
-        </ul>
+        <!-- Prevention always shown -->
+        <div class="detail-block">
+          <h4>🛡️ Prevention Tips</h4>
+          <ul v-if="disease.prevention.length">
+            <li v-for="item in disease.prevention" :key="item">{{ item }}</li>
+          </ul>
+          <ul v-else>
+            <li>Water at the base, not on the leaves.</li>
+            <li>Ensure good drainage to prevent root rot.</li>
+            <li>Inspect regularly for early signs of pests.</li>
+            <li>Keep leaves clean to maximise light absorption.</li>
+          </ul>
+        </div>
 
       </div>
 
@@ -237,72 +237,68 @@ const loading = ref(false);
 const showResult = ref(false);
 
 const disease = ref({
-  name: "",
+  name:       "",
   confidence: "",
-  cause: "",
-  symptoms: [],
-  treatment: [],
+  cause:      "",
+  healthy:    false,
+  symptoms:   [],
+  treatment:  [],
   prevention: []
 });
 
-function handleFileChange(file) {
-  imageFile.value = file.raw;
-}
-
 async function analyzePlant() {
-
   if (!imageFile.value) {
     ElMessage.warning("Please upload a plant image first.");
     return;
   }
 
-  loading.value = true;
+  loading.value    = true;
   showResult.value = false;
 
   try {
-
     const response = await analyzePlantImage(imageFile.value);
 
-    const aiText =
-      response.choices[0].message.content
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
+    // Parse the AI text response
+    const aiText = response.choices[0].message.content
+      .replace(/```json/g, "")
+      .replace(/```/g,     "")
+      .trim();
 
     const result = JSON.parse(aiText);
 
+    // Format confidence as percentage if it comes as decimal
+    let confidence = result.confidence;
+    if (typeof confidence === "number") {
+      confidence = Math.round(confidence * 100) + "%";
+    }
+
     disease.value = {
-      name: result.healthy
-        ? `${result.plantName} (Healthy)`
-        : result.disease,
-
-      confidence: result.confidence,
-
-      cause: result.cause,
-
-      symptoms: result.symptoms || [],
-
-      treatment: result.treatment || [],
-
+      name:       result.healthy
+                    ? `${result.plantName} (Healthy)`
+                    : `${result.plantName} — ${result.disease}`,
+      confidence: confidence,
+      cause:      result.cause      || "n/a",
+      healthy:    result.healthy    || false,
+      symptoms:   result.symptoms   || [],
+      treatment:  result.treatment  || [],
       prevention: result.prevention || []
     };
 
     showResult.value = true;
-
-    ElMessage.success("Plant analyzed successfully!");
+    ElMessage.success("Plant analysed successfully!");
 
   } catch (error) {
-
     console.error(error);
-
-    ElMessage.error("Failed to analyze plant.");
-
+    ElMessage.error("Failed to analyse plant. Please try again.");
   } finally {
-
     loading.value = false;
-
   }
 }
+
+function handleFileChange(file) {
+  imageFile.value = file.raw;
+}
+
 </script>
 
 <style scoped>
@@ -565,6 +561,64 @@ async function analyzePlant() {
   .select{
     width:100%;
   }
+}
 
+.result-card.healthy  { border-left: 5px solid #2E7D32; }
+.result-card.diseased { border-left: 5px solid #f44336; }
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.status-icon { font-size: 28px; }
+
+.status-banner h3 {
+  margin: 0;
+  color: #2E7D32;
+  font-size: 18px;
+}
+
+.meta-row {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.healthy-message {
+  background: #e8f5e9;
+  padding: 16px 20px;
+  border-radius: 10px;
+  color: #2E7D32;
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+.detail-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.detail-block h4 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.detail-block ul {
+  margin-left: 20px;
+  padding: 0;
+}
+
+.detail-block li {
+  margin-bottom: 6px;
+  color: #555;
+  line-height: 1.5;
 }
 </style>
