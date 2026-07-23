@@ -27,7 +27,7 @@
         <!-- LOGIN BUTTON -->
         <el-button type="success" class="login-btn" @click="handleLogin">Login</el-button>
 
-        <p class="footer-text">Don't have an account?<router-link to="/auth/register">Register</router-link></p>
+        <p class="footer-text">Don't have an account?<router-link to="register">Register</router-link></p>
       </div>
     </div>
   </div>

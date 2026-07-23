@@ -163,3 +163,64 @@ Respond with ONLY a valid JSON array, no markdown, no extra text:
         throw e;
     }
 }
+
+// ─── FEATURE 4: Plant Disease Detection ──────────────────────────────────────
+// Called by PlantCare.vue
+// Accepts: an image File object from the upload component
+// Returns: the raw API response (PlantCare.vue handles parsing)
+
+export async function analyzePlantImage(imageFile) {
+
+    // Convert image file to base64
+    const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
+    });
+
+    const mimeType = imageFile.type || "image/jpeg";
+
+    // Send to backend proxy — same /ai/chat endpoint
+    const response = await fetch("http://localhost:8080/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:${mimeType};base64,${base64}`
+                            }
+                        },
+                        {
+                            type: "text",
+                            text: `Analyze this plant image and respond ONLY with a valid JSON object, no markdown, no extra text:
+                            {
+                            "plantName": "Common plant name",
+                            "healthy": true or false,
+                            "confidence": "98%",
+                            "disease": "Disease name or null if healthy",
+                            "cause": "Cause or null if healthy",
+                            "symptoms": ["symptom 1", "symptom 2"] or [] if healthy,
+                            "treatment": ["step 1", "step 2"] or [] if healthy,
+                            "prevention": ["tip 1", "tip 2"]
+                            }`
+                        }
+                    ]
+                }
+            ],
+            max_tokens: 800
+        })
+    });
+
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || "Analysis failed");
+    }
+
+    return await response.json();
+}
