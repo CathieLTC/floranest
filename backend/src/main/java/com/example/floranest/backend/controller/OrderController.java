@@ -2,7 +2,6 @@ package com.example.floranest.backend.controller;
 
 import com.example.floranest.backend.entity.Order;
 import com.example.floranest.backend.service.OrderService;
-import com.example.floranest.backend.mapper.OrderMapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,11 +13,9 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService orderService;
-    private final OrderMapper orderMapper;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
-        this.orderMapper = orderMapper;
     }
 
     // All orders (admin use)

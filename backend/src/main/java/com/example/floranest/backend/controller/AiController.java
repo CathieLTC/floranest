@@ -1,7 +1,9 @@
 package com.example.floranest.backend.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -22,6 +24,7 @@ public class AiController {
     private static final long BASE_BACKOFF_MS = 2_000L;
 
     @Value("${ai.api.key:NOT_FOUND}")
+    @NonNull
     private String apiKey;
 
     @Value("${ai.api.url}")
@@ -169,9 +172,18 @@ public class AiController {
         while (true) {
             attempt++;
             try {
-                ResponseEntity<Map> response =
-                        restTemplate.postForEntity(apiUrl, request, Map.class);
-                return response.getBody();
+                ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                        apiUrl,
+                        HttpMethod.POST,
+                        request,
+                        new ParameterizedTypeReference<Map<String, Object>>() {});
+                Map<String, Object> responseBody = response.getBody();
+                if (responseBody == null) {
+                    throw new IllegalStateException(
+                            "AI provider returned an empty response body"
+                    );
+                }
+                return responseBody;
             } catch (HttpClientErrorException.TooManyRequests e) {
                 if (attempt >= MAX_ATTEMPTS) {
                     throw e;
@@ -191,20 +203,21 @@ public class AiController {
      * Maps an upstream 4xx error to a JSON error response
      * that keeps the same HTTP status (429 stays 429).
      */
-    private ResponseEntity<Map> buildErrorResponse(HttpClientErrorException e) {
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpClientErrorException e) {
         String friendly = e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS
                 ? "AI service is receiving too many requests. Please wait a moment and try again."
                 : "AI request was rejected: " + e.getStatusCode().value();
         return ResponseEntity
                 .status(e.getStatusCode())
-                .body(Map.of("error", Map.of("message", friendly)));
+                .body(Map.<String, Object>of("error", Map.of("message", friendly)));
     }
 
     /** Reads the Retry-After header when present; falls back to a default delay. */
     private long retryAfterMillis(HttpClientErrorException e) {
-        List<String> values = e.getResponseHeaders() == null
+        HttpHeaders responseHeaders = e.getResponseHeaders();
+        List<String> values = responseHeaders == null
                 ? List.of()
-                : e.getResponseHeaders().getValuesAsList(HttpHeaders.RETRY_AFTER);
+                : responseHeaders.getValuesAsList(HttpHeaders.RETRY_AFTER);
         if (!values.isEmpty()) {
             try {
                 return Long.parseLong(values.get(0)) * 1000L;

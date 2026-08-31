@@ -4,7 +4,6 @@ import com.example.floranest.backend.entity.User;
 import com.example.floranest.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
