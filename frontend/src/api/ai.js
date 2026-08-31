@@ -18,7 +18,21 @@ If a question is unrelated to plants or gardening, politely redirect
 the user back to plant topics.`;
 
 // ─── Core caller — sends to our backend, not AI directly ─────────────────────
+const RATE_LIMIT_MSG = "The AI service is rate limited. Please wait about a minute, then try again.";
+
+// Space out consecutive AI calls to stay under the provider's rate limit.
+let lastCallAt = 0;
+const MIN_INTERVAL_MS = 1000;
+
+async function waitForRateSlot() {
+    const wait = MIN_INTERVAL_MS - (Date.now() - lastCallAt);
+    if (wait > 0) await new Promise(r => setTimeout(r, wait));
+    lastCallAt = Date.now();
+}
+
 async function callAI(messages, maxTokens = 500) {
+    await waitForRateSlot();
+
     const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,8 +44,16 @@ async function callAI(messages, maxTokens = 500) {
     });
 
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || `Backend error ${response.status}`);
+        let message = `Backend error ${response.status}`;
+        try {
+            const err = await response.json();
+            message = err.error?.message || message;
+        } catch { /* non-JSON error body */ }
+
+        if (response.status === 429) {
+            throw new Error(RATE_LIMIT_MSG);
+        }
+        throw new Error(message);
     }
 
     const data = await response.json();
@@ -218,8 +240,16 @@ export async function analyzePlantImage(imageFile) {
     });
 
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || "Analysis failed");
+        let message = "Analysis failed";
+        try {
+            const err = await response.json();
+            message = err.error?.message || message;
+        } catch { /* non-JSON error body */ }
+
+        if (response.status === 429) {
+            throw new Error(RATE_LIMIT_MSG);
+        }
+        throw new Error(message);
     }
 
     return await response.json();

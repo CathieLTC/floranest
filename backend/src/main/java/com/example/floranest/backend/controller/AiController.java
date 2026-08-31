@@ -3,18 +3,23 @@ package com.example.floranest.backend.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.HashMap;
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/ai")
 @CrossOrigin
 public class AiController {
+
+    private static final int MAX_ATTEMPTS = 3;
+    private static final long BASE_BACKOFF_MS = 2_000L;
 
     @Value("${ai.api.key:NOT_FOUND}")
     private String apiKey;
@@ -33,24 +38,13 @@ public class AiController {
      * Keeps the API key hidden on the server side.
      */
     @PostMapping("/chat")
-    public ResponseEntity<Map> chat(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> chat(@RequestBody Map<String, Object> body) {
         try {
             // Inject the correct model into the request body
             body.put("model", model);
-
-            // Forward to AI API with auth header
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "Bearer " + apiKey);
-
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(
-                    apiUrl, request, Map.class
-            );
-
-            return ResponseEntity.ok(response.getBody());
-
+            return ResponseEntity.ok(callAiApi(body));
+        } catch (HttpClientErrorException e) {
+            return buildErrorResponse(e);
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -133,22 +127,13 @@ public class AiController {
             requestBody.put("temperature",0.2);
             requestBody.put("max_tokens",1000);
 
-            HttpHeaders headers = new HttpHeaders();
+            return ResponseEntity.ok(callAiApi(requestBody));
 
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
+        }
 
-            HttpEntity<Map<String,Object>> request =
-                    new HttpEntity<>(requestBody,headers);
+        catch (HttpClientErrorException e) {
 
-            ResponseEntity<Map> response =
-                    restTemplate.postForEntity(
-                            apiUrl,
-                            request,
-                            Map.class
-                    );
-
-            return ResponseEntity.ok(response.getBody());
+            return buildErrorResponse(e);
 
         }
 
@@ -164,5 +149,77 @@ public class AiController {
 
         }
 
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Forwards a request to the AI provider.
+     * Transient failures (429 rate limit, 5xx) are retried with backoff,
+     * honouring the upstream Retry-After header when provided.
+     */
+    private Map<String, Object> callAiApi(Map<String, Object> body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        int attempt = 0;
+        while (true) {
+            attempt++;
+            try {
+                ResponseEntity<Map> response =
+                        restTemplate.postForEntity(apiUrl, request, Map.class);
+                return response.getBody();
+            } catch (HttpClientErrorException.TooManyRequests e) {
+                if (attempt >= MAX_ATTEMPTS) {
+                    throw e;
+                }
+                sleepSafely(retryAfterMillis(e));
+            } catch (HttpServerErrorException e) {
+                if (attempt >= MAX_ATTEMPTS) {
+                    throw e;
+                }
+                // Exponential backoff: 2s, 4s
+                sleepSafely(BASE_BACKOFF_MS * (1L << (attempt - 1)));
+            }
+        }
+    }
+
+    /**
+     * Maps an upstream 4xx error to a JSON error response
+     * that keeps the same HTTP status (429 stays 429).
+     */
+    private ResponseEntity<Map> buildErrorResponse(HttpClientErrorException e) {
+        String friendly = e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS
+                ? "AI service is receiving too many requests. Please wait a moment and try again."
+                : "AI request was rejected: " + e.getStatusCode().value();
+        return ResponseEntity
+                .status(e.getStatusCode())
+                .body(Map.of("error", Map.of("message", friendly)));
+    }
+
+    /** Reads the Retry-After header when present; falls back to a default delay. */
+    private long retryAfterMillis(HttpClientErrorException e) {
+        List<String> values = e.getResponseHeaders() == null
+                ? List.of()
+                : e.getResponseHeaders().getValuesAsList(HttpHeaders.RETRY_AFTER);
+        if (!values.isEmpty()) {
+            try {
+                return Long.parseLong(values.get(0)) * 1000L;
+            } catch (NumberFormatException ignored) {
+                // fall through to default
+            }
+        }
+        return BASE_BACKOFF_MS;
+    }
+
+    private void sleepSafely(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
