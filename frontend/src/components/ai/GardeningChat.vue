@@ -98,7 +98,7 @@ async function handleSend() {
     const reply = await sendChatMessage(text, messages.value);
     messages.value.push(reply);
   } catch (e) {
-    ElMessage.error("Could not get a response. Please try again.");
+    ElMessage.error(e.message || "Could not get a response. Please try again.");
     console.error(e);
   } finally {
     loading.value = false;
