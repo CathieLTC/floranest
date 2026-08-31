@@ -21,13 +21,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userMapper.findAll();
+    public List<User> getAllUsers(){
+        List<User> users = userMapper.findAll();
+        users.forEach(u -> u.setPassword(null));
+        return users;
     }
 
     @Override
     public User getUserById(Integer userId) {
-        return userMapper.findById(userId);
+
+        User user = userMapper.findById(userId);
+
+        if(user != null){
+            user.setPassword(null);
+        }
+
+        return user;
     }
 
     @Override
@@ -59,11 +68,43 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(User user) {
+
+        User existing = userMapper.findById(user.getUserId());
+
+        if(existing == null){
+            return false;
+        }
+
+        // Keep sensitive values
+        user.setPassword(existing.getPassword());
+        user.setRole(existing.getRole());
+
         return userMapper.update(user) > 0;
     }
 
     @Override
     public boolean deleteUser(Integer userId) {
         return userMapper.delete(userId) > 0;
+    }
+
+    @Override
+    public boolean changePassword(
+            Integer userId,
+            String currentPassword,
+            String newPassword) {
+
+        User user = userMapper.findById(userId);
+
+        if (user == null) {
+            return false;
+        }
+
+        if (passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return false;
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        return userMapper.update(user) > 0;
     }
 }

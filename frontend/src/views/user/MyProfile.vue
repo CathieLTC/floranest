@@ -5,7 +5,7 @@
         <div class="profile-photo">
           <img :src="profileImage" class="profile-image"/>
           <input ref="fileInput" type="file" accept="image/*" class="hidden-input" @change="changePhoto"/>
-          <el-button type="success"plain @click="fileInput.click()">Change Photo</el-button>
+          <el-button type="success" plain @click="fileInput.click()">Change Photo</el-button>
         </div>
         <div>
           <h1>{{ user.fullName }}</h1>
@@ -71,10 +71,10 @@
         </div>
       </div>
       <!-- ADDRESS FORM -->
-      <div v-if="showAddressForm"class="edit-box">
+      <div v-if="showAddressForm" class="edit-box">
         <h3>{{editingIndex === null ?"Add New Address":"Edit Address"}}</h3>
         <el-input v-model="addressForm.title" placeholder="Address Name"/>
-        <el-input v-model="addressForm.address"placeholder="Street Address"/>
+        <el-input v-model="addressForm.address" placeholder="Street Address"/>
         <el-input v-model="addressForm.city" placeholder="City"/>
         <el-input v-model="addressForm.country" placeholder="Country"/>
         <el-button type="success" @click="saveAddress">Save Address</el-button>
@@ -506,22 +506,13 @@ if (!loggedInUser) {
   router.push("/login");
 }
 
-
-
 /* =========================
       PROFILE IMAGE
 ========================= */
-
-
 const fileInput = ref(null);
-
-
 const profileImage = ref(
   "https://i.pravatar.cc/200"
 );
-
-
-
 onMounted(()=>{
 
 const savedImage =
@@ -1160,53 +1151,53 @@ confirm:""
 });
 
 
+const updatePassword = async () => {
 
+  if (!password.value.current ||
+      !password.value.new ||
+      !password.value.confirm) {
 
+    ElMessage.warning("Please complete all password fields.");
+    return;
 
+  }
 
-const updatePassword=()=>{
+  if (password.value.new !== password.value.confirm) {
 
+    ElMessage.error("Passwords do not match.");
+    return;
 
-if(password.value.new !== password.value.confirm){
+  }
 
+  try {
 
-ElMessage.error(
-"Passwords do not match"
-);
+    const response = await api.put(
+      `/users/${loggedInUser.userId}/password`,
+      {
+        currentPassword: password.value.current,
+        newPassword: password.value.new
+      }
+    );
 
+    ElMessage.success(response.data);
 
-return;
+    password.value = {
+      current: "",
+      new: "",
+      confirm: ""
+    };
 
-}
+  } catch (error) {
 
+    console.error(error);
 
+    ElMessage.error(
+      error.response?.data || "Failed to update password."
+    );
 
-ElMessage.success(
-"Password updated"
-);
-
-
-
-password.value={
-
-current:"",
-
-new:"",
-
-confirm:""
+  }
 
 };
-
-
-
-};
-
-
-
-
-
-
-
 
 /* =========================
           LOGOUT

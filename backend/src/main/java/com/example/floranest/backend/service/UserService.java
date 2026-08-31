@@ -12,5 +12,9 @@ public interface UserService {
     User login(String email, String password);
     boolean updateUser(User user);
     boolean deleteUser(Integer userId);
-
+    boolean changePassword(
+            Integer userId,
+            String currentPassword,
+            String newPassword
+    );
 }
