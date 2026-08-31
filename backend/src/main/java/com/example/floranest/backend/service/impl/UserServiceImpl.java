@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        if (passwordEncoder.matches(currentPassword, user.getPassword())) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             return false;
         }
 

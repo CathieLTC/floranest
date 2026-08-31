@@ -64,10 +64,18 @@
 
         <div class="total">
           <strong>Total:</strong>
-          <strong>${{ total }}</strong>
+          <strong>${{ total.toFixed(2) }}</strong>
         </div>
 
-        <el-button type="success" size="large" class="place-btn" @click="placeOrder">Place Order</el-button>
+        <el-button
+          type="success"
+          size="large"
+          class="place-btn"
+          :loading="placing"
+          @click="placeOrder"
+        >
+          Place Order
+        </el-button>
 
       </div>
 
@@ -81,16 +89,18 @@
   import { useRouter } from "vue-router";
   import { ElMessage } from "element-plus";
   import api from "@/api/axios";
+  import { useUserStore } from "@/stores/user";
 
   const router = useRouter();
-
-  const user = JSON.parse(localStorage.getItem("user"));
+  const userStore = useUserStore();
+  const user = userStore.user;
 
   if (!user) {
     router.push("/login");
   }
 
   const cart = ref([]);
+  const placing = ref(false);
 
   const form = ref({
     name: user?.fullName || "",
@@ -102,7 +112,7 @@
     payment: ""
   });
 
- 
+
   const hasSavedAddress = ref(false);
   const editingShipping = ref(false);
   const saveToProfile = ref(true);
@@ -177,48 +187,62 @@
 
  const placeOrder = async () => {
 
-  if (
-    !form.value.name ||
-    !form.value.email ||
-    !form.value.address ||
-    !form.value.city ||
-    !form.value.phone ||
-    !form.value.payment
-  ) {
-    ElMessage.warning("Please fill all required fields");
-    return;
-  }
+  if (placing.value) return;
+  placing.value = true;
 
-  if (editingShipping.value && saveToProfile.value) {
+  try {
 
-    try {
-
-      await api.put(`/users/${user.userId}`, {
-        fullName: form.value.name,
-        email: form.value.email,
-        phone: form.value.phone,
-        address: form.value.address,
-        city: form.value.city,
-        country: form.value.country
-      });
-
-    } catch (error) {
-      console.error(error);
-     
+    if (cart.value.length === 0) {
+      ElMessage.warning("Your cart is empty — add some plants first.");
+      return;
     }
 
+    if (
+      !form.value.name ||
+      !form.value.email ||
+      !form.value.address ||
+      !form.value.city ||
+      !form.value.phone ||
+      !form.value.payment
+    ) {
+      ElMessage.warning("Please fill all required fields");
+      return;
+    }
+
+    if (editingShipping.value && saveToProfile.value) {
+
+      try {
+
+        await api.put(`/users/${user.userId}`, {
+          fullName: form.value.name,
+          email: form.value.email,
+          phone: form.value.phone,
+          address: form.value.address,
+          city: form.value.city,
+          country: form.value.country
+        });
+
+      } catch (error) {
+        console.error(error);
+        ElMessage.warning("Could not save shipping details to your profile, but you can still continue.");
+      }
+
+    }
+
+    sessionStorage.setItem(
+      "checkoutData",
+      JSON.stringify({
+        shipping: form.value,
+        cart: cart.value,
+        total: Number(total.value.toFixed(2))
+      })
+    );
+
+    router.push("/payment");
+
+  } finally {
+    placing.value = false;
   }
-
-  sessionStorage.setItem(
-    "checkoutData",
-    JSON.stringify({
-      shipping: form.value,
-      cart: cart.value,
-      total: total.value
-    })
-  );
-
-  router.push("/payment");
 
 };
 </script>

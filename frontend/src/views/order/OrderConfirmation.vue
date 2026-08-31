@@ -13,7 +13,7 @@
 
         <p><strong>Order ID:</strong> #FN{{ orderId }}</p>
 
-        <p><strong>Total:</strong> ${{ total }}</p>
+        <p><strong>Total:</strong> ${{ Number(total).toFixed(2) }}</p>
 
         <p><strong>Status:</strong> Processing 🌱</p>
 
@@ -48,7 +48,7 @@
     }
 
   });
-</script>>
+</script>
 
 <style scoped>
 .confirm-page{

@@ -24,6 +24,14 @@ export default defineConfig([
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
 
+  {
+    name: 'app/vue-custom-rules',
+    rules: {
+      // Project uses single-word component names throughout (Checkout, Payment, Login, ...)
+      'vue/multi-word-component-names': 'off',
+    },
+  },
+
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
   skipFormatting,

@@ -193,6 +193,8 @@ CREATE TABLE `users`  (
   `full_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `city` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `country` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `role` enum('CUSTOMER','ADMIN') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'CUSTOMER',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -203,8 +205,16 @@ CREATE TABLE `users`  (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES (1, 'cate@gmail.com', '123456', 'Cate Diva', NULL, NULL, 'CUSTOMER', '2026-07-03 17:08:52', '2026-07-03 17:08:52');
-INSERT INTO `users` VALUES (2, 'wmht46oxf@mozmail.com', '123456', 'Cissy Diva', NULL, NULL, 'CUSTOMER', '2026-07-04 12:11:50', '2026-07-04 12:11:50');
-INSERT INTO `users` VALUES (3, 'leo@gmail.com', '123456', 'Leo Francisco', NULL, NULL, 'CUSTOMER', '2026-07-04 13:09:36', '2026-07-04 13:09:36');
+INSERT INTO `users` VALUES (1, 'cate@gmail.com', '123456', 'Cate Diva', NULL, NULL, NULL, NULL, 'CUSTOMER', '2026-07-03 17:08:52', '2026-07-03 17:08:52');
+INSERT INTO `users` VALUES (2, 'wmht46oxf@mozmail.com', '123456', 'Cissy Diva', NULL, NULL, NULL, NULL, 'CUSTOMER', '2026-07-04 12:11:50', '2026-07-04 12:11:50');
+INSERT INTO `users` VALUES (3, 'leo@gmail.com', '123456', 'Leo Francisco', NULL, NULL, NULL, NULL, 'CUSTOMER', '2026-07-04 13:09:36', '2026-07-04 13:09:36');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Upgrade script for EXISTING databases (ran already has city/country)
+-- Run manually against an already-created floranest_db:
+--   ALTER TABLE `users`
+--     ADD COLUMN `city` varchar(100) NULL DEFAULT NULL AFTER `address`,
+--     ADD COLUMN `country` varchar(100) NULL DEFAULT NULL AFTER `city`;
+-- ----------------------------
