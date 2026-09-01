@@ -27,3 +27,5 @@ AGENTS.md
 
 # ─── Other sensitive files ─────────────────────────────────────
 backend/src/main/resources/application.properties
+backend/src/main/resources/application.properties
+backend/src/main/resources/application.local.properties
