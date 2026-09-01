@@ -3,7 +3,7 @@
 
     <!-- Page header -->
     <div class="page-header">
-      <el-tag type="success" effect="plain" round>✨ Powered by DeepSeek AI</el-tag>
+      <el-tag type="success" effect="plain" round>✨ Powered by AI</el-tag>
       <h1>FloraNest AI Assistant</h1>
       <p>Chat with our gardening expert, get personalised plant recommendations,
          or search using natural language.</p>
