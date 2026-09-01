@@ -1,10 +1,12 @@
 /**
  * FloraNest AI Service
- * All AI calls go through our Spring Boot backend at /ai/chat
+ * All AI calls go through our Spring Boot backend at /ai/chat.
  * The backend holds the API key — it never touches the frontend.
  */
+import api from "@/api/axios";
 
-const BACKEND_URL = "http://localhost:8080/ai/chat";
+const RATE_LIMIT_MSG = "The AI service is rate limited. Please wait about a minute, then try again.";
+const EMPTY_RESPONSE_MSG = "The AI service returned an empty response. Please try again.";
 
 const SYSTEM_PROMPT = `You are FloraNest AI, a friendly and knowledgeable gardening
 assistant for an online plant shop. You help users with:
@@ -17,8 +19,7 @@ Keep responses concise (3-5 sentences), warm, and practical.
 If a question is unrelated to plants or gardening, politely redirect
 the user back to plant topics.`;
 
-// ─── Core caller — sends to our backend, not AI directly ─────────────────────
-const RATE_LIMIT_MSG = "The AI service is rate limited. Please wait about a minute, then try again.";
+// ─── Shared helpers ───────────────────────────────────────────────────────────
 
 // Space out consecutive AI calls to stay under the provider's rate limit.
 let lastCallAt = 0;
@@ -30,34 +31,49 @@ async function waitForRateSlot() {
     lastCallAt = Date.now();
 }
 
-async function callAI(messages, maxTokens = 500) {
+/** Normalises an error from the backend proxy into a friendly message. */
+function extractErrorMessage(e, fallback) {
+    if (e.response?.status === 429) return RATE_LIMIT_MSG;
+    return e.response?.data?.error?.message || e.message || fallback;
+}
+
+/** Posts a chat payload to the backend proxy and returns the parsed JSON body. */
+async function postChat(payload) {
     await waitForRateSlot();
-
-    const response = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            messages:   messages,
-            max_tokens: maxTokens,
-            temperature: 0.7
-        })
-    });
-
-    if (!response.ok) {
-        let message = `Backend error ${response.status}`;
-        try {
-            const err = await response.json();
-            message = err.error?.message || message;
-        } catch { /* non-JSON error body */ }
-
-        if (response.status === 429) {
-            throw new Error(RATE_LIMIT_MSG);
-        }
-        throw new Error(message);
+    try {
+        const response = await api.post("/ai/chat", payload);
+        return response.data;
+    } catch (e) {
+        throw new Error(
+            extractErrorMessage(e, `Backend error ${e.response?.status || "unknown"}`),
+            { cause: e }
+        );
     }
+}
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+/** Core caller — returns the assistant text from the provider response. */
+async function callAI(messages, maxTokens = 500) {
+    const data = await postChat({
+        messages,
+        max_tokens: maxTokens,
+        temperature: 0.7
+    });
+    const content = data.choices?.[0]?.message?.content;
+    if (typeof content !== "string" || !content.trim()) {
+        throw new Error(EMPTY_RESPONSE_MSG);
+    }
+    return content;
+}
+
+/** Loads the full product catalogue from the backend (empty on failure). */
+async function fetchProducts() {
+    try {
+        const response = await api.get("/products");
+        return response.data;
+    } catch (e) {
+        console.error("Failed to fetch products:", e);
+        return [];
+    }
 }
 
 // ─── FEATURE 1: Gardening Chat ────────────────────────────────────────────────
@@ -95,9 +111,7 @@ Example: low light, shade tolerant, indoor`
 
         const keywordText = await callAI(messages, 50);
         const keywords    = keywordText.split(",").map(k => k.trim().toLowerCase());
-
-        const res      = await fetch("http://localhost:8080/products");
-        const products = await res.json();
+        const products    = await fetchProducts();
 
         return products
             .filter(p => {
@@ -153,13 +167,7 @@ Respond with ONLY a valid JSON array, no markdown, no extra text:
         const text        = await callAI(messages, 600);
         const clean       = text.replace(/```json|```/g, "").trim();
         const suggestions = JSON.parse(clean);
-
-        // Try to match against real backend products
-        let products = [];
-        try {
-            const res = await fetch("http://localhost:8080/products");
-            products  = await res.json();
-        } catch { /* backend unavailable, use AI data only */ }
+        const products    = await fetchProducts();
 
         return suggestions.map((s, i) => {
             const match = products.find(p =>
@@ -190,7 +198,6 @@ Respond with ONLY a valid JSON array, no markdown, no extra text:
 // Called by PlantCare.vue
 // Accepts: an image File object from the upload component
 // Returns: the raw API response (PlantCare.vue handles parsing)
-
 export async function analyzePlantImage(imageFile) {
 
     // Convert image file to base64
@@ -204,53 +211,34 @@ export async function analyzePlantImage(imageFile) {
     const mimeType = imageFile.type || "image/jpeg";
 
     // Send to backend proxy — same /ai/chat endpoint
-    const response = await fetch("http://localhost:8080/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:${mimeType};base64,${base64}`
-                            }
-                        },
-                        {
-                            type: "text",
-                            text: `Analyze this plant image and respond ONLY with a valid JSON object, no markdown, no extra text:
-                            {
-                            "plantName": "Common plant name",
-                            "healthy": true or false,
-                            "confidence": "98%",
-                            "disease": "Disease name or null if healthy",
-                            "cause": "Cause or null if healthy",
-                            "symptoms": ["symptom 1", "symptom 2"] or [] if healthy,
-                            "treatment": ["step 1", "step 2"] or [] if healthy,
-                            "prevention": ["tip 1", "tip 2"]
-                            }`
+    return postChat({
+        messages: [
+            {
+                role: "user",
+                content: [
+                    {
+                        type: "image_url",
+                        image_url: {
+                            url: `data:${mimeType};base64,${base64}`
                         }
-                    ]
-                }
-            ],
-            max_tokens: 800
-        })
+                    },
+                    {
+                        type: "text",
+                        text: `Analyze this plant image and respond ONLY with a valid JSON object, no markdown, no extra text:
+                        {
+                        "plantName": "Common plant name",
+                        "healthy": true or false,
+                        "confidence": "98%",
+                        "disease": "Disease name or null if healthy",
+                        "cause": "Cause or null if healthy",
+                        "symptoms": ["symptom 1", "symptom 2"] or [] if healthy,
+                        "treatment": ["step 1", "step 2"] or [] if healthy,
+                        "prevention": ["tip 1", "tip 2"]
+                        }`
+                    }
+                ]
+            }
+        ],
+        max_tokens: 800
     });
-
-    if (!response.ok) {
-        let message = "Analysis failed";
-        try {
-            const err = await response.json();
-            message = err.error?.message || message;
-        } catch { /* non-JSON error body */ }
-
-        if (response.status === 429) {
-            throw new Error(RATE_LIMIT_MSG);
-        }
-        throw new Error(message);
-    }
-
-    return await response.json();
 }
