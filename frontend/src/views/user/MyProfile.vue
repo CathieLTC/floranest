@@ -120,26 +120,7 @@
       </div>
     </section>
 
-    <!-- =========================
-         WISHLIST
-    ========================= -->
-    <section class="section">
-      <div class="section-header">
-        <h2>❤️ Wishlist</h2>
-      </div>
-
-      <div v-if="wishlist.length === 0" class="wishlist-empty">
-        Your wishlist is empty 🌱
-      </div>
-
-      <div class="wishlist-grid">
-        <div class="wishlist-card" v-for="plant in wishlist" :key="plant.name">
-          <img :src="plant.image"/>
-          <h3>{{ plant.name }}</h3>
-        </div>
-      </div>
-    </section>
-
+    
     <!-- =========================
          NOTIFICATIONS
     ========================= -->
@@ -514,24 +495,7 @@
     ElMessage.success("Card removed");
   };
 
-  /* =========================
-        WISHLIST
-  ========================= */
-  const wishlist = ref([]);
-
-  const wishlistStorageKey = () =>
-    `floranest_wishlist_${loggedInUser?.userId || "guest"}`;
-
-  const loadWishlist = () => {
-    const saved = localStorage.getItem(wishlistStorageKey());
-    if (saved) {
-      try {
-        wishlist.value = JSON.parse(saved);
-      } catch {
-        wishlist.value = [];
-      }
-      }
-      };
+  
 
   /* =========================
         NOTIFICATIONS
