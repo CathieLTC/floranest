@@ -19,15 +19,16 @@
       </router-link>
 
       <!-- Loading Skeleton -->
-      <div
-        v-if="categories.length === 0"
-        v-for="n in 4"
-        :key="n"
-        class="category-card skeleton"
-      >
-        <div class="skeleton-image"></div>
-        <div class="skeleton-text"></div>
-      </div>
+      <template v-if="categories.length === 0">
+        <div
+          v-for="n in 4"
+          :key="`skeleton-${n}`"
+          class="category-card skeleton"
+        >
+          <div class="skeleton-image"></div>
+          <div class="skeleton-text"></div>
+        </div>
+      </template>
     </div>
   </section>
 </template>
@@ -93,9 +94,10 @@ onMounted(async () => {
 
 .categories h2{
   text-align:center;
-  color:#2E7D32;
+  color:#e9f5ea;
   font-size:30px;
   margin-bottom:30px;
+  text-shadow:0 1px 10px rgba(0,0,0,.35);
 }
 
 .category-grid{

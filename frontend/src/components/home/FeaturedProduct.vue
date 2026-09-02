@@ -59,9 +59,10 @@ const addToCart = async (product) => {
 
 .featured h2 {
   text-align: center;
-  color: #2E7D32;
+  color: #e9f5ea;
   font-size: 26px;
   margin-bottom: 25px;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
 }
 
 .product-grid {

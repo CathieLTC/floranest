@@ -23,21 +23,17 @@
           </template>
         </el-input>
 
-        <el-button circle class="icon-btn">
-          <el-icon><Star /></el-icon>
-        </el-button>
-
         <el-button circle class="icon-btn" @click="goToCart">
           <el-icon><ShoppingCart /></el-icon>
         </el-button>
 
         <div class="auth-links">
           <el-dropdown v-if="user" trigger="hover" placement="bottom" size="default">
-            
+
             <span class="profile-dropdown"><el-icon><UserFilled /></el-icon> {{ user.fullName }}
               <el-icon class="arrow"><ArrowDown /></el-icon>
             </span>
-            
+
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="router.push('/my-profile')"><el-icon><UserFilled /></el-icon>My Profile</el-dropdown-item>
@@ -47,7 +43,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          
+
           <div v-else>
             <router-link to="/login">Login</router-link>
             <span>|</span>
@@ -63,7 +59,7 @@
 
 <script setup>
   import { computed } from "vue";
-  import { Search, ShoppingCart, Star, ArrowDown, UserFilled, Box, Document } from "@element-plus/icons-vue";
+  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Document } from "@element-plus/icons-vue";
   import { useRouter } from "vue-router";
   import { ElMessageBox } from "element-plus";
   import { useUserStore } from "@/stores/user";

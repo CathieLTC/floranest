@@ -27,11 +27,6 @@
       </div>
 
       <div class="card">
-        <h2>{{ stats.wishlist }}</h2>
-        <p>❤️ Wishlist</p>
-      </div>
-
-      <div class="card">
         <h2>{{ stats.cart }}</h2>
         <p>🛒 Cart Items</p>
       </div>
@@ -117,26 +112,6 @@
         <el-input v-model="cardForm.expiry" placeholder="Expiry Date"/>
         <el-button type="success" @click="saveCard">Save Card</el-button>
         <el-button @click="showCardForm = false">Cancel</el-button>
-      </div>
-    </section>
-
-    <!-- =========================
-         WISHLIST
-    ========================= -->
-    <section class="section">
-      <div class="section-header">
-        <h2>❤️ Wishlist</h2>
-      </div>
-
-      <div v-if="wishlist.length === 0" class="wishlist-empty">
-        Your wishlist is empty 🌱
-      </div>
-
-      <div class="wishlist-grid">
-        <div class="wishlist-card" v-for="plant in wishlist" :key="plant.name">
-          <img :src="plant.image"/>
-          <h3>{{ plant.name }}</h3>
-        </div>
       </div>
     </section>
 
@@ -328,7 +303,6 @@
   ========================= */
   const stats = ref({
     orders: 0,
-    wishlist: 0,
     cart: 0,
     plants: 0
   });
@@ -347,7 +321,6 @@
 
       stats.value.orders = orders.length;
       stats.value.cart = cart.length;
-      stats.value.wishlist = wishlist.value.length;
       stats.value.plants = orders.reduce(
         (sum, order) =>
           sum + (order.items || []).reduce((s, i) => s + (i.quantity || 0), 0),
@@ -515,25 +488,6 @@
   };
 
   /* =========================
-        WISHLIST
-  ========================= */
-  const wishlist = ref([]);
-
-  const wishlistStorageKey = () =>
-    `floranest_wishlist_${loggedInUser?.userId || "guest"}`;
-
-  const loadWishlist = () => {
-    const saved = localStorage.getItem(wishlistStorageKey());
-    if (saved) {
-      try {
-        wishlist.value = JSON.parse(saved);
-      } catch {
-        wishlist.value = [];
-      }
-      }
-      };
-
-  /* =========================
         NOTIFICATIONS
   ========================= */
   const notifications = ref({
@@ -632,7 +586,6 @@
 
     loadAddresses();
     loadCards();
-    loadWishlist();
     loadDashboard();
     loadRecentOrders();
   });
@@ -821,39 +774,6 @@
 
   .payment-info h3 {
     color: #2E7D32;
-  }
-
-  /* =========================
-          WISHLIST
-  ========================= */
-  .wishlist-empty {
-    text-align: center;
-    padding: 30px;
-    color: #888;
-  }
-
-  .wishlist-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-  }
-
-  .wishlist-card {
-    background: #fafafa;
-    border-radius: 15px;
-    overflow: hidden;
-    text-align: center;
-  }
-
-  .wishlist-card img {
-    width: 100%;
-    height: 170px;
-    object-fit: cover;
-  }
-
-  .wishlist-card h3 {
-    color: #2E7D32;
-    padding: 15px;
   }
 
   /* =========================

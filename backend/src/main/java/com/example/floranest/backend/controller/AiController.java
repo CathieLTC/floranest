@@ -23,10 +23,10 @@ public class AiController {
     @NonNull
     private String apiKey;
 
-    @Value("${ai.api.url}")
+    @Value("${ai.api.url:}")
     private String apiUrl;
 
-    @Value("${ai.model}")
+    @Value("${ai.model:}")
     private String model;
 
     private final RestTemplate restTemplate = new RestTemplate();

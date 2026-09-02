@@ -1,8 +1,7 @@
 <template>
   <section class="hero">
-    <!-- Left Side -->
     <div class="hero-text">
-      <h1>Grow Your Perfect Green Space 🌿</h1>
+      <h1>Grow Your Perfect Green Space </h1>
 
       <p>
         Discover premium indoor and outdoor plants that bring life,
@@ -25,139 +24,69 @@
         </router-link>
       </div>
     </div>
-
-    <!-- Right Side -->
-    <div class="hero-carousel">
-     <el-carousel
-        height="600px"
-        :interval="5000"
-        autoplay
-        :pause-on-hover="false"
-        arrow="hover"
-      >
-        <el-carousel-item
-          v-for="(image, index) in images"
-          :key="index"
-        >
-          <img
-            :src="image"
-            class="hero-slide"
-            alt="Plant"
-          />
-        </el-carousel-item>
-      </el-carousel>
-    </div>
   </section>
 </template>
-
-<script setup>
-const images = [
-  "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1600&q=80"
-]
-</script>
 
 <style scoped>
 .hero {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 70px;
-
+  justify-content: center;
   width: 100%;
-  min-height: 85vh;
-  padding: 60px 6%;
+  min-height: 100vh;
+  padding: 100px 24px;
   box-sizing: border-box;
+  text-align: center;
 }
 
-/* Left Side */
 .hero-text {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 .hero-text h1 {
-  font-size: 3.4rem;
-  font-weight: 700;
-  color: #2E7D32;
-  line-height: 1.15;
-  margin-bottom: 25px;
+  font-size: clamp(3.6rem, 6.4vw, 5.5rem);
+  font-weight: 800;
+  color: #f2fbf3;
+  line-height: 1.12;
+  margin: 0 0 28px;
+  text-shadow: 0 3px 22px rgba(0, 0, 0, 0.35);
 }
 
 .hero-text p {
-  font-size: 18px;
-  color: #666;
-  line-height: 1.8;
-  margin-bottom: 35px;
+  max-width: 720px;
+  font-size: 1.45rem;
+  color: rgba(238, 247, 240, 0.94);
+  line-height: 1.85;
+  margin: 0 0 44px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.3);
 }
 
 .hero-buttons {
   display: flex;
-  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
 }
 
-/* Right Side */
-.hero-carousel {
-  flex: 1;
-  width: 100%;
-}
-
-.hero-carousel .el-carousel {
-  width: 100%;
-  border-radius: 25px;
-  overflow: hidden;
-}
-
-.hero-slide {
-  width: 100%;
-  height: 600px;
-  object-fit: cover;
-  border-radius: 25px;
-}
-
-/* Hide indicator dots/dashes */
-:deep(.el-carousel__indicators) {
-  display: none;
-}
-
-/* Style navigation arrows */
-:deep(.el-carousel__arrow) {
-  background: rgba(0, 0, 0, 0.35);
-  color: white;
-}
-
-:deep(.el-carousel__arrow:hover) {
-  background: rgba(46, 125, 50, 0.9);
-}
-
-/* Mobile */
-@media (max-width: 900px) {
+@media (max-width: 788px) {
   .hero {
-    flex-direction: column;
-    text-align: center;
-    gap: 40px;
-    padding: 40px 20px;
     min-height: auto;
+    padding: 60px 20px;
   }
 
   .hero-text h1 {
     font-size: 2.5rem;
   }
 
-  .hero-buttons {
-    justify-content: center;
-    flex-wrap: wrap;
+  .hero-text p {
+    font-size: 1.09rem;
   }
 
-  .hero-carousel {
-    width: 100%;
-  }
-
-  .hero-slide {
-    height: 380px;
-  }
 }
 </style>
