@@ -3,12 +3,35 @@
 
     <!-- HEADER -->
     <div class="shop-header">
-      <h1>{{ activeCategoryName ? activeCategoryName : 'Shop Plants' }}</h1>
+      <h1>{{ activeCategoryName ? activeCategoryName : 'Plant Stores' }}</h1>
       <p v-if="activeCategoryName">
         Showing plants in "{{ activeCategoryName }}"
         <a href="#" class="clear-filter" @click.prevent="clearCategory">(clear filter)</a>
       </p>
-      <p v-else>Browse all available plants in one place</p>
+      <p v-else>Browse plants from different specialised stores</p>
+    </div>
+
+    <!-- STORES SECTION (visible when no category filter is active) -->
+    <div class="stores-section" v-if="category === 'all'">
+      <div class="stores-grid">
+        <div
+          class="store-card"
+          v-for="store in stores"
+          :key="store.name"
+          @click="filterByStore(store)"
+        >
+          <div class="store-image-wrapper">
+            <img :src="store.image" :alt="store.name" class="store-image" />
+          </div>
+          <div class="store-info">
+            <h3>{{ store.name }}</h3>
+            <p class="store-desc">{{ store.tagline }}</p>
+            <div class="store-tags">
+              <span class="store-tag" v-for="tag in store.tags" :key="tag">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- FILTER BAR -->
@@ -28,7 +51,7 @@
         <el-option v-for="c in categories" :key="c.categoryId" :label="c.categoryName" :value="c.categoryId"/>
       </el-select>
 
-      <!-- SORT (optional nice touch) -->
+      <!-- SORT -->
       <el-select v-model="sort" class="filter">
         <el-option label="Default" value="default" />
         <el-option label="Price Low → High" value="low" />
@@ -40,19 +63,29 @@
     <!-- PRODUCTS GRID -->
     <div class="grid">
       <div class="card" v-for="(item, i) in filteredProducts" :key="i">
-        <img :src="item.imageUrl" />
+
+        <!-- IMAGE (hover to enlarge, click to view details) -->
+        <div class="image-container">
+          <router-link :to="'/product/' + item.productId">
+            <img :src="item.imageUrl" :alt="item.productName" />
+          </router-link>
+        </div>
+
         <h3>{{ item.productName }}</h3>
         <p class="price">$ {{ item.price }}</p>
 
         <div class="actions">
           <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>
-          <router-link :to="'/product/' + item.productId">
-            <el-button size="small">View Details</el-button>
-          </router-link>
+          <el-button
+            :type="wishlistStore.has(item.productId) ? 'danger' : 'default'"
+            size="default"
+            @click="wishlistStore.toggle(item)"
+          >
+            {{ wishlistStore.has(item.productId) ? '♥' : '♡' }}
+          </el-button>
         </div>
 
       </div>
-
     </div>
 
   </div>
@@ -64,8 +97,10 @@
   import { ElMessage } from "element-plus";
   import api from "@/api/axios";
   import { useCartStore } from "@/stores/cart";
+  import { useWishlistStore } from "@/stores/wishlist";
 
   const cartStore = useCartStore();
+  const wishlistStore = useWishlistStore();
   const route = useRoute();
   const router = useRouter();
 
@@ -75,6 +110,59 @@
 
   const products = ref([]);
   const categories = ref([]);
+
+  /* Mock store data (can be replaced with a real stores API later) */
+  const stores = [
+    {
+      name: "Indoor Oasis",
+      tagline: "Specialists in houseplants for every room",
+      image: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=400",
+      categoryIds: [1, 5, 7],
+      tags: ["Indoor", "Air Purifying", "Hanging"]
+    },
+    {
+      name: "Succulent Studio",
+      tagline: "Drought-tolerant beauties & cacti",
+      image: "https://images.unsplash.com/photo-1459156212016-c812468e2115?w=400",
+      categoryIds: [3],
+      tags: ["Succulents", "Cacti", "Low-water"]
+    },
+    {
+      name: "Bloom & Blossom",
+      tagline: "Flowering plants that brighten any space",
+      image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400",
+      categoryIds: [4],
+      tags: ["Flowering", "Colorful", "Decorative"]
+    },
+    {
+      name: "The Herb Garden",
+      tagline: "Fresh herbs for cooking and wellness",
+      image: "https://images.unsplash.com/photo-1512428813834-c702c7702b78?w=400",
+      categoryIds: [6],
+      tags: ["Herbs", "Edible", "Medicinal"]
+    },
+    {
+      name: "Outdoor Greens",
+      tagline: "Garden and balcony plants for the outdoors",
+      image: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400",
+      categoryIds: [2],
+      tags: ["Outdoor", "Garden", "Balcony"]
+    },
+    {
+      name: "Bonsai Atelier",
+      tagline: "Hand-crafted miniature trees for collectors",
+      image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=400",
+      categoryIds: [8],
+      tags: ["Bonsai", "Miniature", "Ornamental"]
+    }
+  ];
+
+  const filterByStore = (store) => {
+    // Filter by the store's first category id as a quick filter
+    if (store.categoryIds.length > 0) {
+      category.value = String(store.categoryIds[0]);
+    }
+  };
 
   const activeCategoryName = computed(() => {
     if (category.value === "all") return "";
@@ -102,8 +190,6 @@
 
   onMounted(loadData);
 
-  // Keep the category filter in sync if the URL changes (e.g. clicking a
-  // different category card while already on the shop page)
   watch(
     () => route.query.category,
     (newVal) => {
@@ -111,16 +197,10 @@
     }
   );
 
-  // Reflect manual dropdown changes back into the URL so the filter is
-  // shareable/bookmarkable and survives a refresh
   watch(category, (newVal) => {
     const query = newVal === "all" ? {} : { category: newVal };
     router.replace({ path: "/shop", query });
   });
-
-  /* ==========================
-    FILTER + SORT
-  ========================== */
 
   const filteredProducts = computed(() => {
 
@@ -182,6 +262,78 @@
     text-decoration: underline;
   }
 
+  /* STORES SECTION */
+  .stores-section {
+    margin-bottom: 40px;
+  }
+
+  .stores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+  }
+
+  .store-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    cursor: pointer;
+  }
+
+  .store-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(46,125,50,0.18);
+  }
+
+  .store-image-wrapper {
+    overflow: hidden;
+    height: 200px;
+  }
+
+  .store-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+
+  .store-card:hover .store-image {
+    transform: scale(1.08);
+  }
+
+  .store-info {
+    padding: 20px;
+  }
+
+  .store-info h3 {
+    color: #2E7D32;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  .store-desc {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .store-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .store-tag {
+    background: #e8f5e9;
+    color: #2E7D32;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   /* TOOLBAR */
   .toolbar {
     display: flex;
@@ -220,11 +372,28 @@
     transform: translateY(-5px);
   }
 
-  .card img {
+  /* IMAGE */
+  .image-container {
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .image-container a {
+    display: block;
+  }
+
+  .image-container img {
     width: 100%;
     height: 180px;
     object-fit: cover;
     border-radius: 10px;
+    transition: transform 0.35s ease;
+    cursor: pointer;
+  }
+
+  .image-container:hover img {
+    transform: scale(1.12);
   }
 
   /* PRICE */
@@ -234,19 +403,14 @@
     margin: 8px 0;
   }
 
-  /* BUTTON */
-  .btn {
-    width: 100%;
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
   }
 
-  .actions{
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-  }
-
-  .actions .el-button{
-      flex:1;
+  .actions .el-button {
+    flex: 1;
   }
 
 </style>

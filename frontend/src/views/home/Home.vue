@@ -29,6 +29,21 @@
 
       <FeaturedProduct />
       <Categories />
+
+      <!-- Gardening Tips -->
+      <GardeningTips />
+
+      <!-- Need More Help / AI -->
+      <section class="ai-help">
+        <h2>🤖 Need More Help?</h2>
+        <p>
+          Still unsure about which plant to choose or how to care for one?
+          Our AI Assistant is always available to give you personalised advice.
+        </p>
+        <router-link to="/ai">
+          <el-button type="success" size="large">Ask FloraNest AI</el-button>
+        </router-link>
+      </section>
     </div>
 
   </div>
@@ -38,7 +53,7 @@
 import HeroBanner from '@/components/home/HeroBanner.vue';
 import Categories     from '@/components/home/Categories.vue';
 import FeaturedProduct from '@/components/home/FeaturedProduct.vue';
-
+import GardeningTips from '@/components/home/GardeningTips.vue';
 </script>
 
 <style scoped>
@@ -55,7 +70,6 @@ import FeaturedProduct from '@/components/home/FeaturedProduct.vue';
   pointer-events: none;
 }
 
-/* Deep green base keeps the page rich even while the video loads */
 .home-bg-base {
   position: absolute;
   inset: 0;
@@ -68,12 +82,10 @@ import FeaturedProduct from '@/components/home/FeaturedProduct.vue';
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Keep the footage bright enough to read through the veil */
   opacity: 0.95;
   filter: saturate(0.65) brightness(0.95);
 }
 
-/* Deep muted veil: the video stays visible but never fights the content */
 .home-bg-veil {
   position: absolute;
   inset: 0;
@@ -109,12 +121,37 @@ import FeaturedProduct from '@/components/home/FeaturedProduct.vue';
   border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
 }
+
+/* AI Help section */
+.ai-help {
+  margin-top: 50px;
+  text-align: center;
+  padding: 40px;
+  background: rgba(251, 252, 250, 0.94);
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ai-help h2 {
+  color: #2E7D32;
+  margin-bottom: 10px;
+  font-size: 26px;
+}
+
+.ai-help p {
+  color: #666;
+  margin-bottom: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
 @media (max-width: 768px) {
   .home-content { padding: 20px; }
   .features { flex-direction: column; }
 }
 
-/* Respect users who prefer less motion */
 @media (prefers-reduced-motion: reduce) {
   .home-bg-video { display: none; }
 }

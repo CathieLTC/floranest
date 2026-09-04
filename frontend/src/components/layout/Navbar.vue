@@ -9,10 +9,9 @@
       <!-- Navigation -->
       <nav class="nav-links">
         <router-link to="/">Home</router-link>
-        <router-link to="/products">Products</router-link>
         <router-link to="/shop">Shop</router-link>
-        <router-link to="/plant-care">Plant Care</router-link>
-        <router-link to="/ai">AI Assistant</router-link>
+        <router-link to="/products">Products</router-link>
+        <router-link to="/reviews">Reviews</router-link>
       </nav>
 
       <!-- Right Section -->
@@ -22,6 +21,13 @@
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
+
+        <!-- Wishlist icon -->
+        <el-badge :value="wishlistStore.count" :hidden="wishlistStore.count === 0" class="wishlist-badge">
+          <el-button circle class="icon-btn" @click="router.push('/wishlist')">
+            <el-icon><Star /></el-icon>
+          </el-button>
+        </el-badge>
 
         <el-button circle class="icon-btn" @click="goToCart">
           <el-icon><ShoppingCart /></el-icon>
@@ -54,19 +60,25 @@
     </el-header>
        <router-view />
     <AppFooter />
+
+    <!-- Floating AI Assistant button -->
+    <AiFab />
   </div>
 </template>
 
 <script setup>
   import { computed } from "vue";
-  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Document } from "@element-plus/icons-vue";
+  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Document, Star } from "@element-plus/icons-vue";
   import { useRouter } from "vue-router";
   import { ElMessageBox } from "element-plus";
   import { useUserStore } from "@/stores/user";
+  import { useWishlistStore } from "@/stores/wishlist";
   import AppFooter from '@/components/layout/Footer.vue';
+  import AiFab from '@/components/layout/AiFab.vue';
 
   const router = useRouter();
   const userStore = useUserStore();
+  const wishlistStore = useWishlistStore();
 
   const user = computed(() => userStore.user);
 
@@ -138,8 +150,8 @@
   .nav-links{
     display:flex;
     align-items:center;
-    gap:50px;
-    margin-left:60px;
+    gap:40px;
+    margin-left:50px;
     flex:1;
   }
 
@@ -172,7 +184,6 @@
     flex-shrink: 0;
   }
 
-  /* 🔥 FIX: ensures search is visible */
   .search {
     width: 240px;
     min-width: 240px;
@@ -187,6 +198,10 @@
 
   .icon-btn .el-icon{
     font-size:18px;
+  }
+
+  .wishlist-badge {
+    margin-right: 2px;
   }
 
   .auth-links{
@@ -211,16 +226,6 @@
 
   .auth-links span{
     color:#bbb;
-  }
-
-  .grow {
-    flex: 1;
-  }
-
-  .profile{
-    cursor:pointer;
-    font-weight:600;
-    color:white;
   }
 
   .profile-dropdown{

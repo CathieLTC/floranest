@@ -22,7 +22,14 @@
     <div class="grid">
 
       <div class="card" v-for="(item, i) in filteredProducts" :key="i">
-        <img :src="item.imageUrl" />
+
+        <!-- IMAGE (hover to enlarge, click to view details) -->
+        <div class="image-container">
+          <router-link :to="'/product/' + item.productId">
+            <img :src="item.imageUrl" :alt="item.productName" />
+          </router-link>
+        </div>
+
         <h3>{{ item.productName }}</h3>
         <p class="price">$ {{ item.price }}</p>
 
@@ -30,11 +37,13 @@
 
           <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>
 
-         <router-link :to="'/product/' + item.productId">
-          <el-button size="small">
-            View
+          <el-button
+            :type="wishlistStore.has(item.productId) ? 'danger' : 'default'"
+            size="default"
+            @click="wishlistStore.toggle(item)"
+          >
+            {{ wishlistStore.has(item.productId) ? '♥ Wishlisted' : '♡ Wishlist' }}
           </el-button>
-        </router-link>
 
         </div>
 
@@ -49,8 +58,10 @@
   import { ref, computed, onMounted } from "vue";
   import api from "@/api/axios";
   import { useCartStore } from "@/stores/cart";
+  import { useWishlistStore } from "@/stores/wishlist";
 
   const cartStore = useCartStore();
+  const wishlistStore = useWishlistStore();
   const search = ref("");
   const category = ref("all");
   const products = ref([]);
@@ -156,11 +167,27 @@
 }
 
 /* IMAGE */
-.card img {
+.image-container {
+  overflow: hidden;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.image-container a {
+  display: block;
+}
+
+.image-container img {
   width: 100%;
   height: 180px;
   object-fit: cover;
   border-radius: 10px;
+  transition: transform 0.35s ease;
+  cursor: pointer;
+}
+
+.image-container:hover img {
+  transform: scale(1.12);
 }
 
 /* PRICE */
@@ -173,8 +200,12 @@
 /* ACTIONS */
 .actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
+}
+
+.actions .el-button {
+  flex: 1;
 }
 
 </style>
