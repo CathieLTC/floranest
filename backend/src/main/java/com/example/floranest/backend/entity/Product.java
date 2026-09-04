@@ -32,6 +32,8 @@ public class Product {
 
     private String temperature;
 
+    private String videoUrl;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

@@ -17,6 +17,7 @@
         <result column="watering" property="watering"/>
         <result column="difficulty" property="difficulty"/>
         <result column="temperature" property="temperature"/>
+        <result column="video_url" property="videoUrl"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
     </resultMap>
@@ -50,7 +51,8 @@
         sunlight,
         watering,
         difficulty,
-        temperature)
+        temperature,
+        video_url)
 
         VALUES
 
@@ -64,7 +66,8 @@
         #{sunlight},
         #{watering},
         #{difficulty},
-        #{temperature});
+        #{temperature},
+        #{videoUrl});
 
     </insert>
 
@@ -82,7 +85,8 @@
         sunlight=#{sunlight},
         watering=#{watering},
         difficulty=#{difficulty},
-        temperature=#{temperature}
+        temperature=#{temperature},
+        video_url=#{videoUrl}
 
         WHERE product_id=#{productId};
 
