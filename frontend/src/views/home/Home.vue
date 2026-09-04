@@ -33,6 +33,19 @@
       <!-- Gardening Tips -->
       <GardeningTips />
 
+      <!-- Gardening Tools -->
+      <section class="tools-section">
+        <h2>🛠️ Essential Gardening Tools</h2>
+        <p class="tools-subtitle">Everything you need to keep your plants thriving</p>
+        <div class="tools-grid">
+          <div class="tool-card" v-for="tool in tools" :key="tool.title">
+            <div class="tool-icon">{{ tool.icon }}</div>
+            <h3>{{ tool.title }}</h3>
+            <p>{{ tool.text }}</p>
+          </div>
+        </div>
+      </section>
+
       <!-- Need More Help / AI -->
       <section class="ai-help">
         <h2>🤖 Need More Help?</h2>
@@ -54,6 +67,39 @@ import HeroBanner from '@/components/home/HeroBanner.vue';
 import Categories     from '@/components/home/Categories.vue';
 import FeaturedProduct from '@/components/home/FeaturedProduct.vue';
 import GardeningTips from '@/components/home/GardeningTips.vue';
+
+const tools = [
+  {
+    icon: '✂️',
+    title: 'Pruning Shears',
+    text: 'For clean cuts that remove dead or overgrown leaves without crushing the stem.'
+  },
+  {
+    icon: '🚿',
+    title: 'Watering Can',
+    text: 'A narrow spout gives you control so you water the soil, not the leaves.'
+  },
+  {
+    icon: '🧤',
+    title: 'Gardening Gloves',
+    text: 'Protect your hands when repotting, pruning, or handling thorny or irritant plants.'
+  },
+  {
+    icon: '🪴',
+    title: 'Pots with Drainage',
+    text: 'Good drainage holes prevent root rot by letting excess water escape.'
+  },
+  {
+    icon: '🌡️',
+    title: 'Moisture Meter',
+    text: 'Takes the guesswork out of watering by telling you exactly when soil is dry.'
+  },
+  {
+    icon: '🧹',
+    title: 'Cleaning Brush',
+    text: 'Keep leaves dust-free so they can absorb light efficiently.'
+  }
+];
 </script>
 
 <style scoped>
@@ -130,6 +176,65 @@ import GardeningTips from '@/components/home/GardeningTips.vue';
   background: rgba(251, 252, 250, 0.94);
   border-radius: 15px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Gardening Tools section */
+.tools-section {
+  margin-top: 50px;
+  padding: 40px;
+  background: rgba(251, 252, 250, 0.94);
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tools-section h2 {
+  text-align: center;
+  color: #2E7D32;
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.tools-subtitle {
+  text-align: center;
+  color: #888;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.tool-card {
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  border-left: 4px solid #2E7D32;
+  transition: 0.25s;
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
+}
+
+.tool-icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.tool-card h3 {
+  color: #2E7D32;
+  margin-bottom: 8px;
+}
+
+.tool-card p {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .ai-help h2 {

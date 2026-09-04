@@ -11,6 +11,7 @@ import Register from "@/views/auth/Register.vue";
 import Products    from "@/views/product/Products.vue";
 import ProductDetails from "@/views/product/ProductDetails.vue";
 import Shop          from "@/views/product/Shop.vue";
+import SearchResults from "@/views/product/SearchResults.vue";
 
 // Cart
 import Cart from "@/views/cart/Cart.vue";
@@ -27,7 +28,12 @@ import MyProfile from "@/views/user/MyProfile.vue";
 
 // AI
 import AiAssistant from "@/views/ai/AiAssistant.vue";
-import PlantCare   from "@/views/ai/PlantCare.vue";
+
+// Reviews
+import Reviews from "@/views/reviews/Reviews.vue";
+
+// Wishlist
+import Wishlist from "@/views/wishlist/Wishlist.vue";
 
 const routes = [
   // Home
@@ -41,6 +47,7 @@ const routes = [
   { path: "/product/:id",    component: ProductDetails },
   { path: "/shop",           component: Shop },
   { path: "/products",        component: Products },
+  { path: "/search",          component: SearchResults },
 
   // Cart
   { path: "/cart",           component: Cart },
@@ -57,7 +64,12 @@ const routes = [
 
   // AI
   { path: "/ai",             component: AiAssistant },
-  { path: "/plant-care",     component: PlantCare },
+
+  // Reviews
+  { path: "/reviews",        component: Reviews },
+
+  // Wishlist
+  { path: "/wishlist",       component: Wishlist },
 ];
 
 const router = createRouter({

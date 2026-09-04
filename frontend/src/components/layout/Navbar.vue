@@ -16,7 +16,13 @@
 
       <!-- Right Section -->
       <div class="right-section">
-        <el-input placeholder="Search plants here..." class="search" clearable>
+        <el-input
+          v-model="searchQuery"
+          placeholder="Search plants here..."
+          class="search"
+          clearable
+          @keyup.enter="goToSearch"
+        >
           <template #prefix>
             <el-icon><Search /></el-icon>
           </template>
@@ -67,7 +73,7 @@
 </template>
 
 <script setup>
-  import { computed } from "vue";
+  import { computed, ref } from "vue";
   import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Document, Star } from "@element-plus/icons-vue";
   import { useRouter } from "vue-router";
   import { ElMessageBox } from "element-plus";
@@ -81,6 +87,13 @@
   const wishlistStore = useWishlistStore();
 
   const user = computed(() => userStore.user);
+  const searchQuery = ref("");
+
+  const goToSearch = () => {
+    if (searchQuery.value.trim()) {
+      router.push({ path: "/search", query: { q: searchQuery.value.trim() } });
+    }
+  };
 
   const goToCart = () => {
 

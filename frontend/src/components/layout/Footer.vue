@@ -10,7 +10,8 @@
       <div class="col">
         <h4>Shop</h4>
         <router-link to="/shop">Shop</router-link>
-        <router-link to="/plant-care">Plant Care</router-link>
+        <router-link to="/products">Products</router-link>
+        <router-link to="/reviews">Reviews</router-link>
       </div>
 
       <div class="col">
@@ -19,6 +20,7 @@
         <router-link to="/register">Register</router-link>
         <router-link to="/my-profile">My Profile</router-link>
         <router-link to="/my-orders">My Orders</router-link>
+        <router-link to="/wishlist">Wishlist</router-link>
       </div>
 
       <div class="col">
