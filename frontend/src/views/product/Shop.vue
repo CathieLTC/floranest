@@ -3,7 +3,7 @@
 
     <!-- HEADER -->
     <div class="shop-header">
-      <h1>🌿 {{ activeCategoryName ? activeCategoryName : 'Shop Plants' }}</h1>
+      <h1>{{ activeCategoryName ? activeCategoryName : 'Shop Plants' }}</h1>
       <p v-if="activeCategoryName">
         Showing plants in "{{ activeCategoryName }}"
         <a href="#" class="clear-filter" @click.prevent="clearCategory">(clear filter)</a>
@@ -45,7 +45,7 @@
         <p class="price">$ {{ item.price }}</p>
 
         <div class="actions">
-          <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>          
+          <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>
           <router-link :to="'/product/' + item.productId">
             <el-button size="small">View Details</el-button>
           </router-link>

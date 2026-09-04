@@ -3,7 +3,7 @@
     <div class="footer-grid">
 
       <div class="col">
-        <h3>🌿 FloraNest</h3>
+        <h3>FloraNest</h3>
         <p>Your go-to destination for beautiful plants and gardening essentials.</p>
       </div>
 
@@ -24,14 +24,14 @@
       <div class="col">
         <h4>Contact</h4>
         <p>📧 support@floranest.com</p>
-        <p>📞 +1 800 FLORA</p>
+        <p>☎ +1 800 FLORA</p>
         <p>🕐 Mon–Fri, 9am–6pm</p>
       </div>
 
     </div>
 
     <div class="footer-bottom">
-      <p>© {{ year }} FloraNest. All rights reserved. 🌱</p>
+      <p>© {{ year }} FloraNest. All rights reserved.</p>
     </div>
   </footer>
 </template>

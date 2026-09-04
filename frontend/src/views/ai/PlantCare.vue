@@ -3,7 +3,7 @@
 
     <!-- Hero -->
     <section class="hero">
-      <h1>🌿 Plant Care Guide</h1>
+      <h1>Plant Care Guide</h1>
       <p>
         Learn how to keep your plants healthy with proper watering,
         sunlight, fertilizer, and disease prevention.
@@ -13,10 +13,10 @@
     <!-- Plant Care Cards -->
     <GardeningTips />
     <section class="tools">
- 
+
       <h2>🛠️ Gardening Tools</h2>
       <p class="tools-subtitle">The essentials every plant parent should keep on hand</p>
- 
+
       <div class="tools-grid">
         <div class="tool-card" v-for="tool in tools" :key="tool.title">
           <div class="tool-icon">{{ tool.icon }}</div>
@@ -24,7 +24,7 @@
           <p>{{ tool.text }}</p>
         </div>
       </div>
- 
+
     </section>
 
     <!-- Quick Tips -->
@@ -90,7 +90,7 @@
           <el-option label="Aloe Vera" value="Aloe Vera"/>
           <el-option label="Monstera" value="Monstera"/>
         </el-select>
-        
+
         <el-button
             type="success"
             size="large"
@@ -387,7 +387,7 @@ function handleFileChange(file) {
 }
 
 /* ================= GARDENING TOOLS ================= */
- 
+
 .tools{
   background: white;
   padding: 35px;
@@ -395,28 +395,28 @@ function handleFileChange(file) {
   box-shadow: 0 5px 15px rgba(0,0,0,.08);
   margin-bottom: 60px;
 }
- 
+
 .tools h2{
   text-align:center;
   color:#2E7D32;
   font-size:26px;
   margin-bottom:8px;
 }
- 
+
 .tools-subtitle{
   text-align:center;
   color:#888;
   margin-bottom:35px;
   font-size:15px;
 }
- 
+
 .tools-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:25px;
   margin-top:30px;
 }
- 
+
 .tool-card{
   background:white;
   padding:25px;
@@ -425,22 +425,22 @@ function handleFileChange(file) {
   border-left:4px solid #2E7D32;
   transition:.25s;
 }
- 
+
 .tool-card:hover{
   transform:translateY(-4px);
   box-shadow:0 8px 20px rgba(46,125,50,.15);
 }
- 
+
 .tool-icon{
   font-size:30px;
   margin-bottom:10px;
 }
- 
+
 .tool-card h3{
   color:#2E7D32;
   margin-bottom:8px;
 }
- 
+
 .tool-card p{
   color:#555;
   font-size:14px;

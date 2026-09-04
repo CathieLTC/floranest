@@ -3,7 +3,7 @@
     <el-header class="navbar">
       <!-- Logo -->
       <div class="logo">
-        🌿 FloraNest
+        FloraNest
       </div>
 
       <!-- Navigation -->

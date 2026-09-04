@@ -3,7 +3,7 @@
 
     <!-- HEADER -->
     <div class="products-header">
-      <h1>🌿 Products</h1>
+      <h1>Products</h1>
       <p>Browse all available plants</p>
     </div>
 
@@ -48,12 +48,9 @@
 <script setup>
   import { ref, computed, onMounted } from "vue";
   import api from "@/api/axios";
-  import { ElMessage } from "element-plus";
-  import { useRouter } from "vue-router";
   import { useCartStore } from "@/stores/cart";
 
   const cartStore = useCartStore();
-  const router = useRouter();
   const search = ref("");
   const category = ref("all");
   const products = ref([]);
@@ -75,34 +72,6 @@
 
   onMounted(loadData);
 
-  const addToCart = async (product)=>{
-
-    const user =
-        JSON.parse(localStorage.getItem("user"));
-
-    if(!user){
-
-        ElMessage.warning("Please login first.");
-
-        router.push("/login");
-
-        return;
-
-    }
-
-    await api.post("/cart",{
-
-        userId:user.userId,
-
-        productId:product.productId,
-
-        quantity:1
-
-    });
-
-    ElMessage.success("Added to cart.");
-
-  }
   const filteredProducts = computed(() => {
 
     return products.value.filter(product => {
@@ -121,8 +90,8 @@
     });
 
   });
-  
-  
+
+
 </script>
 
 <style scoped>
