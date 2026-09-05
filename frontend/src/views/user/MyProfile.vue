@@ -18,34 +18,95 @@
     </section>
 
     <!-- =========================
-         DASHBOARD CARDS
+         DASHBOARD
     ========================= -->
     <section class="dashboard">
-      <div class="card clickable" @click="router.push('/my-orders')">
-        <h2>{{ stats.orders }}</h2>
-        <p>📦 Orders</p>
+      <div class="stat-grid">
+        <div class="stat-card" @click="router.push('/my-orders')">
+          <div class="stat-icon green"><el-icon><Box /></el-icon></div>
+          <div class="stat-info">
+            <h2>{{ stats.orders }}</h2>
+            <p>Orders</p>
+            <span>Track shipments</span>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
+
+        <div class="stat-card" @click="router.push('/order-history')">
+          <div class="stat-icon blue"><el-icon><Document /></el-icon></div>
+          <div class="stat-info">
+            <h2>{{ stats.history }}</h2>
+            <p>Order History</p>
+            <span>Completed orders</span>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
+
+        <div class="stat-card" @click="router.push('/wishlist')">
+          <div class="stat-icon pink"><el-icon><Star /></el-icon></div>
+          <div class="stat-info">
+            <h2>{{ wishlistStore.count }}</h2>
+            <p>Wishlist</p>
+            <span>Saved plants</span>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
+
+        <div class="stat-card" @click="router.push('/cart')">
+          <div class="stat-icon orange"><el-icon><ShoppingCart /></el-icon></div>
+          <div class="stat-info">
+            <h2>{{ stats.cart }}</h2>
+            <p>Cart Items</p>
+            <span>Ready to checkout</span>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
       </div>
 
-      <div class="card clickable" @click="router.push('/cart')">
-        <h2>{{ stats.cart }}</h2>
-        <p>🛒 Cart Items</p>
-      </div>
+      <p class="manage-label">QUICK LINKS</p>
+      <div class="manage-grid">
+        <div class="manage-card" @click="goToSection('shipping-addresses')">
+          <div class="manage-icon"><el-icon><Location /></el-icon></div>
+          <div class="manage-info">
+            <h3>Shipping Addresses</h3>
+            <p>Manage delivery addresses</p>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
 
-      <div class="card clickable" @click="router.push('/wishlist')">
-        <h2>{{ stats.wishlist }}</h2>
-        <p>❤️ Wishlist</p>
-      </div>
+        <div class="manage-card" @click="goToSection('payment-methods')">
+          <div class="manage-icon"><el-icon><CreditCard /></el-icon></div>
+          <div class="manage-info">
+            <h3>Payment Methods</h3>
+            <p>Manage your saved cards</p>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
 
-      <div class="card clickable" @click="router.push('/order-history')">
-        <h2>📜</h2>
-        <p>Order History</p>
+        <div class="manage-card" @click="goToSection('notifications')">
+          <div class="manage-icon"><el-icon><Bell /></el-icon></div>
+          <div class="manage-info">
+            <h3>Notifications</h3>
+            <p>Choose email preferences</p>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
+
+        <div class="manage-card" @click="goToSection('password')">
+          <div class="manage-icon"><el-icon><Lock /></el-icon></div>
+          <div class="manage-info">
+            <h3>Security</h3>
+            <p>Change your password</p>
+          </div>
+          <el-icon class="go"><ArrowRight /></el-icon>
+        </div>
       </div>
     </section>
 
     <!-- =========================
          PERSONAL INFORMATION
     ========================= -->
-    <section class="section">
+    <section id="personal-info" class="section">
       <h2>👤 Personal Information</h2>
       <div class="form-grid">
         <el-input v-model="user.fullName" placeholder="Full Name"/>
@@ -61,7 +122,7 @@
     <!-- =========================
          ADDRESS BOOK
     ========================= -->
-    <section class="section">
+    <section id="shipping-addresses" class="section">
       <div class="section-header">
         <h2>📍 Shipping Addresses</h2>
         <el-button type="success" plain @click="openAddAddress">Add New Address</el-button>
@@ -123,7 +184,7 @@
     <!-- =========================
          NOTIFICATIONS
     ========================= -->
-    <section class="section">
+    <section id="notifications" class="section">
       <h2>🔔 Notification Settings</h2>
 
       <div class="setting">
@@ -183,7 +244,7 @@
     <!-- =========================
          PASSWORD
     ========================= -->
-    <section class="section">
+    <section id="password" class="section">
       <h2>🔒 Change Password</h2>
 
       <div class="form-grid">
@@ -208,7 +269,18 @@
   import { ref, onMounted } from "vue";
   import { ElMessage } from "element-plus";
   import { useRouter } from "vue-router";
-  import { UserFilled } from "@element-plus/icons-vue";
+  import {
+    UserFilled,
+    Box,
+    Document,
+    Star,
+    ShoppingCart,
+    ArrowRight,
+    Location,
+    CreditCard,
+    Bell,
+    Lock
+  } from "@element-plus/icons-vue";
   import api from "@/api/axios";
   import { useUserStore } from "@/stores/user";
   import { useWishlistStore } from "@/stores/wishlist";
@@ -310,9 +382,8 @@
   ========================= */
   const stats = ref({
     orders: 0,
-    cart: 0,
-    plants: 0,
-    wishlist: 0
+    history: 0,
+    cart: 0
   });
 
   const loadDashboard = async () => {
@@ -328,15 +399,22 @@
       const cart = cartRes.data || [];
 
       stats.value.orders = orders.length;
+      stats.value.history = orders.filter(
+        (order) => order.orderStatus === "DELIVERED"
+      ).length;
       stats.value.cart = cart.length;
-      stats.value.plants = orders.reduce(
-        (sum, order) =>
-          sum + (order.items || []).reduce((s, i) => s + (i.quantity || 0), 0),
-        0
-      );
-      stats.value.wishlist = wishlistStore.count;
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  /* =========================
+        SECTION NAVIGATION
+  ========================= */
+  const goToSection = (id) => {
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -674,34 +752,147 @@
         DASHBOARD
   ========================= */
   .dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
     margin-bottom: 30px;
   }
 
-  .card {
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     background: white;
-    padding: 25px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
-    transition: .3s;
+    padding: 20px 22px;
+    border-radius: 18px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .07);
+    transition: transform .25s, box-shadow .25s, border-color .25s;
   }
 
-  .card:hover {
+  .stat-card:hover {
     transform: translateY(-5px);
+    border-color: #2E7D32;
+    box-shadow: 0 12px 26px rgba(46, 125, 50, .16);
   }
 
-  .card h2 {
-    font-size: 32px;
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+
+  .stat-icon.green   { background: #e8f5e9; color: #2E7D32; }
+  .stat-icon.blue    { background: #e3f2fd; color: #1976d2; }
+  .stat-icon.pink    { background: #fce4ec; color: #d81b60; }
+  .stat-icon.orange  { background: #fff3e0; color: #ef6c00; }
+
+  .stat-info h2 {
+    font-size: 30px;
+    line-height: 1;
     color: #2E7D32;
     margin: 0;
   }
 
-  .card p {
-    color: #666;
+  .stat-info p {
+    margin: 8px 0 0;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
   }
+
+  .stat-info span {
+    display: block;
+    margin-top: 3px;
+    font-size: 12.5px;
+    color: #aaa;
+  }
+
+  .go {
+    margin-left: auto;
+    flex: none;
+    color: #c8e6c9;
+    font-size: 18px;
+    transition: .25s;
+  }
+
+  .stat-card:hover .go { color: #2E7D32; }
+
+  .manage-label {
+    margin: 26px 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #9ccc9c;
+  }
+
+  .manage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+  }
+
+  .manage-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: white;
+    border: 1px dashed #c8e6c9;
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: .25s;
+  }
+
+  .manage-card:hover {
+    background: #f5fff7;
+    border-style: solid;
+    border-color: #2E7D32;
+    transform: translateY(-2px);
+  }
+
+  .manage-icon {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: 12px;
+    background: #f5fff7;
+    color: #2E7D32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: .25s;
+  }
+
+  .manage-card:hover .manage-icon {
+    background: #2E7D32;
+    color: white;
+  }
+
+  .manage-info h3 {
+    margin: 0;
+    font-size: 15px;
+    color: #2E7D32;
+  }
+
+  .manage-info p {
+    margin: 3px 0 0;
+    font-size: 12.5px;
+    color: #999;
+  }
+
+  .manage-card .go { font-size: 16px; color: #d5e8d5; }
+  .manage-card:hover .go { color: #2E7D32; }
 
   /* =========================
         SECTIONS
@@ -712,6 +903,7 @@
     border-radius: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
     margin-bottom: 30px;
+    scroll-margin-top: 24px;
   }
 
   .section h2 {
