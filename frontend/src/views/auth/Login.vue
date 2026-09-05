@@ -48,7 +48,19 @@
 
   const router = useRouter();
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleLogin = async () => {
+    if (!email.value.trim() || !password.value) {
+      ElMessage.warning("Please enter your email and password.");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email.value.trim())) {
+      ElMessage.warning("Please enter a valid email address.");
+      return;
+    }
+
     try {
 
       const response = await api.post("/auth/login", {

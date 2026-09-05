@@ -97,7 +97,34 @@
 
   const router = useRouter();
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleRegister = async () => {
+
+    if (!name.value.trim()) {
+      ElMessage.warning("Please enter your full name.");
+      return;
+    }
+
+    if (!email.value.trim()) {
+      ElMessage.warning("Please enter your email address.");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email.value.trim())) {
+      ElMessage.warning("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password.value) {
+      ElMessage.warning("Please create a password.");
+      return;
+    }
+
+    if (password.value.length < 6) {
+      ElMessage.warning("Password must be at least 6 characters.");
+      return;
+    }
 
     if (password.value !== confirmPassword.value) {
       ElMessage.error("Passwords do not match.");

@@ -32,16 +32,6 @@
           <el-icon class="go"><ArrowRight /></el-icon>
         </div>
 
-        <div class="stat-card" @click="router.push('/order-history')">
-          <div class="stat-icon blue"><el-icon><Document /></el-icon></div>
-          <div class="stat-info">
-            <h2>{{ stats.history }}</h2>
-            <p>Order History</p>
-            <span>Completed orders</span>
-          </div>
-          <el-icon class="go"><ArrowRight /></el-icon>
-        </div>
-
         <div class="stat-card" @click="router.push('/wishlist')">
           <div class="stat-icon pink"><el-icon><Star /></el-icon></div>
           <div class="stat-info">
@@ -272,7 +262,6 @@
   import {
     UserFilled,
     Box,
-    Document,
     Star,
     ShoppingCart,
     ArrowRight,
@@ -382,7 +371,6 @@
   ========================= */
   const stats = ref({
     orders: 0,
-    history: 0,
     cart: 0
   });
 
@@ -399,12 +387,10 @@
       const cart = cartRes.data || [];
 
       stats.value.orders = orders.length;
-      stats.value.history = orders.filter(
-        (order) => order.orderStatus === "DELIVERED"
-      ).length;
       stats.value.cart = cart.length;
     } catch (error) {
       console.error(error);
+      ElMessage.error("Failed to load your dashboard.");
     }
   };
 
@@ -596,6 +582,7 @@
       recentOrders.value = (response.data || []).slice(0, 3);
     } catch (error) {
       console.error(error);
+      ElMessage.error("Failed to load your recent orders.");
     }
   };
 

@@ -26,8 +26,17 @@
 
         <!-- IMAGE (hover to enlarge, click to view details) -->
         <div class="image-container">
-          <router-link :to="'/product/' + item.productId">
-            <img :src="item.imageUrl" :alt="item.productName" />
+          <router-link
+            :to="'/product/' + item.productId"
+            class="img-link"
+            :aria-label="'View details for ' + item.productName"
+          >
+            <img :src="item.imageUrl" alt="" />
+          </router-link>
+
+          <!-- ALWAYS-VISIBLE VIEW DETAILS OVERLAY -->
+          <router-link :to="'/product/' + item.productId" class="view-overlay">
+            View Details
           </router-link>
         </div>
 
@@ -128,12 +137,13 @@ const cartStore = useCartStore();
 
 /* IMAGE */
 .image-container {
+  position: relative;
   overflow: hidden;
   border-radius: 10px;
   margin-bottom: 10px;
 }
 
-.image-container a {
+.img-link {
   display: block;
 }
 
@@ -142,12 +152,49 @@ const cartStore = useCartStore();
   height: 180px;
   object-fit: cover;
   border-radius: 10px;
-  transition: transform 0.35s ease;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
 }
 
+/* Image grows larger & wider smoothly on hover */
 .image-container:hover img {
-  transform: scale(1.12);
+  transform: scale(1.15);
+}
+
+/* VIEW DETAILS OVERLAY */
+.view-overlay {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.image-container:hover .view-overlay,
+.view-overlay:hover {
+  background: rgba(21, 94, 25, 0.92);
+  box-shadow: 0 4px 14px rgba(21, 94, 25, 0.4);
+}
+
+.view-overlay:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
 /* PRICE */

@@ -1,62 +1,67 @@
 <template>
-  <div class="detail-wrapper" v-if="product">
+  <div class="detail-wrapper">
 
-    <div class="detail-layout">
+    <div class="container">
 
-      <!-- PRODUCT CARD (LEFT) -->
-      <div class="detail-card">
+      <!-- PRODUCT HERO -->
+      <div v-if="product.productId" class="product-hero">
 
         <!-- IMAGE -->
-        <div class="image-section">
-          <img :src="product.imageUrl" :alt="product.productName" />
+        <div class="image-panel">
+          <img :src="product.imageUrl" :alt="product.productName" class="main-image" @error="onImgError" />
         </div>
 
         <!-- INFO -->
-        <div class="info-section">
+        <div class="info-panel">
 
-          <h1>{{ product.productName }}</h1>
+          <h1 class="title">{{ product.productName }}</h1>
+
+          <div class="meta-line">
+            <el-tag :type="difficultyType" size="small" round>{{ product.difficulty }}</el-tag>
+            <span class="category">{{ product.categoryName }}</span>
+          </div>
+
           <p class="desc">{{ product.description }}</p>
 
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Price</span>
-              <span class="info-value price">${{ product.price }}</span>
+          <div class="price-row">
+            <span class="price-label">Price</span>
+            <span class="price">${{ formatPrice(product.price) }}</span>
+          </div>
+
+          <div class="spec-grid">
+            <div class="spec">
+              <span class="spec-icon">☀️</span>
+              <div class="spec-text">
+                <span class="spec-label">Sunlight</span>
+                <span class="spec-value">{{ product.sunlight || '—' }}</span>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="info-label">Category</span>
-              <span class="info-value">{{ product.categoryName }}</span>
+            <div class="spec">
+              <span class="spec-icon">💧</span>
+              <div class="spec-text">
+                <span class="spec-label">Watering</span>
+                <span class="spec-value">{{ product.watering || '—' }}</span>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="info-label">Difficulty</span>
-              <span class="info-value">
-                <el-tag :type="difficultyType" size="small">{{ product.difficulty }}</el-tag>
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Sunlight</span>
-              <span class="info-value">{{ product.sunlight }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Watering</span>
-              <span class="info-value">{{ product.watering }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Temperature</span>
-              <span class="info-value">{{ product.temperature }}</span>
+            <div class="spec">
+              <span class="spec-icon">🌡️</span>
+              <div class="spec-text">
+                <span class="spec-label">Temperature</span>
+                <span class="spec-value">{{ product.temperature || '—' }}</span>
+              </div>
             </div>
           </div>
 
-          <!-- BUTTONS — side by side -->
-          <div class="action-buttons">
-            <el-button type="success" size="large" @click="cartStore.addToCart(product)">
+          <div class="action-row">
+            <el-button type="success" size="large" class="primary-btn" @click="cartStore.addToCart(product)">
               Add to Cart
             </el-button>
-            <el-button type="warning" size="large" @click="buyNow">
+            <el-button type="success" plain size="large" class="buy-btn" @click="buyNow">
               Buy Now
             </el-button>
             <el-button
               :type="wishlistStore.has(product.productId) ? 'danger' : 'default'"
-              size="large"
+              class="wish-btn"
               @click="wishlistStore.toggle(product)"
             >
               {{ wishlistStore.has(product.productId) ? '♥' : '♡' }}
@@ -67,12 +72,76 @@
 
       </div>
 
-      <!-- TUTORIAL VIDEO (RIGHT) -->
-      <div class="video-section" v-if="product.videoUrl">
-        <h2>How to Care for Your {{ product.productName }}</h2>
-        <p class="video-subtitle">
-          A quick beginner's guide to keeping this plant happy and healthy.
-        </p>
+      <!-- LOADING -->
+      <div v-else class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading product…</p>
+      </div>
+
+      <!-- CARE GUIDE -->
+      <section v-if="product.productId" class="section care-guide">
+        <h2 class="section-title">Complete Care Guide</h2>
+        <p class="section-subtitle">Everything you need to know to keep your {{ product.productName }} thriving.</p>
+
+        <div class="guide-grid">
+          <div class="guide-card">
+            <div class="guide-icon">☀️</div>
+            <h3>Sunlight</h3>
+            <p>{{ careGuide.sunlight }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">💧</div>
+            <h3>Watering</h3>
+            <p>{{ careGuide.watering }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">🪴</div>
+            <h3>Soil</h3>
+            <p>{{ careGuide.soil }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">🌡️</div>
+            <h3>Temperature</h3>
+            <p>{{ careGuide.temperature }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">🍃</div>
+            <h3>Humidity</h3>
+            <p>{{ careGuide.humidity }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">🌿</div>
+            <h3>Fertilizing</h3>
+            <p>{{ careGuide.fertilizing }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">✂️</div>
+            <h3>Pruning</h3>
+            <p>{{ careGuide.pruning }}</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-icon">🔄</div>
+            <h3>Repotting</h3>
+            <p>{{ careGuide.repotting }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMMON PROBLEMS -->
+      <section v-if="product.productId" class="section problems">
+        <div class="problems-inner">
+          <span class="problems-icon">🩺</span>
+          <div>
+            <h3>Common Problems</h3>
+            <p>{{ careGuide.problems }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TUTORIAL VIDEO -->
+      <section v-if="product.videoUrl" class="section video-section">
+        <h2 class="section-title">How to Care for Your {{ product.productName }}</h2>
+        <p class="section-subtitle">A quick beginner's guide to keeping this plant happy and healthy.</p>
         <div class="video-wrapper">
           <iframe
             v-if="embedUrl"
@@ -83,83 +152,11 @@
             allowfullscreen
           ></iframe>
         </div>
-      </div>
+      </section>
 
-    </div>
-
-    <!-- PLANT CARE GUIDE (full width below) -->
-    <div class="care-guide">
-      <h2>Complete Care Guide</h2>
-      <p class="guide-intro">Everything you need to know to keep your {{ product.productName }} thriving.</p>
-
-      <div class="guide-grid">
-        <!-- Sunlight -->
-        <div class="guide-card">
-          <div class="guide-icon">☀️</div>
-          <h3>Sunlight</h3>
-          <p>{{ careGuide.sunlight }}</p>
-        </div>
-
-        <!-- Watering -->
-        <div class="guide-card">
-          <div class="guide-icon">💧</div>
-          <h3>Watering</h3>
-          <p>{{ careGuide.watering }}</p>
-        </div>
-
-        <!-- Soil -->
-        <div class="guide-card">
-          <div class="guide-icon">🪴</div>
-          <h3>Soil</h3>
-          <p>{{ careGuide.soil }}</p>
-        </div>
-
-        <!-- Temperature -->
-        <div class="guide-card">
-          <div class="guide-icon">🌡️</div>
-          <h3>Temperature</h3>
-          <p>{{ careGuide.temperature }}</p>
-        </div>
-
-        <!-- Humidity -->
-        <div class="guide-card">
-          <div class="guide-icon">🍃</div>
-          <h3>Humidity</h3>
-          <p>{{ careGuide.humidity }}</p>
-        </div>
-
-        <!-- Fertilizing -->
-        <div class="guide-card">
-          <div class="guide-icon">🌿</div>
-          <h3>Fertilizing</h3>
-          <p>{{ careGuide.fertilizing }}</p>
-        </div>
-
-        <!-- Pruning -->
-        <div class="guide-card">
-          <div class="guide-icon">✂️</div>
-          <h3>Pruning</h3>
-          <p>{{ careGuide.pruning }}</p>
-        </div>
-
-        <!-- Repotting -->
-        <div class="guide-card">
-          <div class="guide-icon">🔄</div>
-          <h3>Repotting</h3>
-          <p>{{ careGuide.repotting }}</p>
-        </div>
-
-        <!-- Common Problems -->
-        <div class="guide-card">
-          <div class="guide-icon">🩺</div>
-          <h3>Common Problems</h3>
-          <p>{{ careGuide.problems }}</p>
-        </div>
-      </div>
-
-      <!-- Quick Tips -->
-      <div class="quick-tips">
-        <h3>🌱 Quick Tips</h3>
+      <!-- QUICK TIPS -->
+      <section v-if="product.productId" class="section quick-tips">
+        <h3 class="tips-title">🌱 Quick Tips</h3>
         <ul>
           <li>Check soil moisture before watering — stick your finger 2 inches deep.</li>
           <li>Rotate the plant weekly for even growth.</li>
@@ -167,7 +164,8 @@
           <li>Keep leaves clean for better light absorption.</li>
           <li>Avoid placing near cold drafts or heating vents.</li>
         </ul>
-      </div>
+      </section>
+
     </div>
 
   </div>
@@ -186,6 +184,22 @@
   const route = useRoute();
   const router = useRouter();
   const product = ref({});
+
+  const PLACEHOLDER_IMG =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800'>
+         <rect width='100%' height='100%' fill='#e8f5e9'/>
+         <text x='50%' y='50%' font-size='120' text-anchor='middle' dominant-baseline='middle'>🪴</text>
+       </svg>`
+    );
+
+  const formatPrice = (p) => Number(p).toFixed(2);
+
+  const onImgError = (e) => {
+    e.target.src = PLACEHOLDER_IMG;
+    e.target.onerror = null;
+  };
 
   // Extract a YouTube embed URL from various YouTube link formats
   const embedUrl = computed(() => {
@@ -254,169 +268,313 @@
   };
 
   const loadProduct = async () => {
-
     try {
-
-      const response = await api.get(
-        `/products/${route.params.id}`
-      );
-
+      const response = await api.get(`/products/${route.params.id}`);
       product.value = response.data;
-
     } catch (error) {
       console.error(error);
       ElMessage.error("Failed to load product.");
     }
-
   };
 
   onMounted(loadProduct);
-
 </script>
 
 <style scoped>
 
 /* WRAPPER */
 .detail-wrapper {
-  padding: 40px 50px;
+  padding: 44px clamp(16px, 5vw, 64px);
   background: #f4fff6;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 30px;
 }
 
-/* LAYOUT — card on left, video on right */
-.detail-layout {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
+.container {
   max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ======================
+   PRODUCT HERO
+====================== */
+.product-hero {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 52px;
+}
+
+/* IMAGE PANEL */
+.image-panel {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.main-image {
   width: 100%;
-}
-
-/* CARD */
-.detail-card {
-  background: white;
-  padding: 35px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  flex: 1;
-  min-width: 0;
-}
-
-/* IMAGE — centered */
-.image-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 25px;
-}
-
-.image-section img {
-  width: 100%;
-  max-width: 450px;
-  height: auto;
-  max-height: 450px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  display: block;
 }
 
-/* INFO */
-.info-section h1 {
-  color: #2E7D32;
-  font-size: 28px;
-  margin-bottom: 10px;
-  text-align: center;
+/* INFO PANEL */
+.title {
+  color: #1f2937;
+  font-size: 30px;
+  font-weight: 700;
+  margin: 4px 0 12px;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.meta-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.meta-line .el-tag {
+  margin: 0;
+}
+
+.category {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .desc {
-  margin: 0 0 20px;
-  color: #666;
-  line-height: 1.6;
-  text-align: center;
+  color: #4b5563;
   font-size: 15px;
+  line-height: 1.7;
+  margin: 0 0 24px;
 }
 
-/* INFO GRID */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.info-item {
+.price-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  background: #f8faf8;
-  border-radius: 10px;
-  border-left: 3px solid #2E7D32;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #eef2ee;
+  margin-bottom: 24px;
 }
 
-.info-label {
-  font-size: 12px;
-  color: #999;
+.price-label {
+  color: #9ca3af;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.info-value {
+.price {
+  color: #2E7D32;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+/* SPECS */
+.spec-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.spec {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #f8faf8;
+  border: 1px solid #eef2ee;
+  border-radius: 12px;
+}
+
+.spec-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.spec-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-label {
+  font-size: 12px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.spec-value {
   font-size: 15px;
-  color: #333;
+  color: #1f2937;
   font-weight: 600;
 }
 
-.info-value.price {
-  color: #2E7D32;
-  font-size: 20px;
-}
-
-/* BUTTONS — side by side */
-.action-buttons {
+/* ACTION ROW */
+.action-row {
   display: flex;
   gap: 12px;
-  justify-content: center;
+  margin-top: 28px;
+  align-items: stretch;
 }
 
-.action-buttons .el-button {
+.action-row .el-button {
+  margin-left: 0;
+}
+
+.primary-btn {
+  flex: 1.4;
+  font-weight: 600;
+}
+
+.buy-btn {
   flex: 1;
+  font-weight: 600;
 }
 
-/* TUTORIAL VIDEO */
-.video-section {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  flex: 1;
-  min-width: 0;
-  position: sticky;
-  top: 30px;
+.wish-btn {
+  width: 48px;
+  flex: none;
+  padding: 0;
+  font-size: 18px;
 }
 
-.video-section h2 {
-  color: #2E7D32;
-  font-size: 22px;
-  margin-bottom: 6px;
+/* LOADING */
+.loading-state {
+  text-align: center;
+  padding: 120px 20px;
+  color: #6b7280;
 }
 
-.video-subtitle {
-  color: #888;
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 16px;
+  border: 4px solid #d7ecd9;
+  border-top-color: #2E7D32;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ======================
+   SECTIONS
+====================== */
+.section {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  margin-bottom: 32px;
+}
+
+.section-title {
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 6px;
+}
+
+.section-subtitle {
+  color: #6b7280;
+  text-align: center;
   font-size: 14px;
-  margin-bottom: 20px;
+  margin: 0 0 30px;
 }
 
+/* CARE GUIDE */
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.guide-card {
+  background: #f8faf8;
+  border: 1px solid #eef2ee;
+  border-top: 3px solid #2E7D32;
+  padding: 22px;
+  border-radius: 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.guide-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.1);
+}
+
+.guide-icon {
+  font-size: 30px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.guide-card h3 {
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.guide-card p {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* COMMON PROBLEMS */
+.problems {
+  background: #fffaf3;
+  border: 1px solid #f3e3c8;
+}
+
+.problems-inner {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.problems-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.problems-inner h3 {
+  color: #92400e;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.problems-inner p {
+  color: #6b4a1f;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* VIDEO */
 .video-wrapper {
   position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  max-width: 800px;
+  margin: 0 auto;
   aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  background: #000;
 }
 
 .tutorial-video {
@@ -428,108 +586,86 @@
   border: 0;
 }
 
-/* CARE GUIDE */
-.care-guide {
-  background: white;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  max-width: 1200px;
-  width: 100%;
-}
-
-.care-guide h2 {
-  color: #2E7D32;
-  font-size: 26px;
-  text-align: center;
-  margin-bottom: 6px;
-}
-
-.guide-intro {
-  color: #888;
-  text-align: center;
-  font-size: 15px;
-  margin-bottom: 30px;
-}
-
-.guide-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.guide-card {
-  background: #f8faf8;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-  border-left: 4px solid #2E7D32;
-  transition: 0.25s;
-}
-
-.guide-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(46,125,50,0.12);
-}
-
-.guide-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
-}
-
-.guide-card h3 {
-  color: #2E7D32;
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.guide-card p {
-  color: #555;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
 /* QUICK TIPS */
 .quick-tips {
-  margin-top: 35px;
-  padding: 25px;
   background: #e8f5e9;
-  border-radius: 14px;
 }
 
-.quick-tips h3 {
+.tips-title {
   color: #2E7D32;
   font-size: 18px;
-  margin-bottom: 12px;
+  font-weight: 700;
+  margin: 0 0 14px;
 }
 
 .quick-tips ul {
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
 }
 
 .quick-tips li {
-  color: #555;
+  position: relative;
+  color: #3f5a41;
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.6;
+  padding-left: 26px;
 }
 
-/* RESPONSIVE */
+.quick-tips li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #2E7D32;
+  font-weight: 700;
+}
+
+/* ======================
+   RESPONSIVE
+====================== */
 @media (max-width: 900px) {
-  .detail-layout {
-    flex-direction: column;
-  }
-
-  .video-section {
-    position: static;
-  }
-
-  .info-grid {
+  .product-hero {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
-  .action-buttons {
-    flex-direction: column;
+  .main-image {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .section {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 600px) {
+  .detail-wrapper {
+    padding: 28px 16px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .action-row {
+    flex-wrap: wrap;
+  }
+
+  .action-row .el-button {
+    flex: 1 1 100%;
+  }
+
+  .action-row .wish-btn {
+    flex: none;
+    width: 48px;
+  }
+
+  .guide-grid {
+    grid-template-columns: 1fr;
   }
 }
 
