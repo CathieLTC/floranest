@@ -2,9 +2,20 @@
   <div class="product-card">
 
     <!-- IMAGE (hover to enlarge, click to view details) -->
-    <router-link :to="'/product/' + product.productId" class="image-link">
-      <img :src="product.imageUrl" :alt="product.productName" />
-    </router-link>
+    <div class="media">
+      <router-link
+        :to="'/product/' + product.productId"
+        class="image-link"
+        :aria-label="'View details for ' + product.productName"
+      >
+        <img :src="product.imageUrl" alt="" />
+      </router-link>
+
+      <!-- ALWAYS-VISIBLE VIEW DETAILS OVERLAY -->
+      <router-link :to="'/product/' + product.productId" class="view-overlay">
+        View Details
+      </router-link>
+    </div>
 
     <div class="card-body">
       <h3>{{ product.productName }}</h3>
@@ -47,6 +58,10 @@ const wishlistStore = useWishlistStore();
 }
 .product-card:hover { transform: translateY(-5px); }
 
+.media {
+  position: relative;
+}
+
 .image-link {
   display: block;
   overflow: hidden;
@@ -56,11 +71,48 @@ const wishlistStore = useWishlistStore();
   width: 100%;
   height: 180px;
   object-fit: cover;
-  transition: transform 0.35s ease;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.image-link:hover img {
-  transform: scale(1.12);
+/* Image grows larger & wider smoothly on hover */
+.media:hover img {
+  transform: scale(1.15);
+}
+
+/* VIEW DETAILS OVERLAY */
+.view-overlay {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.media:hover .view-overlay,
+.view-overlay:hover {
+  background: rgba(21, 94, 25, 0.92);
+  box-shadow: 0 4px 14px rgba(21, 94, 25, 0.4);
+}
+
+.view-overlay:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
 .card-body { padding: 15px; text-align: center; }

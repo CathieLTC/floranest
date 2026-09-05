@@ -24,7 +24,7 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
-    // Order history for a specific user — used by MyOrders / OrderHistory pages
+    // Orders for a specific user — used by the My Orders page
     @GetMapping("/user/{userId}")
     public List<Order> getOrdersByUserId(@PathVariable Integer userId) {
         return orderService.getOrderByUserId(userId);

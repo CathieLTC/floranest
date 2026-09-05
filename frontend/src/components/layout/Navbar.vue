@@ -50,7 +50,6 @@
               <el-dropdown-menu>
                 <el-dropdown-item @click="router.push('/my-profile')"><el-icon><UserFilled /></el-icon>My Profile</el-dropdown-item>
                 <el-dropdown-item @click="router.push('/my-orders')"><el-icon><Box /></el-icon>My Orders</el-dropdown-item>
-                <el-dropdown-item @click="router.push('/order-history')"><el-icon><Document /></el-icon>Order History</el-dropdown-item>
                 <el-dropdown-item divided @click="logout">🚪 Logout</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -74,7 +73,7 @@
 
 <script setup>
   import { computed, ref } from "vue";
-  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Document, Star } from "@element-plus/icons-vue";
+  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Star } from "@element-plus/icons-vue";
   import { useRouter } from "vue-router";
   import { ElMessageBox } from "element-plus";
   import { useUserStore } from "@/stores/user";
@@ -229,16 +228,17 @@
 
   .auth-links a{
     text-decoration:none;
-    color:#333;
+    color:#fff;
     font-weight:600;
+    transition:color .2s;
   }
 
   .auth-links a:hover{
-    color:white;
+    color:#e8f5e9;
   }
 
   .auth-links span{
-    color:#bbb;
+    color:rgba(255,255,255,.55);
   }
 
   .profile-dropdown{

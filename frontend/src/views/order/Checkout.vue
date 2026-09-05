@@ -131,6 +131,7 @@
     }
     catch(error){
         console.error(error);
+        ElMessage.error("Failed to load your cart.");
     }
 
   };
@@ -161,6 +162,7 @@
 
     } catch (error) {
       console.error(error);
+      ElMessage.warning("Could not load your saved shipping details. Please enter them below.");
       editingShipping.value = true;
     }
 

@@ -21,7 +21,6 @@ import Checkout         from "@/views/order/Checkout.vue";
 import Payment          from "@/views/order/Payment.vue";
 import OrderConfirmation from "@/views/order/OrderConfirmation.vue";
 import MyOrders         from "@/views/order/MyOrders.vue";
-import OrderHistory     from "@/views/order/OrderHistory.vue";
 
 // User
 import MyProfile from "@/views/user/MyProfile.vue";
@@ -57,7 +56,6 @@ const routes = [
   { path: "/payment",             component: Payment },
   { path: "/order-confirmation",  component: OrderConfirmation },
   { path: "/my-orders",           component: MyOrders },
-  { path: "/order-history",       component: OrderHistory },
 
   // User
   { path: "/my-profile",     component: MyProfile },

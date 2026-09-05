@@ -133,6 +133,7 @@
       orders.value = response.data;
     } catch (error) {
       console.error(error);
+      ElMessage.error("Failed to load your orders.");
     }
   };
 
