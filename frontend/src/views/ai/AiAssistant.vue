@@ -188,25 +188,30 @@ async function analyzePlant() {
   try {
     const response = await analyzePlantImage(imageFile.value);
 
-    const aiText = response.choices[0].message.content
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const result = JSON.parse(aiText);
+    const result = extractAiJson(response);
 
     let confidence = result.confidence;
     if (typeof confidence === "number") {
       confidence = Math.round(confidence * 100) + "%";
+    } else if (
+      typeof confidence === "string" &&
+      confidence.trim() &&
+      !confidence.includes("%")
+    ) {
+      const numeric = Number(confidence);
+      if (!Number.isNaN(numeric)) {
+        confidence = Math.round(numeric * 100) + "%";
+      }
     }
 
+    const plantName = result.plantName || "Plant";
     disease.value = {
       name:       result.healthy
-                    ? `${result.plantName} (Healthy)`
-                    : `${result.plantName} — ${result.disease}`,
-      confidence: confidence,
+                    ? `${plantName} (Healthy)`
+                    : `${plantName} — ${result.disease || "Unknown issue"}`,
+      confidence: confidence || "n/a",
       cause:      result.cause      || "n/a",
-      healthy:    result.healthy    || false,
+      healthy:    Boolean(result.healthy),
       symptoms:   result.symptoms   || [],
       treatment:  result.treatment  || [],
       prevention: result.prevention || []
@@ -216,10 +221,82 @@ async function analyzePlant() {
     ElMessage.success("Plant analysed successfully!");
   } catch (error) {
     console.error(error);
-    ElMessage.error("Failed to analyse plant. Please try again.");
+    const detail = error?.message ? ` ${error.message}` : "";
+    ElMessage.error(`Failed to analyse plant. Please try again.${detail}`);
   } finally {
     loading.value = false;
   }
+}
+
+/**
+ * Extracts the model's text from an OpenAI-style response and parses the
+ * JSON object inside it. Tolerates code fences, surrounding prose and
+ * models that double-encode the JSON as a quoted string.
+ */
+function extractAiJson(response) {
+  const content = response.choices?.[0]?.message?.content;
+
+  // Some vision models return content as an array of text/image parts.
+  const text = Array.isArray(content)
+    ? content
+        .map(part => (typeof part === "string" ? part : part?.text || ""))
+        .filter(Boolean)
+        .join("\n")
+    : String(content ?? "");
+
+  const stripFences = str =>
+    str.replace(/```json/gi, "").replace(/```/g, "").trim();
+
+  const candidates = [stripFences(text)];
+
+  // Some models wrap the whole JSON object in a quoted/escaped string.
+  if (candidates[0].startsWith('"')) {
+    try {
+      const unquoted = JSON.parse(candidates[0]);
+      if (typeof unquoted === "string" && unquoted.trim()) {
+        candidates.push(stripFences(unquoted));
+      }
+    } catch { /* not double-encoded — ignore */ }
+  }
+
+  /**
+   * Scans from the first "{" outward and returns the first substring that
+   * parses as JSON. This survives prose wrapped around the object (even when
+   * the trailing prose itself contains stray braces) and trailing commas.
+   */
+  function scanForJson(str) {
+    const start = str.indexOf("{");
+    if (start === -1) return undefined;
+    for (let end = start; end < str.length; end++) {
+      if (str[end] !== "}") continue;
+      const block = str.slice(start, end + 1);
+      try { return JSON.parse(block); } catch { /* keep scanning */ }
+      // Tolerate trailing commas — a common LLM mistake.
+      try { return JSON.parse(block.replace(/,\s*([}\]])/g, "$1")); } catch { /* keep scanning */ }
+    }
+    return undefined;
+  }
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    // 1) Direct parse.
+    try { return JSON.parse(candidate); } catch { /* try next strategy */ }
+
+    // 2) Scan for the first complete { ... } object.
+    const found = scanForJson(candidate);
+    if (found) return found;
+  }
+
+  // Log the full reply — the error below only shows a preview of it.
+  console.warn("[extractAiJson] Could not find JSON in model reply:", text);
+
+  // Surface the model's actual reply so failures are easy to diagnose.
+  const snippet = text.trim().slice(0, 200);
+  throw new Error(
+    "The AI response did not contain a valid JSON result." +
+    (snippet ? ` The model replied: "${snippet}"` : " The model returned an empty response.")
+  );
 }
 
 function handleFileChange(file) {
@@ -230,7 +307,7 @@ function handleFileChange(file) {
 <style scoped>
 .ai-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f1f8e9 0%, #ffffff 300px);
+  background: transparent;
   padding-bottom: 60px;
 }
 

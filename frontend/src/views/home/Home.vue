@@ -30,9 +30,6 @@
       <FeaturedProduct />
       <Categories />
 
-      <!-- Gardening Tips -->
-      <GardeningTips />
-
       <!-- Gardening Tools -->
       <section class="tools-section">
         <h2>🛠️ Essential Gardening Tools</h2>
@@ -66,7 +63,6 @@
 import HeroBanner from '@/components/home/HeroBanner.vue';
 import Categories     from '@/components/home/Categories.vue';
 import FeaturedProduct from '@/components/home/FeaturedProduct.vue';
-import GardeningTips from '@/components/home/GardeningTips.vue';
 
 const tools = [
   {

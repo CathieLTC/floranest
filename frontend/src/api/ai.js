@@ -210,9 +210,16 @@ export async function analyzePlantImage(imageFile) {
 
     const mimeType = imageFile.type || "image/jpeg";
 
-    // Send to backend proxy — same /ai/chat endpoint
+    // Send to backend proxy — same /ai/chat endpoint.
+    // temperature 0 + a single-line schema + "only JSON" instruction give the
+    // vision model the best chance of returning a parseable object.
     return postChat({
         messages: [
+            {
+                role: "system",
+                content: `You are an expert plant pathologist. You inspect plant photos and
+report findings as JSON. Always answer in valid JSON only.`
+            },
             {
                 role: "user",
                 content: [
@@ -224,21 +231,14 @@ export async function analyzePlantImage(imageFile) {
                     },
                     {
                         type: "text",
-                        text: `Analyze this plant image and respond ONLY with a valid JSON object, no markdown, no extra text:
-                        {
-                        "plantName": "Common plant name",
-                        "healthy": true or false,
-                        "confidence": "98%",
-                        "disease": "Disease name or null if healthy",
-                        "cause": "Cause or null if healthy",
-                        "symptoms": ["symptom 1", "symptom 2"] or [] if healthy,
-                        "treatment": ["step 1", "step 2"] or [] if healthy,
-                        "prevention": ["tip 1", "tip 2"]
-                        }`
+                        text: `Analyse the plant in this image and return ONLY a valid JSON object — no markdown, no code fences, no text before or after it. Use exactly this structure:
+{"plantName":"common plant name","healthy":true,"confidence":"98%","disease":null,"cause":null,"symptoms":[],"treatment":[],"prevention":["tip 1","tip 2"]}
+If the plant is unhealthy, set "healthy" to false and fill in "disease", "cause", "symptoms" and "treatment" with specific, useful values. If it is healthy, keep "disease"/"cause" as null and "symptoms"/"treatment" as empty arrays.`
                     }
                 ]
             }
         ],
-        max_tokens: 800
+        max_tokens: 1200,
+        temperature: 0
     });
 }

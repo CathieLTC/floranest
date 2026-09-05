@@ -28,6 +28,9 @@ public class AiController {
     @Value("${ai.model:}")
     private String model;
 
+    @Value("${ai.vision.model:}")
+    private String visionModel;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -38,8 +41,10 @@ public class AiController {
     @PostMapping("/chat")
     public ResponseEntity<?> chat(@RequestBody Map<String, Object> body) {
         try {
-            // Inject the correct model into the request body
-            body.put("model", model);
+            // Inject the correct model into the request body.
+            // Image requests (e.g. plant disease detection) need a vision-capable
+            // model, while ordinary text chat keeps the default text model.
+            body.put("model", resolveModel(body));
             return ResponseEntity.ok(callAiApi(body));
         } catch (HttpClientErrorException e) {
             return buildErrorResponse(e);
@@ -51,6 +56,40 @@ public class AiController {
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Chooses the model to use for a request:
+     * the vision model when the payload contains an image, otherwise the default text model.
+     */
+    private String resolveModel(Map<String, Object> body) {
+        if (visionModel != null && !visionModel.isBlank() && requiresVision(body)) {
+            return visionModel;
+        }
+        return model;
+    }
+
+    /** True when any message in the payload has image content (multimodal input). */
+    private boolean requiresVision(Map<String, Object> body) {
+        Object messages = body.get("messages");
+        if (!(messages instanceof List<?> messageList)) {
+            return false;
+        }
+        for (Object message : messageList) {
+            if (!(message instanceof Map<?, ?> map)) {
+                continue;
+            }
+            Object content = map.get("content");
+            if (content instanceof List<?> parts) {
+                for (Object part : parts) {
+                    if (part instanceof Map<?, ?> partMap
+                            && "image_url".equals(partMap.get("type"))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * Forwards a request to the AI provider.
