@@ -133,7 +133,7 @@
 
     .payment-page {
         padding: 50px;
-        background: #f5fff7;
+        background: transparent;
         min-height: 100vh;
     }
 
