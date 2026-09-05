@@ -185,40 +185,59 @@ async function analyzePlant() {
   loading.value    = true;
   showResult.value = false;
 
+  // Free vision models sometimes truncate or ramble around the JSON object.
+  // Retrying a few times turns those transient failures into a success.
+  const MAX_ATTEMPTS = 3;
+
   try {
-    const response = await analyzePlantImage(imageFile.value);
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        const response = await analyzePlantImage(imageFile.value);
+        const result   = extractAiJson(response);
 
-    const result = extractAiJson(response);
+        let confidence = result.confidence;
+        if (typeof confidence === "number") {
+          confidence = Math.round(confidence * 100) + "%";
+        } else if (
+          typeof confidence === "string" &&
+          confidence.trim() &&
+          !confidence.includes("%")
+        ) {
+          const numeric = Number(confidence);
+          if (!Number.isNaN(numeric)) {
+            confidence = Math.round(numeric * 100) + "%";
+          }
+        }
 
-    let confidence = result.confidence;
-    if (typeof confidence === "number") {
-      confidence = Math.round(confidence * 100) + "%";
-    } else if (
-      typeof confidence === "string" &&
-      confidence.trim() &&
-      !confidence.includes("%")
-    ) {
-      const numeric = Number(confidence);
-      if (!Number.isNaN(numeric)) {
-        confidence = Math.round(numeric * 100) + "%";
+        const plantName = result.plantName || "Plant";
+        disease.value = {
+          name:       result.healthy
+                        ? `${plantName} (Healthy)`
+                        : `${plantName} — ${result.disease || "Unknown issue"}`,
+          confidence: confidence || "n/a",
+          cause:      result.cause      || "n/a",
+          healthy:    Boolean(result.healthy),
+          symptoms:   result.symptoms   || [],
+          treatment:  result.treatment  || [],
+          prevention: result.prevention || []
+        };
+
+        showResult.value = true;
+        ElMessage.success("Plant analysed successfully!");
+        return;
+      } catch (error) {
+        const parseFailed = error?.message
+          && error.message.includes("did not contain a valid JSON result");
+        if (attempt < MAX_ATTEMPTS && parseFailed) {
+          ElMessage.warning(
+            `The AI response was incomplete. Retrying (attempt ${attempt} of ${MAX_ATTEMPTS})…`
+          );
+          await new Promise(r => setTimeout(r, 1800));
+          continue;
+        }
+        throw error;
       }
     }
-
-    const plantName = result.plantName || "Plant";
-    disease.value = {
-      name:       result.healthy
-                    ? `${plantName} (Healthy)`
-                    : `${plantName} — ${result.disease || "Unknown issue"}`,
-      confidence: confidence || "n/a",
-      cause:      result.cause      || "n/a",
-      healthy:    Boolean(result.healthy),
-      symptoms:   result.symptoms   || [],
-      treatment:  result.treatment  || [],
-      prevention: result.prevention || []
-    };
-
-    showResult.value = true;
-    ElMessage.success("Plant analysed successfully!");
   } catch (error) {
     console.error(error);
     const detail = error?.message ? ` ${error.message}` : "";
