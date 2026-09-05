@@ -12,6 +12,7 @@
         <router-link to="/shop">Shop</router-link>
         <router-link to="/products">Products</router-link>
         <router-link to="/reviews">Reviews</router-link>
+        <router-link to="/ai">AI Assistant</router-link>
       </div>
 
       <div class="col">

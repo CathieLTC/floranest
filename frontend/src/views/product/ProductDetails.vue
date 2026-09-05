@@ -237,10 +237,12 @@
       humidity: isSucculent
         ? `Low humidity is fine — succulents are adapted to dry environments. No misting needed.`
         : `Moderate to high humidity (40-60%) is preferred. Group plants together, use a pebble tray, or mist occasionally to increase humidity.`,
-      fertilizing: `Feed every 2-4 weeks during the growing season (spring and summer) with a balanced liquid fertilizer diluted to half strength. Stop feeding in autumn and winter when growth slows.`,
+      fertilizing: isFlowering
+        ? `Feed every 2-4 weeks during the growing season (spring and summer) with a bloom-boosting fertilizer (higher phosphorus). Stop feeding in autumn and winter when growth slows.`
+        : `Feed every 2-4 weeks during the growing season (spring and summer) with a balanced liquid fertilizer diluted to half strength. Stop feeding in autumn and winter when growth slows.`,
       pruning: `Remove yellow, brown, or damaged leaves promptly with clean scissors. Prune leggy stems to encourage bushier growth. Always cut just above a leaf node.`,
       repotting: `Repot every 1-2 years in spring when roots outgrow the pot. Choose a pot 1-2 inches wider. Signs it's time: roots circling the bottom or growing from drainage holes.`,
-      problems: `Yellow leaves usually mean overwatering. Brown crispy edges indicate low humidity or underwatering. Drooping can be both over or underwatering — check the soil. Watch for common pests like spider mites, mealybugs, and fungus gnats. Treat with neem oil or insecticidal soap at first sign.`
+      problems: `Common issues for ${name}: yellow leaves usually mean overwatering. Brown crispy edges indicate low humidity or underwatering. Drooping can be both over or underwatering — check the soil. Watch for common pests like spider mites, mealybugs, and fungus gnats. Treat with neem oil or insecticidal soap at first sign.`
     };
   });
 

@@ -195,9 +195,9 @@ Respond with ONLY a valid JSON array, no markdown, no extra text:
 }
 
 // ─── FEATURE 4: Plant Disease Detection ──────────────────────────────────────
-// Called by PlantCare.vue
+// Called by AiAssistant.vue
 // Accepts: an image File object from the upload component
-// Returns: the raw API response (PlantCare.vue handles parsing)
+// Returns: the raw API response (AiAssistant.vue handles parsing)
 export async function analyzePlantImage(imageFile) {
 
     // Convert image file to base64

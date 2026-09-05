@@ -3,7 +3,7 @@ package com.example.floranest.backend.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.lang.NonNull;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -20,7 +20,6 @@ public class AiController {
     private static final long BASE_BACKOFF_MS = 2_000L;
 
     @Value("${ai.api.key:NOT_FOUND}")
-    @NonNull
     private String apiKey;
 
     @Value("${ai.api.url:}")

@@ -21,19 +21,24 @@
          DASHBOARD CARDS
     ========================= -->
     <section class="dashboard">
-      <div class="card">
+      <div class="card clickable" @click="router.push('/my-orders')">
         <h2>{{ stats.orders }}</h2>
         <p>📦 Orders</p>
       </div>
 
-      <div class="card">
+      <div class="card clickable" @click="router.push('/cart')">
         <h2>{{ stats.cart }}</h2>
         <p>🛒 Cart Items</p>
       </div>
 
-      <div class="card">
-        <h2>{{ stats.plants }}</h2>
-        <p>🌿 Plants Bought</p>
+      <div class="card clickable" @click="router.push('/wishlist')">
+        <h2>{{ stats.wishlist }}</h2>
+        <p>❤️ Wishlist</p>
+      </div>
+
+      <div class="card clickable" @click="router.push('/order-history')">
+        <h2>📜</h2>
+        <p>Order History</p>
       </div>
     </section>
 
@@ -112,26 +117,6 @@
         <el-input v-model="cardForm.expiry" placeholder="Expiry Date"/>
         <el-button type="success" @click="saveCard">Save Card</el-button>
         <el-button @click="showCardForm = false">Cancel</el-button>
-      </div>
-    </section>
-
-    <!-- =========================
-         WISHLIST
-    ========================= -->
-    <section class="section">
-      <div class="section-header">
-        <h2>❤️ Wishlist</h2>
-      </div>
-
-      <div v-if="wishlist.length === 0" class="wishlist-empty">
-        Your wishlist is empty 🌱
-      </div>
-
-      <div class="wishlist-grid">
-        <div class="wishlist-card" v-for="plant in wishlist" :key="plant.name">
-          <img :src="plant.image"/>
-          <h3>{{ plant.name }}</h3>
-        </div>
       </div>
     </section>
 
@@ -226,9 +211,11 @@
   import { UserFilled } from "@element-plus/icons-vue";
   import api from "@/api/axios";
   import { useUserStore } from "@/stores/user";
+  import { useWishlistStore } from "@/stores/wishlist";
 
   const router = useRouter();
   const userStore = useUserStore();
+  const wishlistStore = useWishlistStore();
   const loggedInUser = userStore.user;
 
   if (!loggedInUser) {
@@ -324,7 +311,8 @@
   const stats = ref({
     orders: 0,
     cart: 0,
-    plants: 0
+    plants: 0,
+    wishlist: 0
   });
 
   const loadDashboard = async () => {
@@ -346,6 +334,7 @@
           sum + (order.items || []).reduce((s, i) => s + (i.quantity || 0), 0),
         0
       );
+      stats.value.wishlist = wishlistStore.count;
     } catch (error) {
       console.error(error);
     }
@@ -508,25 +497,6 @@
   };
 
   /* =========================
-        WISHLIST
-  ========================= */
-  const wishlist = ref([]);
-
-  const wishlistStorageKey = () =>
-    `floranest_wishlist_${loggedInUser?.userId || "guest"}`;
-
-  const loadWishlist = () => {
-    const saved = localStorage.getItem(wishlistStorageKey());
-    if (saved) {
-      try {
-        wishlist.value = JSON.parse(saved);
-      } catch {
-        wishlist.value = [];
-      }
-      }
-      };
-
-  /* =========================
         NOTIFICATIONS
   ========================= */
   const notifications = ref({
@@ -625,7 +595,6 @@
 
     loadAddresses();
     loadCards();
-    loadWishlist();
     loadDashboard();
     loadRecentOrders();
   });
