@@ -172,7 +172,7 @@
 <style scoped>
   .search-results-wrapper {
     padding: 40px 60px;
-    background: #f4fff6;
+    background: transparent;
     min-height: 70vh;
   }
 

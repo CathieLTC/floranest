@@ -285,7 +285,7 @@
 /* WRAPPER */
 .detail-wrapper {
   padding: 44px clamp(16px, 5vw, 64px);
-  background: #f4fff6;
+  background: transparent;
   min-height: 100vh;
 }
 

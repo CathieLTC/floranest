@@ -199,7 +199,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f4fff6;
+    /* Transparent so the shared botanical backdrop shows through */
+    background: transparent;
   }
 
   /* CARD */

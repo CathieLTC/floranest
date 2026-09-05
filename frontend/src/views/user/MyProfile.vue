@@ -670,7 +670,7 @@
         PAGE
   ========================= */
   .profile-page {
-    background: #f5fff7;
+    background: transparent;
     min-height: 100vh;
     padding: 40px;
   }

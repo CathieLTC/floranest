@@ -71,7 +71,7 @@ const cartStore = useCartStore();
 <style scoped>
 .wishlist-wrapper {
   padding: 40px 60px;
-  background: #f4fff6;
+  background: transparent;
   min-height: 100vh;
 }
 
