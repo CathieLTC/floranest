@@ -76,6 +76,79 @@ async function fetchProducts() {
     }
 }
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/** Removes markdown code fences that may wrap a JSON payload. */
+function stripFences(text) {
+    return String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
+}
+
+/**
+ * Tries to parse a string as JSON, tolerating the trailing commas some
+ * free models produce.
+ */
+function tryParseJSON(str) {
+    if (!str) return undefined;
+    try { return JSON.parse(str); } catch { /* keep going */ }
+    try { return JSON.parse(str.replace(/,\s*([}\]])/g, "$1")); } catch { /* give up */ }
+    return undefined;
+}
+
+/**
+ * Extracts the first complete top-level { ... } object from a reply, scanning
+ * bracket-by-bracket while ignoring braces inside strings. Survives prose
+ * before and after the object.
+ */
+function extractJsonObject(text) {
+    const source = stripFences(text);
+    const start  = source.indexOf("{");
+    if (start === -1) return undefined;
+    let depth = 0, inString = false, escaped = false;
+    for (let i = start; i < source.length; i++) {
+        const ch = source[i];
+        if (inString) {
+            if (escaped) { escaped = false; }
+            else if (ch === "\\") { escaped = true; }
+            else if (ch === '"') { inString = false; }
+            continue;
+        }
+        if (ch === '"') { inString = true; continue; }
+        if (ch === "{") { depth++; continue; }
+        if (ch === "}") {
+            depth--;
+            if (depth === 0) return tryParseJSON(source.slice(start, i + 1));
+        }
+    }
+    return undefined;
+}
+
+/**
+ * Extracts the first complete top-level [ ... ] array from a reply, mirroring
+ * extractJsonObject but for arrays.
+ */
+function extractJsonArray(text) {
+    const source = stripFences(text);
+    const start  = source.indexOf("[");
+    if (start === -1) return undefined;
+    let depth = 0, inString = false, escaped = false;
+    for (let i = start; i < source.length; i++) {
+        const ch = source[i];
+        if (inString) {
+            if (escaped) { escaped = false; }
+            else if (ch === "\\") { escaped = true; }
+            else if (ch === '"') { inString = false; }
+            continue;
+        }
+        if (ch === '"') { inString = true; continue; }
+        if (ch === "[") { depth++; continue; }
+        if (ch === "]") {
+            depth--;
+            if (depth === 0) return tryParseJSON(source.slice(start, i + 1));
+        }
+    }
+    return undefined;
+}
+
 // ─── FEATURE 1: Gardening Chat ────────────────────────────────────────────────
 export async function sendChatMessage(message, history = []) {
     const messages = [
@@ -96,41 +169,74 @@ export async function sendChatMessage(message, history = []) {
 }
 
 // ─── FEATURE 2: Smart Search ──────────────────────────────────────────────────
+const SEARCH_STOPWORDS = new Set([
+    "and", "the", "for", "with", "that", "this", "under", "over", "in", "on",
+    "my", "me", "is", "of", "to", "plant", "plants", "one", "very", "really",
+    "want", "need", "looking", "best", "good", "should", "has", "have"
+]);
+
+/** Indoor/outdoor classification by category id (see floranest_db.sql). */
+const INDOOR_CATEGORIES = new Set([1, 3, 4, 5, 7, 8]);
+const isIndoor = categoryId => INDOOR_CATEGORIES.has(Number(categoryId));
+const place = p => (isIndoor(p.categoryId) ? "indoor" : "outdoor");
+
+const DEFAULT_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1446071103084-c257b5f70672?w=400";
+
 export async function searchPlants(query, filters = {}) {
     try {
-        const messages = [
-            {
-                role:    "system",
-                content: `You are a plant search keyword extractor.
-Extract 2-3 relevant keywords from the user's plant description.
+        const products = await fetchProducts();
+
+        // 1) Best-effort AI keyword extraction — never fatal.
+        let aiKeywords = [];
+        try {
+            const messages = [
+                {
+                    role:    "system",
+                    content: `You are a plant search keyword extractor.
+Extract 2-3 useful keywords for matching products from the user's description.
 Respond with ONLY a comma-separated list of keywords, nothing else.
 Example: low light, shade tolerant, indoor`
-            },
-            { role: "user", content: query }
-        ];
+                },
+                { role: "user", content: query }
+            ];
+            const keywordText = await callAI(messages, 60);
+            aiKeywords = keywordText.split(/[,\n]/).map(k => k.trim().toLowerCase()).filter(Boolean);
+        } catch (e) {
+            console.warn("Smart search: keyword extraction failed, using raw query.", e);
+        }
 
-        const keywordText = await callAI(messages, 50);
-        const keywords    = keywordText.split(",").map(k => k.trim().toLowerCase());
-        const products    = await fetchProducts();
+        // 2) Also match on the words the user actually typed, so search works
+        //    even when the free keyword model returns nothing useful.
+        const rawKeywords = String(query).toLowerCase()
+            .split(/[^a-z0-9]+/)
+            .map(t => t.trim())
+            .filter(t => t.length > 2 && !SEARCH_STOPWORDS.has(t));
+        const keywords = [...new Set([...aiKeywords, ...rawKeywords])];
+
+        // 3) A searchable "haystack" covering every useful product field.
+        const haystack = p => [
+            p.productName, p.description, p.sunlight, p.watering,
+            p.difficulty, p.temperature, place(p)
+        ].filter(Boolean).join(" ").toLowerCase();
 
         return products
             .filter(p => {
-                const nameMatch = keywords.some(kw =>
-                    p.productName?.toLowerCase().includes(kw) ||
-                    p.description?.toLowerCase().includes(kw)
-                );
-                const lightMatch = !filters.light ||
-                    p.sunlight?.toLowerCase().includes(filters.light.toLowerCase());
-                return nameMatch && lightMatch;
+                const keywordMatch = keywords.length === 0
+                    || keywords.some(kw => haystack(p).includes(kw));
+                const categoryMatch = !filters.category || place(p) === filters.category;
+                const lightMatch = !filters.light
+                    || p.sunlight?.toLowerCase().includes(filters.light.toLowerCase())
+                    || p.sunlight?.toLowerCase().includes(filters.light.split(" ")[0]);
+                return keywordMatch && categoryMatch && lightMatch;
             })
             .map(p => ({
                 id:          p.productId,
                 name:        p.productName,
                 description: p.description || "A beautiful plant for your space.",
-                imageUrl:    p.imageUrl    || "https://images.unsplash.com/photo-1446071103084-c257b5f70672?w=400",
+                imageUrl:    p.imageUrl    || DEFAULT_PRODUCT_IMAGE,
                 careLevel:   p.difficulty  || "Easy",
                 light:       p.sunlight    || "Varies",
-                category:    "Indoor",
+                category:    isIndoor(p.categoryId) ? "Indoor" : "Outdoor",
                 matchScore:  null,
                 reason:      null
             }));
@@ -164,29 +270,58 @@ Respond with ONLY a valid JSON array, no markdown, no extra text:
             { role: "user", content: `Preferences: ${prefText}` }
         ];
 
-        const text        = await callAI(messages, 600);
-        const clean       = text.replace(/```json|```/g, "").trim();
-        const suggestions = JSON.parse(clean);
-        const products    = await fetchProducts();
+        const products = await fetchProducts();
 
-        return suggestions.map((s, i) => {
-            const match = products.find(p =>
-                p.productName?.toLowerCase().includes(
-                    s.name.toLowerCase().split(" ")[0]
-                )
-            );
-            return {
-                id:          match?.productId || `ai-${i}`,
-                name:        s.name,
-                reason:      s.reason,
-                careLevel:   s.careLevel || "Easy",
-                light:       s.light     || "Varies",
-                category:    s.category  || "Indoor",
-                description: s.reason,
-                imageUrl:    match?.imageUrl || "https://images.unsplash.com/photo-1463936575829-25148e1db1b8?w=400",
-                matchScore:  95 - (i * 5)
-            };
-        });
+        // Free models sometimes truncate or ramble — retry a few times before
+        // giving up, and never assume the reply is one clean JSON array.
+        const MAX_ATTEMPTS = 3;
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            let text;
+            try {
+                text = await callAI(messages, 1000);
+            } catch (e) {
+                // Retry transient empty responses; surface rate-limit/provider errors.
+                const isTransient = e?.message === EMPTY_RESPONSE_MSG
+                    || /empty response/i.test(e?.message || "");
+                if (attempt < MAX_ATTEMPTS && isTransient) {
+                    await sleep(1500);
+                    continue;
+                }
+                throw e;
+            }
+
+            // Prefer a top-level array; also accept { "plants"/"suggestions": [...] }.
+            let suggestions = extractJsonArray(text);
+            if (!Array.isArray(suggestions)) {
+                const object = extractJsonObject(text);
+                suggestions = object?.plants || object?.suggestions;
+            }
+
+            if (Array.isArray(suggestions) && suggestions.length) {
+                return suggestions.map((s, i) => {
+                    const match = products.find(p =>
+                        p.productName?.toLowerCase().includes(
+                            String(s.name || "").toLowerCase().split(" ")[0]
+                        )
+                    );
+                    return {
+                        id:          match?.productId || `ai-${i}`,
+                        name:        s.name,
+                        reason:      s.reason,
+                        careLevel:   s.careLevel || "Easy",
+                        light:       s.light     || "Varies",
+                        category:    s.category  || "Indoor",
+                        description: s.reason,
+                        imageUrl:    match?.imageUrl || DEFAULT_PRODUCT_IMAGE,
+                        matchScore:  95 - (i * 5)
+                    };
+                });
+            }
+
+            if (attempt < MAX_ATTEMPTS) await sleep(1500);
+        }
+
+        throw new Error("The AI response did not contain a valid recommendation list.");
 
     } catch (e) {
         console.error("Recommendation error:", e);

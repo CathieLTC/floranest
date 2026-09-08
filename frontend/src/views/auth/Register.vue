@@ -216,12 +216,29 @@
   /* LEFT SIDE */
   .brand-side {
     flex: 1;
-    background: linear-gradient(135deg, #2E7D32, #1B5E20);
+    position: relative;
+    background-image: url("https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80&auto=format&fit=crop");
+    background-size: cover;
+    background-position: center;
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 40px;
+  }
+
+  /* Dark green overlay so the white text stays readable over the photo */
+  .brand-side::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(27,94,32,0.78), rgba(46,125,50,0.42));
+  }
+
+  .brand-side h1,
+  .brand-side p {
+    position: relative;
+    z-index: 1;
   }
 
   .brand-side h1 {
