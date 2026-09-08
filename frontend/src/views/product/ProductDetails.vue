@@ -8,7 +8,13 @@
 
         <!-- IMAGE -->
         <div class="image-panel">
-          <img :src="product.imageUrl" :alt="product.productName" class="main-image" @error="onImgError" />
+          <img
+            :src="product.imageUrl"
+            :alt="product.productName"
+            class="main-image"
+            @error="onImgError"
+            @click="openPreview(product.imageUrl, product.productName)"
+          />
         </div>
 
         <!-- INFO -->
@@ -168,6 +174,9 @@
 
     </div>
 
+    <!-- Fullscreen image preview -->
+    <ImagePreview v-model:visible="previewVisible" :src="previewSrc" :alt="previewAlt" />
+
   </div>
 </template>
 
@@ -178,6 +187,7 @@
   import api from "@/api/axios";
   import { useCartStore } from "@/stores/cart";
   import { useWishlistStore } from "@/stores/wishlist";
+  import ImagePreview from "@/components/common/ImagePreview.vue";
 
   const cartStore = useCartStore();
   const wishlistStore = useWishlistStore();
@@ -278,6 +288,17 @@
   };
 
   onMounted(loadProduct);
+
+  /* ── Image preview state ── */
+  const previewVisible = ref(false);
+  const previewSrc = ref("");
+  const previewAlt = ref("");
+
+  const openPreview = (src, alt = "") => {
+    previewSrc.value = src;
+    previewAlt.value = alt;
+    previewVisible.value = true;
+  };
 </script>
 
 <style scoped>
@@ -319,6 +340,7 @@
   object-fit: cover;
   border-radius: 12px;
   display: block;
+  cursor: zoom-in;
 }
 
 /* INFO PANEL */

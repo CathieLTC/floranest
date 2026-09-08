@@ -30,13 +30,13 @@
 
           <!-- IMAGE -->
           <div class="media">
-            <router-link
-              :to="'/product/' + item.productId"
+            <div
               class="image-link"
-              :aria-label="'View details for ' + item.productName"
+              :aria-label="'Click to enlarge ' + item.productName"
+              @click="openPreview(item.imageUrl)"
             >
               <img :src="item.imageUrl" alt="" @error="onImgError" />
-            </router-link>
+            </div>
 
             <!-- ALWAYS-VISIBLE VIEW DETAILS OVERLAY -->
             <router-link :to="'/product/' + item.productId" class="view-overlay">
@@ -75,6 +75,9 @@
 
     </div>
 
+    <!-- Fullscreen image preview -->
+    <ImagePreview v-model:visible="previewVisible" :src="previewSrc" :alt="previewAlt" />
+
   </div>
 </template>
 
@@ -84,6 +87,7 @@
   import { ElMessage } from "element-plus";
   import { useCartStore } from "@/stores/cart";
   import { useWishlistStore } from "@/stores/wishlist";
+  import ImagePreview from "@/components/common/ImagePreview.vue";
 
   const cartStore = useCartStore();
   const wishlistStore = useWishlistStore();
@@ -91,6 +95,17 @@
   const category = ref("all");
   const products = ref([]);
   const categories = ref([]);
+
+  /* ── Image preview state ── */
+  const previewVisible = ref(false);
+  const previewSrc = ref("");
+  const previewAlt = ref("");
+
+  const openPreview = (src, alt = "") => {
+    previewSrc.value = src;
+    previewAlt.value = alt;
+    previewVisible.value = true;
+  };
 
   const PLACEHOLDER_IMG =
     "data:image/svg+xml;charset=UTF-8," +
@@ -161,7 +176,7 @@
 }
 
 .products-header h1 {
-  color: #1f2937;
+  color: #027720;
   font-size: 30px;
   font-weight: 700;
   margin: 0 0 6px;
@@ -231,6 +246,7 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #f1f5f1;
+  cursor: zoom-in;
 }
 
 .image-link img {

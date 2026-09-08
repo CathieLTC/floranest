@@ -64,15 +64,15 @@
     <div class="grid">
       <div class="card" v-for="(item, i) in filteredProducts" :key="i">
 
-        <!-- IMAGE (hover to enlarge, click to view details) -->
+        <!-- IMAGE (hover to enlarge, click to preview) -->
         <div class="image-container">
-          <router-link
-            :to="'/product/' + item.productId"
+          <div
             class="img-link"
-            :aria-label="'View details for ' + item.productName"
+            :aria-label="'Click to enlarge ' + item.productName"
+            @click="openPreview(item.imageUrl, item.productName)"
           >
             <img :src="item.imageUrl" alt="" />
-          </router-link>
+          </div>
 
           <!-- ALWAYS-VISIBLE VIEW DETAILS OVERLAY -->
           <router-link :to="'/product/' + item.productId" class="view-overlay">
@@ -97,6 +97,9 @@
       </div>
     </div>
 
+    <!-- Fullscreen image preview -->
+    <ImagePreview v-model:visible="previewVisible" :src="previewSrc" :alt="previewAlt" />
+
   </div>
 </template>
 
@@ -107,9 +110,21 @@
   import api from "@/api/axios";
   import { useCartStore } from "@/stores/cart";
   import { useWishlistStore } from "@/stores/wishlist";
+  import ImagePreview from "@/components/common/ImagePreview.vue";
 
   const cartStore = useCartStore();
   const wishlistStore = useWishlistStore();
+
+  /* ── Image preview state ── */
+  const previewVisible = ref(false);
+  const previewSrc = ref("");
+  const previewAlt = ref("");
+
+  const openPreview = (src, alt = "") => {
+    previewSrc.value = src;
+    previewAlt.value = alt;
+    previewVisible.value = true;
+  };
   const route = useRoute();
   const router = useRouter();
 
@@ -391,6 +406,7 @@
 
   .img-link {
     display: block;
+    cursor: zoom-in;
   }
 
   .image-container img {

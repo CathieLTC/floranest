@@ -73,8 +73,8 @@ Without a key the rest of the app works normally; only the AI features fail.
 
 ```bash
 cd backend
-./mvnw spring-boot:run    # macOS / Linux
-mvnw.cmd spring-boot:run  # Windows
+./mvnw spring-boot:run    
+mvnw.cmd spring-boot:run  
 ```
 
 The API starts at `http://localhost:8080`.

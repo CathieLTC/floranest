@@ -1,15 +1,15 @@
 <template>
   <div class="product-card">
 
-    <!-- IMAGE (hover to enlarge, click to view details) -->
+    <!-- IMAGE (hover to enlarge, click to preview) -->
     <div class="media">
-      <router-link
-        :to="'/product/' + product.productId"
+      <div
         class="image-link"
-        :aria-label="'View details for ' + product.productName"
+        :aria-label="'Click to enlarge ' + product.productName"
+        @click="openPreview(product.imageUrl, product.productName)"
       >
         <img :src="product.imageUrl" alt="" />
-      </router-link>
+      </div>
 
       <!-- ALWAYS-VISIBLE VIEW DETAILS OVERLAY -->
       <router-link :to="'/product/' + product.productId" class="view-overlay">
@@ -34,11 +34,16 @@
         </el-button>
       </div>
     </div>
+
+    <!-- Fullscreen image preview -->
+    <ImagePreview v-model:visible="previewVisible" :src="previewSrc" :alt="previewAlt" />
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { useWishlistStore } from "@/stores/wishlist";
+import ImagePreview from "@/components/common/ImagePreview.vue";
 
 defineProps({
   product: { type: Object, required: true }
@@ -46,6 +51,17 @@ defineProps({
 defineEmits(['add-to-cart']);
 
 const wishlistStore = useWishlistStore();
+
+/* ── Image preview state ── */
+const previewVisible = ref(false);
+const previewSrc = ref("");
+const previewAlt = ref("");
+
+const openPreview = (src, alt = "") => {
+  previewSrc.value = src;
+  previewAlt.value = alt;
+  previewVisible.value = true;
+};
 </script>
 
 <style scoped>
@@ -65,6 +81,7 @@ const wishlistStore = useWishlistStore();
 .image-link {
   display: block;
   overflow: hidden;
+  cursor: zoom-in;
 }
 
 .product-card img {

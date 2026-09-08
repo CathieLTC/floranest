@@ -23,15 +23,15 @@
         <div class="grid">
           <div class="card" v-for="item in results" :key="item.productId">
 
-            <!-- IMAGE (hover to enlarge, click to view details) -->
+            <!-- IMAGE (hover to enlarge, click to preview) -->
             <div class="image-container">
-              <router-link
-                :to="'/product/' + item.productId"
+              <div
                 class="img-link"
-                :aria-label="'View details for ' + item.productName"
+                :aria-label="'Click to enlarge ' + item.productName"
+                @click="openPreview(item.imageUrl, item.productName)"
               >
                 <img :src="item.imageUrl" alt="" />
-              </router-link>
+              </div>
 
               <!-- ALWAYS-VISIBLE VIEW DETAILS OVERLAY -->
               <router-link :to="'/product/' + item.productId" class="view-overlay">
@@ -76,6 +76,9 @@
       </div>
     </template>
 
+    <!-- Fullscreen image preview -->
+    <ImagePreview v-model:visible="previewVisible" :src="previewSrc" :alt="previewAlt" />
+
   </div>
 </template>
 
@@ -86,6 +89,7 @@
   import { ElMessage } from "element-plus";
   import { useCartStore } from "@/stores/cart";
   import { useWishlistStore } from "@/stores/wishlist";
+  import ImagePreview from "@/components/common/ImagePreview.vue";
 
   const route = useRoute();
   const router = useRouter();
@@ -95,6 +99,17 @@
   const loading = ref(true);
   const products = ref([]);
   const categories = ref([]);
+
+  /* ── Image preview state ── */
+  const previewVisible = ref(false);
+  const previewSrc = ref("");
+  const previewAlt = ref("");
+
+  const openPreview = (src, alt = "") => {
+    previewSrc.value = src;
+    previewAlt.value = alt;
+    previewVisible.value = true;
+  };
 
   const query = computed(() => String(route.query.q || "").trim());
 
@@ -239,6 +254,7 @@
 
   .img-link {
     display: block;
+    cursor: zoom-in;
   }
 
   /* Image grows larger & wider smoothly on hover */
