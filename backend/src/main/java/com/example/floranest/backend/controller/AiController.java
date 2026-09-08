@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,9 @@ public class AiController {
     @Value("${ai.vision.model:}")
     private String visionModel;
 
+    @Value("${ai.vision.model.fallback:}")
+    private String visionModelFallback;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -41,11 +45,16 @@ public class AiController {
     @PostMapping("/chat")
     public ResponseEntity<?> chat(@RequestBody Map<String, Object> body) {
         try {
-            // Inject the correct model into the request body.
-            // Image requests (e.g. plant disease detection) need a vision-capable
-            // model, while ordinary text chat keeps the default text model.
-            body.put("model", resolveModel(body));
-            return ResponseEntity.ok(callAiApi(body));
+            if (requiresVision(body)) {
+                // Try the pinned vision model first, then any configured fallbacks,
+                // because OpenRouter's free catalogue rotates and models can vanish.
+                List<String> candidates = visionCandidates();
+                body.put("model", candidates.isEmpty() ? model : candidates.get(0));
+                return ResponseEntity.ok(callAiApi(body, candidates));
+            }
+            // Ordinary text chat keeps the default text model.
+            body.put("model", model);
+            return ResponseEntity.ok(callAiApi(body, List.of(model)));
         } catch (HttpClientErrorException e) {
             return buildErrorResponse(e);
         } catch (Exception e) {
@@ -58,14 +67,24 @@ public class AiController {
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     /**
-     * Chooses the model to use for a request:
-     * the vision model when the payload contains an image, otherwise the default text model.
+     * Ordered vision-model candidates: the pinned model first, followed by any
+     * configured fallbacks. Keeping alternatives lets the request survive a
+     * model being pulled from the free catalogue.
      */
-    private String resolveModel(Map<String, Object> body) {
-        if (visionModel != null && !visionModel.isBlank() && requiresVision(body)) {
-            return visionModel;
+    private List<String> visionCandidates() {
+        List<String> candidates = new ArrayList<>();
+        if (visionModel != null && !visionModel.isBlank()) {
+            candidates.add(visionModel.trim());
         }
-        return model;
+        if (visionModelFallback != null && !visionModelFallback.isBlank()) {
+            for (String value : visionModelFallback.split(",")) {
+                String trimmed = value.trim();
+                if (!trimmed.isEmpty() && !candidates.contains(trimmed)) {
+                    candidates.add(trimmed);
+                }
+            }
+        }
+        return candidates;
     }
 
     /** True when any message in the payload has image content (multimodal input). */
@@ -91,22 +110,43 @@ public class AiController {
         return false;
     }
 
+    /** True when the upstream error means the requested model no longer exists. */
+    private boolean isModelNotFound(HttpClientErrorException e) {
+        int status = e.getStatusCode().value();
+        if (status == 404) return true;
+        if (status != 400) return false;
+        String errorBody = e.getResponseBodyAsString();
+        if (errorBody == null) return false;
+        String lower = errorBody.toLowerCase();
+        return lower.contains("not found")
+                || lower.contains("does not support")
+                || lower.contains("does not exist")
+                || lower.contains("invalid");
+    }
+
     /**
      * Forwards a request to the AI provider.
      * Transient failures (429 rate limit, 5xx) are retried with backoff,
-     * honouring the upstream Retry-After header when provided.
+     * honouring the upstream Retry-After header when provided. If the selected
+     * model disappears from the catalogue (404/400), we fall back to the next
+     * configured candidate before giving up.
      */
-    private Map<String, Object> callAiApi(Map<String, Object> body) {
+    private Map<String, Object> callAiApi(Map<String, Object> body, List<String> modelCandidates) {
+        List<String> candidates = (modelCandidates == null || modelCandidates.isEmpty())
+                ? List.of(String.valueOf(body.get("model")))
+                : modelCandidates;
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
 
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
+        int modelIndex = 0;
         int attempt = 0;
         while (true) {
             attempt++;
             try {
+                body.put("model", candidates.get(modelIndex));
+                HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
                 ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                         apiUrl,
                         HttpMethod.POST,
@@ -130,6 +170,14 @@ public class AiController {
                 }
                 // Exponential backoff: 2s, 4s
                 sleepSafely(BASE_BACKOFF_MS * (1L << (attempt - 1)));
+            } catch (HttpClientErrorException e) {
+                // Model may have been removed from the free catalogue — next candidate.
+                if (isModelNotFound(e) && modelIndex < candidates.size() - 1) {
+                    modelIndex++;
+                    attempt = 0;
+                    continue;
+                }
+                throw e;
             }
         }
     }

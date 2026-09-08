@@ -34,3 +34,4 @@ build/
 
 ### Local secrets (API keys) ###
 src/main/resources/application-local.properties
+src/main/resources/application.properties

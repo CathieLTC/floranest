@@ -13,7 +13,7 @@
       <!-- Navigation -->
       <nav class="nav-links">
         <router-link to="/">Home</router-link>
-        <router-link to="/shop">Shop</router-link>
+        <router-link to="/shop">Shops</router-link>
         <router-link to="/products">Products</router-link>
         <router-link to="/reviews">Reviews</router-link>
       </nav>

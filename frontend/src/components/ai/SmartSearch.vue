@@ -89,8 +89,8 @@ const results  = ref([]);
 const filters = reactive({ category: "", light: "" });
 
 async function handleSearch() {
-  if (!query.value.trim()) {
-    ElMessage.warning("Please enter a search term.");
+  if (!query.value.trim() && !filters.category && !filters.light) {
+    ElMessage.warning("Enter a search term or choose a filter.");
     return;
   }
 
