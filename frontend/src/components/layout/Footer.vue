@@ -5,6 +5,7 @@
       <div class="col">
         <h3>FloraNest</h3>
         <p>Your go-to destination for beautiful plants and gardening essentials.</p>
+        <router-link to="/about" class="about-link">About Us</router-link>
       </div>
 
       <div class="col">
@@ -71,6 +72,12 @@ const year = new Date().getFullYear();
   transition: 0.2s;
 }
 .col a:hover { color: white; }
+
+.col .about-link {
+  margin-top: 6px;
+  font-weight: 600;
+  color: #a5d6a7;
+}
 
 .footer-bottom {
   border-top: 1px solid #2E7D32;

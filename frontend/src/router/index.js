@@ -34,6 +34,9 @@ import Reviews from "@/views/reviews/Reviews.vue";
 // Wishlist
 import Wishlist from "@/views/wishlist/Wishlist.vue";
 
+// About
+import About from "@/views/about/About.vue";
+
 const routes = [
   // Home
   { path: "/",           component: Home },
@@ -68,6 +71,9 @@ const routes = [
 
   // Wishlist
   { path: "/wishlist",       component: Wishlist },
+
+  // About
+  { path: "/about",          component: About },
 ];
 
 const router = createRouter({

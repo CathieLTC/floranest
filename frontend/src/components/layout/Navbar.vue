@@ -16,6 +16,7 @@
         <router-link to="/shop">Shops</router-link>
         <router-link to="/products">Products</router-link>
         <router-link to="/reviews">Reviews</router-link>
+        <router-link to="/about">About</router-link>
       </nav>
 
       <!-- Right Section -->
