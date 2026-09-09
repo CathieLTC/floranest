@@ -48,7 +48,7 @@ CREATE TABLE `categories`  (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`category_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of categories
@@ -61,6 +61,8 @@ INSERT INTO `categories` VALUES (5, 'Air Purifying Plants', 'Plants known for im
 INSERT INTO `categories` VALUES (6, 'Herbs', 'Edible and medicinal herbs for cooking and home gardening.', '2026-07-04 17:38:32', '2026-07-04 17:38:32');
 INSERT INTO `categories` VALUES (7, 'Hanging Plants', 'Decorative plants suitable for hanging baskets and shelves.', '2026-07-04 17:38:32', '2026-07-04 17:38:32');
 INSERT INTO `categories` VALUES (8, 'Bonsai', 'Miniature ornamental trees carefully cultivated for indoor decoration.', '2026-07-04 17:38:32', '2026-07-04 17:38:32');
+INSERT INTO `categories` VALUES (9, 'Gardening Tools', 'Hand tools, watering gear and accessories to keep your plants healthy.', '2026-09-09 14:00:00', '2026-09-09 14:00:00');
+INSERT INTO `categories` VALUES (10, 'Pots & Planters', 'Stylish pots and planters with proper drainage for every plant.', '2026-09-09 14:00:00', '2026-09-09 14:00:00');
 
 -- ----------------------------
 -- Table structure for order_items
@@ -128,7 +130,7 @@ CREATE TABLE `products`  (
   PRIMARY KEY (`product_id`) USING BTREE,
   INDEX `category_id`(`category_id` ASC) USING BTREE,
   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 62 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of products
@@ -182,6 +184,18 @@ INSERT INTO `products` VALUES (46, 4, 'Bird of Paradise', 'Large tropical plant 
 INSERT INTO `products` VALUES (47, 2, 'Japanese Maple', 'Ornamental outdoor tree famous for its vibrant seasonal foliage.', 95.00, 10, 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e', '2026-07-04 17:46:32', '2026-07-04 17:46:32', 'ACTIVE', 'Partial Sun', 'Moderate', 'Hard', '10-28°C');
 INSERT INTO `products` VALUES (48, 3, 'String of Pearls', 'Unique trailing succulent with bead-like leaves.', 27.99, 30, 'https://images.unsplash.com/photo-1596541223130-5d31a73fb6c6', '2026-07-04 17:46:32', '2026-07-04 17:46:32', 'ACTIVE', 'Bright Light', 'Light', 'Easy', '18-30°C');
 INSERT INTO `products` VALUES (49, 5, 'Premium Juniper Bonsai', 'Carefully shaped mature bonsai perfect for collectors.', 129.99, 8, 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86', '2026-07-04 17:46:32', '2026-07-04 17:46:32', 'ACTIVE', 'Full Sun', 'Moderate', 'Hard', '15-27°C');
+INSERT INTO `products` VALUES (50, 9, 'Professional Pruning Shears', 'Sharp bypass blades for clean cuts on stems and branches up to 2cm thick.', 18.99, 120, '/images/tools/pruning-shears.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (51, 9, 'Classic Watering Can', 'Galvanised steel can with a long narrow spout for precise, gentle watering.', 22.50, 90, '/images/tools/watering-can.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (52, 9, 'Hand Trowel & Fork Set', 'Stainless steel trowel and fork with ergonomic wooden handles for potting and weeding.', 14.99, 150, '/images/tools/trowel-fork.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (53, 9, 'Gardening Gloves', 'Breathable coated gloves that protect your hands from thorns and dirt.', 9.99, 200, '/images/tools/gardening-gloves.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (54, 9, 'Soil Moisture Meter', 'Tells you instantly whether your plant needs water, so there is no more guesswork.', 12.99, 110, '/images/tools/moisture-meter.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (55, 9, 'Plant Mister Spray Bottle', 'Produces a fine mist for humidity-loving plants and gentle leaf cleaning.', 11.49, 130, '/images/tools/plant-mister.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (56, 10, 'Terracotta Pot 6 inch', 'Classic terracotta pot with a drainage hole, perfect for repotting small plants.', 7.99, 300, '/images/pots/terracotta-pot.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (57, 10, 'Glazed Ceramic Pot Set', 'Two-tone glazed ceramic planters with drainage holes and wooden saucers.', 24.99, 90, '/images/pots/ceramic-pot-set.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (58, 10, 'Hanging Macrame Planter', 'Handmade cotton macrame hanger with a white planter, fits 4-5 inch pots.', 16.99, 75, '/images/pots/macrame-planter.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (59, 10, 'Self-Watering Pot 8 inch', 'Built-in water reservoir keeps soil consistently moist for up to 2 weeks.', 19.99, 120, '/images/pots/self-watering-pot.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (60, 10, 'Modern Minimalist Planter', 'Matte finish planter with a built-in drip tray for a clean, tidy look.', 21.99, 100, '/images/pots/minimalist-planter.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
+INSERT INTO `products` VALUES (61, 10, 'Succulent Pot Set', 'Four small ceramic pots ideal for succulents, cacti and small herbs.', 17.99, 140, '/images/pots/succulent-pot-set.jpg', '2026-09-09 14:00:00', '2026-09-09 14:00:00', 'ACTIVE', NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for users

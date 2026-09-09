@@ -7,16 +7,35 @@
       @click="isOpen = !isOpen"
       title="FloraNest AI Assistant"
     >
-      <span v-if="!isOpen">🤖</span>
-      <span v-else>✕</span>
+      <span v-if="!isOpen" class="fab-pulse"></span>
+      <svg v-if="!isOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C6.5 2 2 5.5 2 10C2 12.5 3.5 14.5 5.5 15.5L4 20L9 17.5C10 17.8 11 18 12 18C17.5 18 22 14.5 22 10C22 5.5 17.5 2 12 2Z"/>
+        <circle cx="8" cy="10" r="1" fill="currentColor"/>
+        <circle cx="12" cy="10" r="1" fill="currentColor"/>
+        <circle cx="16" cy="10" r="1" fill="currentColor"/>
+      </svg>
+      <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M6 6L18 18M6 18L18 6"/>
+      </svg>
     </button>
 
     <!-- Popup panel -->
     <transition name="fab-slide">
       <div v-if="isOpen" class="fab-panel">
         <div class="fab-header">
-          <span class="fab-title">✨ AI Assistant</span>
-          <button class="fab-close" @click="isOpen = false">✕</button>
+          <div class="fab-header-left">
+            <span class="fab-header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L13.5 7.5L19 9L13.5 10.5L12 16L10.5 10.5L5 9L10.5 7.5L12 2Z"/>
+              </svg>
+            </span>
+            <span class="fab-title">AI Assistant</span>
+          </div>
+          <button class="fab-close" @click="isOpen = false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M6 6L18 18M6 18L18 6"/>
+            </svg>
+          </button>
         </div>
         <div class="fab-body">
           <p class="fab-intro">
@@ -24,9 +43,8 @@
             or search using natural language.
           </p>
           <router-link to="/ai" @click="isOpen = false" class="fab-link">
-            <el-button type="success" size="large" class="fab-open-btn">
-              Open Full AI Assistant
-            </el-button>
+            Open Full AI Assistant
+            <span class="fab-link-arrow">→</span>
           </router-link>
         </div>
       </div>
@@ -36,28 +54,27 @@
 
 <script setup>
 import { ref } from "vue";
-
 const isOpen = ref(false);
 </script>
 
 <style scoped>
 .ai-fab {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 28px;
+  right: 28px;
   z-index: 9999;
 }
 
 .fab-btn {
-  width: 60px;
-  height: 60px;
+  position: relative;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #2E7D32, #1B5E20);
+  background: linear-gradient(135deg, var(--fn-green-600), var(--fn-green-700));
   color: white;
-  font-size: 26px;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(46,125,50,0.4);
+  box-shadow: 0 6px 24px rgba(31, 98, 55, 0.35);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -65,71 +82,128 @@ const isOpen = ref(false);
 }
 
 .fab-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 25px rgba(46,125,50,0.55);
+  transform: scale(1.08);
+  box-shadow: 0 8px 30px rgba(31, 98, 55, 0.45);
 }
 
 .fab-btn.active {
-  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+  background: linear-gradient(135deg, #444, #2a2a2a);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Pulse animation when idle */
+.fab-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--fn-green-400);
+  animation: fabPulse 2.5s ease-out infinite;
+}
+
+@keyframes fabPulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
 /* Popup panel */
 .fab-panel {
   position: absolute;
-  bottom: 75px;
+  bottom: 72px;
   right: 0;
-  width: 340px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.18);
+  width: 320px;
+  background: #fff;
+  border-radius: var(--fn-radius-md);
+  box-shadow: var(--fn-shadow-xl);
   overflow: hidden;
-  border: 1px solid #e8f5e9;
+  border: 1px solid var(--fn-border);
 }
 
 .fab-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #2E7D32, #1B5E20);
+  padding: 16px 18px;
+  background: linear-gradient(135deg, var(--fn-green-700), var(--fn-green-600));
   color: white;
+}
+
+.fab-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fab-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--fn-radius-sm);
 }
 
 .fab-title {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .fab-close {
   background: none;
   border: none;
-  color: white;
-  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--fn-radius-sm);
+  transition: all 0.15s;
 }
 
 .fab-close:hover {
-  opacity: 1;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .fab-body {
-  padding: 20px;
+  padding: 20px 18px;
 }
 
 .fab-intro {
-  color: #555;
-  font-size: 14px;
+  color: var(--fn-text-2);
+  font-size: 13px;
   line-height: 1.6;
   margin-bottom: 16px;
 }
 
 .fab-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--fn-green-600);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--fn-radius);
   text-decoration: none;
+  transition: all 0.25s ease;
 }
 
-.fab-open-btn {
-  width: 100%;
+.fab-link:hover {
+  background: var(--fn-green-700);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.fab-link-arrow {
+  transition: transform 0.25s ease;
+}
+
+.fab-link:hover .fab-link-arrow {
+  transform: translateX(3px);
 }
 
 /* Transition */
@@ -141,14 +215,18 @@ const isOpen = ref(false);
 .fab-slide-enter-from,
 .fab-slide-leave-to {
   opacity: 0;
-  transform: translateY(20px) scale(0.95);
+  transform: translateY(16px) scale(0.95);
 }
 
 /* Mobile */
 @media (max-width: 600px) {
   .fab-panel {
     width: 280px;
-    right: -10px;
+    right: -8px;
+  }
+  .ai-fab {
+    bottom: 20px;
+    right: 20px;
   }
 }
 </style>

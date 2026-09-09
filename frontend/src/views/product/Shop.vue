@@ -3,6 +3,7 @@
 
     <!-- HEADER -->
     <div class="shop-header">
+      <span class="header-eyebrow">Explore</span>
       <h1>{{ activeCategoryName ? activeCategoryName : 'Plant Stores' }}</h1>
       <p v-if="activeCategoryName">
         Showing plants in "{{ activeCategoryName }}"
@@ -36,18 +37,17 @@
 
     <!-- FILTER BAR -->
     <div class="toolbar">
-
       <!-- SEARCH -->
       <el-input
         v-model="search"
-        placeholder="Search plants..."
+        placeholder="Search plants…"
         class="search"
         clearable
       />
 
       <!-- CATEGORY FILTER -->
-      <el-select v-model="category" class="filter">
-        <el-option label="All" value="all"/>
+      <el-select v-model="category" class="filter" placeholder="All Categories">
+        <el-option label="All Categories" value="all"/>
         <el-option v-for="c in categories" :key="c.categoryId" :label="c.categoryName" :value="c.categoryId"/>
       </el-select>
 
@@ -57,7 +57,6 @@
         <el-option label="Price Low → High" value="low" />
         <el-option label="Price High → Low" value="high" />
       </el-select>
-
     </div>
 
     <!-- PRODUCTS GRID -->
@@ -80,18 +79,21 @@
           </router-link>
         </div>
 
-        <h3>{{ item.productName }}</h3>
-        <p class="price">$ {{ item.price }}</p>
+        <div class="card-body">
+          <h3>{{ item.productName }}</h3>
+          <p class="price">${{ item.price }}</p>
 
-        <div class="actions">
-          <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>
-          <el-button
-            :type="wishlistStore.has(item.productId) ? 'danger' : 'default'"
-            size="default"
-            @click="wishlistStore.toggle(item)"
-          >
-            {{ wishlistStore.has(item.productId) ? '♥' : '♡' }}
-          </el-button>
+          <div class="actions">
+            <el-button type="success" @click="cartStore.addToCart(item)">Add to Cart</el-button>
+            <el-button
+              :type="wishlistStore.has(item.productId) ? 'danger' : 'default'"
+              size="default"
+              class="wish-btn"
+              @click="wishlistStore.toggle(item)"
+            >
+              {{ wishlistStore.has(item.productId) ? '♥' : '♡' }}
+            </el-button>
+          </div>
         </div>
 
       </div>
@@ -182,7 +184,6 @@
   ];
 
   const filterByStore = (store) => {
-    // Filter by the store's first category id as a quick filter
     if (store.categoryIds.length > 0) {
       category.value = String(store.categoryIds[0]);
     }
@@ -257,58 +258,73 @@
 </script>
 
 <style scoped>
-
   /* WRAPPER */
   .shop-wrapper {
-    padding: 40px 60px;
-    background: transparent;
+    padding: 44px 24px;
     min-height: 100vh;
   }
 
   /* HEADER */
   .shop-header {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 36px;
+  }
+
+  .header-eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fn-green-600);
+    margin-bottom: 8px;
   }
 
   .shop-header h1 {
-    color: #2E7D32;
-    font-size: 34px;
+    color: var(--fn-ink);
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
   }
 
   .shop-header p {
-    color: #666;
+    color: var(--fn-text-3);
+    font-size: 0.95rem;
   }
 
   .clear-filter {
-    color: #2E7D32;
+    color: var(--fn-green-600);
     font-weight: 600;
     text-decoration: underline;
   }
 
   /* STORES SECTION */
   .stores-section {
-    margin-bottom: 40px;
+    max-width: 1280px;
+    margin: 0 auto 44px;
   }
 
   .stores-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 24px;
   }
 
   .store-card {
-    background: white;
-    border-radius: 15px;
+    background: #fff;
+    border-radius: var(--fn-radius-md);
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    transition: 0.3s;
+    border: 1px solid var(--fn-border);
+    box-shadow: var(--fn-shadow-sm);
+    transition: all var(--fn-t);
     cursor: pointer;
   }
 
   .store-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(46,125,50,0.18);
+    border-color: var(--fn-green-200);
+    box-shadow: var(--fn-shadow-lg);
   }
 
   .store-image-wrapper {
@@ -332,14 +348,14 @@
   }
 
   .store-info h3 {
-    color: #2E7D32;
-    font-size: 18px;
+    color: var(--fn-ink);
+    font-size: 1.05rem;
     margin-bottom: 6px;
   }
 
   .store-desc {
-    color: #888;
-    font-size: 14px;
+    color: var(--fn-text-3);
+    font-size: 13px;
     margin-bottom: 12px;
   }
 
@@ -350,10 +366,10 @@
   }
 
   .store-tag {
-    background: #e8f5e9;
-    color: #2E7D32;
+    background: var(--fn-green-50);
+    color: var(--fn-green-700);
     padding: 3px 10px;
-    border-radius: 12px;
+    border-radius: var(--fn-radius-pill);
     font-size: 12px;
     font-weight: 600;
   }
@@ -362,46 +378,51 @@
   .toolbar {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
     margin-bottom: 30px;
     flex-wrap: wrap;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .search {
-    width: 280px;
+    width: min(300px, 100%);
   }
 
   .filter {
-    width: 180px;
+    width: 200px;
   }
 
   /* GRID */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
   }
 
   /* CARD */
   .card {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    transition: 0.3s;
+    background: #fff;
+    border-radius: var(--fn-radius-md);
+    overflow: hidden;
+    border: 1px solid var(--fn-border);
+    box-shadow: var(--fn-shadow-sm);
+    transition: all var(--fn-t);
   }
 
   .card:hover {
     transform: translateY(-5px);
+    border-color: var(--fn-green-200);
+    box-shadow: var(--fn-shadow-lg);
   }
 
   /* IMAGE */
   .image-container {
     position: relative;
     overflow: hidden;
-    border-radius: 10px;
-    margin-bottom: 10px;
   }
 
   .img-link {
@@ -413,14 +434,11 @@
     width: 100%;
     height: 180px;
     object-fit: cover;
-    border-radius: 10px;
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-    cursor: pointer;
   }
 
-  /* Image grows larger & wider smoothly on hover */
   .image-container:hover img {
-    transform: scale(1.15);
+    transform: scale(1.12);
   }
 
   /* VIEW DETAILS OVERLAY */
@@ -432,26 +450,25 @@
     z-index: 2;
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    background: rgba(0, 0, 0, 0.4);
+    padding: 7px 16px;
+    background: rgba(0, 0, 0, 0.45);
     color: #fff;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--fn-radius-pill);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    transition: background 0.25s ease, box-shadow 0.25s ease;
+    transition: background var(--fn-t-fast);
   }
 
   .image-container:hover .view-overlay,
   .view-overlay:hover {
-    background: rgba(21, 94, 25, 0.92);
-    box-shadow: 0 4px 14px rgba(21, 94, 25, 0.4);
+    background: rgba(26, 77, 46, 0.9);
+    color: #fff;
   }
 
   .view-overlay:focus-visible {
@@ -459,21 +476,40 @@
     outline-offset: 2px;
   }
 
-  /* PRICE */
+  /* CARD BODY */
+  .card-body {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .card-body h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fn-ink);
+    margin-bottom: 4px;
+  }
+
   .price {
-    font-weight: bold;
-    color: #2E7D32;
-    margin: 8px 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--fn-green-600);
+    margin: 6px 0 14px;
   }
 
   .actions {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
   }
 
   .actions .el-button {
     flex: 1;
+    margin-left: 0;
   }
 
+  .wish-btn {
+    flex: none !important;
+    width: 42px;
+    padding: 0;
+    font-size: 17px;
+  }
 </style>

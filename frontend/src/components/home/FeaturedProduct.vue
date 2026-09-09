@@ -1,6 +1,9 @@
 <template>
   <section class="featured">
-    <h2>Popular Plants 🌱</h2>
+    <div class="section-head">
+      <h2>Popular Plants</h2>
+      <p>Discover our most-loved green companions</p>
+    </div>
 
     <div class="product-grid">
       <ProductCard
@@ -55,19 +58,28 @@ const addToCart = async (product) => {
 </script>
 
 <style scoped>
-.featured { margin: 40px 0; }
+.featured { margin: 60px 0; }
 
-.featured h2 {
+.section-head {
   text-align: center;
-  color: #e9f5ea;
-  font-size: 26px;
-  margin-bottom: 25px;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
+  margin-bottom: 36px;
+}
+
+.section-head h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: white;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.section-head p {
+  color: var(--fn-text-3);
+  font-size: 0.95rem;
 }
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
 }
 </style>

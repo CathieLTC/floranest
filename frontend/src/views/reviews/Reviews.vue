@@ -3,7 +3,8 @@
 
     <!-- HEADER -->
     <div class="reviews-header">
-      <h1>🌟 Plant & Shop Reviews</h1>
+      <span class="header-eyebrow">Community</span>
+      <h1>Plant & Shop Reviews</h1>
       <p>Read what other plant lovers are saying, or share your own experience!</p>
     </div>
 
@@ -16,8 +17,8 @@
         <el-form :model="form" label-position="top">
           <el-form-item label="Review Type">
             <el-radio-group v-model="form.type">
-              <el-radio-button label="plant">Plant</el-radio-button>
-              <el-radio-button label="shop">Shop</el-radio-button>
+              <el-radio-button value="plant">Plant</el-radio-button>
+              <el-radio-button value="shop">Shop</el-radio-button>
             </el-radio-group>
           </el-form-item>
 
@@ -48,6 +49,9 @@
         <h2>Recent Reviews</h2>
 
         <div v-if="reviews.length === 0" class="empty">
+          <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L13.5 7.5L19 9L13.5 10.5L12 16L10.5 10.5L5 9L10.5 7.5L12 2Z"/></svg>
+          </div>
           <p>No reviews yet. Be the first to share!</p>
         </div>
 
@@ -66,7 +70,7 @@
 
             <div class="review-target">
               <el-tag :type="review.type === 'plant' ? 'success' : 'warning'" size="small">
-                {{ review.type === 'plant' ? '🌱 Plant' : '🏪 Shop' }}
+                {{ review.type === 'plant' ? 'Plant' : 'Shop' }}
               </el-tag>
               <span class="target-name">{{ review.targetName }}</span>
             </div>
@@ -138,67 +142,83 @@ const submitReview = () => {
 
 <style scoped>
 .reviews-wrapper {
-  padding: 40px 60px;
-  background: transparent;
+  padding: 44px 24px;
   min-height: 100vh;
 }
 
 .reviews-header {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 40px;
 }
 
-.reviews-header h1 {
-  color: #2E7D32;
-  font-size: 32px;
+.header-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fn-green-600);
   margin-bottom: 8px;
 }
 
+.reviews-header h1 {
+  color: var(--fn-ink);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  margin-bottom: 8px;
+  letter-spacing: -0.03em;
+}
+
 .reviews-header p {
-  color: #666;
+  color: var(--fn-text-3);
+  font-size: 0.95rem;
 }
 
 .reviews-content {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
-  gap: 30px;
+  gap: 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* ── Submit section ── */
+/* Submit / Feed sections */
 .submit-section,
 .feed-section {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  background: #fff;
+  padding: 32px;
+  border-radius: var(--fn-radius-md);
+  border: 1px solid var(--fn-border);
+  box-shadow: var(--fn-shadow);
 }
 
 .submit-section h2,
 .feed-section h2 {
-  color: #2E7D32;
-  font-size: 22px;
+  color: var(--fn-ink);
+  font-size: 1.3rem;
   margin-bottom: 20px;
+  letter-spacing: -0.02em;
 }
 
-/* ── Review card ── */
+/* Review card */
 .review-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .review-card {
-  background: #f8faf8;
+  background: var(--fn-surface-2);
   padding: 20px;
-  border-radius: 12px;
-  border-left: 4px solid #2E7D32;
-  transition: 0.25s;
+  border-radius: var(--fn-radius);
+  border: 1px solid var(--fn-border);
+  border-left: 3px solid var(--fn-green-500);
+  transition: all var(--fn-t);
 }
 
 .review-card:hover {
-  box-shadow: 0 4px 14px rgba(46,125,50,0.1);
+  border-color: var(--fn-green-200);
+  border-left-color: var(--fn-green-500);
+  box-shadow: var(--fn-shadow-sm);
 }
 
 .review-top {
@@ -218,24 +238,25 @@ const submitReview = () => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2E7D32, #1B5E20);
+  background: linear-gradient(135deg, var(--fn-green-600), var(--fn-green-700));
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .author-name {
   font-weight: 600;
-  color: #333;
+  color: var(--fn-ink);
+  font-size: 14px;
   margin: 0;
 }
 
 .review-date {
   font-size: 12px;
-  color: #999;
+  color: var(--fn-text-3);
   margin: 0;
 }
 
@@ -248,11 +269,12 @@ const submitReview = () => {
 
 .target-name {
   font-weight: 600;
-  color: #2E7D32;
+  color: var(--fn-green-700);
+  font-size: 14px;
 }
 
 .review-comment {
-  color: #555;
+  color: var(--fn-text-2);
   line-height: 1.6;
   font-size: 14px;
   margin: 0;
@@ -260,17 +282,37 @@ const submitReview = () => {
 
 .empty {
   text-align: center;
-  padding: 40px;
-  color: #999;
+  padding: 48px 20px;
+  color: var(--fn-text-3);
 }
 
-/* ── Responsive ── */
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  background: var(--fn-green-50);
+  border-radius: 50%;
+  color: var(--fn-green-400);
+}
+
+.empty p {
+  font-size: 14px;
+}
+
+/* Responsive */
 @media (max-width: 900px) {
   .reviews-content {
     grid-template-columns: 1fr;
   }
   .reviews-wrapper {
-    padding: 20px;
+    padding: 24px 16px;
+  }
+  .submit-section,
+  .feed-section {
+    padding: 24px 20px;
   }
 }
 </style>

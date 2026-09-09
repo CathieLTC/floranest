@@ -1,19 +1,23 @@
 <template>
   <div class="products-wrapper">
-
     <div class="container">
 
       <!-- HEADER -->
       <header class="products-header">
-        <h1>Products</h1>
-        <p>Browse all available plants</p>
+        <span class="header-eyebrow">Browse</span>
+        <h1>Our Products</h1>
+        <p>Discover our curated collection of premium plants</p>
       </header>
 
       <!-- SEARCH + FILTER -->
       <div class="toolbar">
-        <el-input v-model="search" placeholder="Search plants..." class="search" clearable />
-        <el-select v-model="category" class="filter">
-          <el-option label="All" value="all" />
+        <el-input v-model="search" placeholder="Search plants…" class="search" clearable>
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <el-select v-model="category" class="filter" placeholder="All Categories">
+          <el-option label="All Categories" value="all" />
           <el-option v-for="c in categories" :key="c.categoryId" :label="c.categoryName" :value="c.categoryId" />
         </el-select>
       </div>
@@ -68,7 +72,11 @@
 
       <!-- EMPTY STATE -->
       <div v-else class="empty-state">
-        <div class="empty-icon">🪴</div>
+        <div class="empty-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C7 7 2 12 2 17C2 20 4 22 7 22C10 22 12 20 12 17C12 20 14 22 17 22C20 22 22 20 22 17C22 12 17 7 12 2Z"/>
+          </svg>
+        </div>
         <h3>No plants found</h3>
         <p>Try a different search term or category.</p>
       </div>
@@ -83,6 +91,7 @@
 
 <script setup>
   import { ref, computed, onMounted } from "vue";
+  import { Search } from "@element-plus/icons-vue";
   import api from "@/api/axios";
   import { ElMessage } from "element-plus";
   import { useCartStore } from "@/stores/cart";
@@ -111,7 +120,7 @@
     "data:image/svg+xml;charset=UTF-8," +
     encodeURIComponent(
       `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'>
-         <rect width='100%' height='100%' fill='#e8f5e9'/>
+         <rect width='100%' height='100%' fill='#edf7f0'/>
          <text x='50%' y='50%' font-size='70' text-anchor='middle' dominant-baseline='middle'>🪴</text>
        </svg>`
     );
@@ -156,11 +165,9 @@
 </script>
 
 <style scoped>
-
 /* WRAPPER */
 .products-wrapper {
-  padding: 44px clamp(20px, 5vw, 64px);
-  background: transparent;
+  padding: 44px 24px;
   min-height: 100vh;
 }
 
@@ -172,45 +179,54 @@
 /* HEADER */
 .products-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 36px;
+}
+
+.header-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fn-green-600);
+  margin-bottom: 8px;
 }
 
 .products-header h1 {
-  color: #027720;
-  font-size: 30px;
-  font-weight: 700;
-  margin: 0 0 6px;
-  letter-spacing: -0.5px;
+  color: var(--fn-ink);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
 }
 
 .products-header p {
-  color: #6b7280;
-  font-size: 15px;
-  margin: 0;
+  color: var(--fn-text-3);
+  font-size: 0.95rem;
 }
 
 /* TOOLBAR */
 .toolbar {
   display: flex;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .search {
-  width: min(320px, 100%);
+  width: min(340px, 100%);
 }
 
 .filter {
-  width: 180px;
+  width: 200px;
 }
 
 .result-count {
   text-align: center;
-  color: #9ca3af;
+  color: var(--fn-text-3);
   font-size: 13px;
-  margin: 10px 0 26px;
+  margin: 12px 0 28px;
 }
 
 /* GRID */
@@ -223,17 +239,19 @@
 /* CARD */
 .card {
   background: #fff;
-  border-radius: 16px;
+  border-radius: var(--fn-radius-md);
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--fn-border);
+  box-shadow: var(--fn-shadow-sm);
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: all var(--fn-t);
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(46, 125, 50, 0.12);
+  border-color: var(--fn-green-200);
+  box-shadow: var(--fn-shadow-lg);
 }
 
 /* IMAGE */
@@ -245,7 +263,7 @@
   display: block;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f1f5f1;
+  background: var(--fn-surface-3);
   cursor: zoom-in;
 }
 
@@ -257,9 +275,8 @@
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Image grows larger & wider smoothly on hover */
 .media:hover .image-link img {
-  transform: scale(1.15);
+  transform: scale(1.12);
 }
 
 /* VIEW DETAILS OVERLAY */
@@ -271,26 +288,25 @@
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.4);
+  padding: 7px 16px;
+  background: rgba(0, 0, 0, 0.45);
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--fn-radius-pill);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition: background 0.25s ease, box-shadow 0.25s ease;
+  transition: background var(--fn-t-fast);
 }
 
 .media:hover .view-overlay,
 .view-overlay:hover {
-  background: rgba(21, 94, 25, 0.92);
-  box-shadow: 0 4px 14px rgba(21, 94, 25, 0.4);
+  background: rgba(26, 77, 46, 0.9);
+  color: #fff;
 }
 
 .view-overlay:focus-visible {
@@ -307,12 +323,12 @@
 }
 
 .name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--fn-ink);
   line-height: 1.35;
   margin: 0 0 4px;
-  min-height: 40px;
+  min-height: 38px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -322,8 +338,8 @@
 
 .price {
   font-size: 18px;
-  font-weight: 700;
-  color: #2E7D32;
+  font-weight: 800;
+  color: var(--fn-green-600);
   margin: 4px 0 14px;
 }
 
@@ -344,7 +360,7 @@
 }
 
 .wish-btn {
-  width: 44px;
+  width: 42px;
   flex: none;
   padding: 0;
   font-size: 17px;
@@ -355,25 +371,32 @@
   text-align: center;
   padding: 70px 20px;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: var(--fn-radius-md);
+  border: 1px solid var(--fn-border);
+  box-shadow: var(--fn-shadow-sm);
 }
 
 .empty-icon {
-  font-size: 52px;
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  background: var(--fn-green-50);
+  border-radius: 50%;
+  color: var(--fn-green-400);
 }
 
 .empty-state h3 {
-  color: #1f2937;
-  font-size: 20px;
+  color: var(--fn-ink);
+  font-size: 18px;
   margin: 0 0 6px;
 }
 
 .empty-state p {
-  color: #6b7280;
-  font-size: 15px;
+  color: var(--fn-text-3);
+  font-size: 14px;
   margin: 0;
 }
-
 </style>
