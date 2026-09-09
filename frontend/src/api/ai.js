@@ -5,7 +5,7 @@
  */
 import api from "@/api/axios";
 
-const RATE_LIMIT_MSG = "The AI service is rate limited. Please wait about a minute, then try again.";
+const RATE_LIMIT_MSG = "The AI service is rate limited. Please try again in a few minutes.";
 const EMPTY_RESPONSE_MSG = "The AI service returned an empty response. Please try again.";
 
 const SYSTEM_PROMPT = `You are FloraNest AI, a friendly and knowledgeable gardening
@@ -33,8 +33,11 @@ async function waitForRateSlot() {
 
 /** Normalises an error from the backend proxy into a friendly message. */
 function extractErrorMessage(e, fallback) {
+    // Prefer the detailed message from the backend (includes daily limit info, etc.)
+    const backendMsg = e.response?.data?.error?.message;
+    if (backendMsg) return backendMsg;
     if (e.response?.status === 429) return RATE_LIMIT_MSG;
-    return e.response?.data?.error?.message || e.message || fallback;
+    return e.message || fallback;
 }
 
 /** Posts a chat payload to the backend proxy and returns the parsed JSON body. */

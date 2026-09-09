@@ -139,6 +139,8 @@ public class AiController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
+        headers.set("HTTP-Referer", "https://floranest.com");
+        headers.set("X-Title", "FloraNest");
 
         int modelIndex = 0;
         int attempt = 0;
@@ -187,9 +189,20 @@ public class AiController {
      * that keeps the same HTTP status (429 stays 429).
      */
     private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpClientErrorException e) {
-        String friendly = e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS
-                ? "AI service is receiving too many requests. Please wait a moment and try again."
-                : "AI request was rejected: " + e.getStatusCode().value();
+        String friendly;
+        if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+            String body = e.getResponseBodyAsString();
+            if (body != null && body.toLowerCase().contains("free-models-per-day")) {
+                friendly = "The free AI daily limit (50 requests) has been reached. "
+                        + "It resets at 8:00 AM. For unlimited access, add credits to your OpenRouter account.";
+            } else if (body != null && body.toLowerCase().contains("high demand")) {
+                friendly = "The AI service is experiencing high demand right now. Please try again in a few minutes.";
+            } else {
+                friendly = "The AI service is rate limited. Please wait a minute and try again.";
+            }
+        } else {
+            friendly = "AI request was rejected: " + e.getStatusCode().value();
+        }
         return ResponseEntity
                 .status(e.getStatusCode())
                 .body(Map.<String, Object>of("error", Map.of("message", friendly)));
