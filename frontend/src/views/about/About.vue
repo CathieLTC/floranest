@@ -29,7 +29,7 @@
         </div>
         <div class="story-image">
           <img
-            src="/images/about-story.jpg"
+            src="https://images.unsplash.com/photo-1459411552458-0d0a5e99193a?auto=format&fit=crop&w=800&q=80"
             alt="A greenhouse full of plants"
           />
         </div>
