@@ -80,7 +80,7 @@ onMounted(async () => {
 
 .section-head h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
-  color: var(--fn-green-700);
+  color: white;
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
