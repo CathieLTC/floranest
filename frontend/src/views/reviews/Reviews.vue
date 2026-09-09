@@ -17,8 +17,8 @@
         <el-form :model="form" label-position="top">
           <el-form-item label="Review Type">
             <el-radio-group v-model="form.type">
-              <el-radio-button label="plant">Plant</el-radio-button>
-              <el-radio-button label="shop">Shop</el-radio-button>
+              <el-radio-button value="plant">Plant</el-radio-button>
+              <el-radio-button value="shop">Shop</el-radio-button>
             </el-radio-group>
           </el-form-item>
 

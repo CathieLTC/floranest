@@ -170,7 +170,7 @@
 
   const tabs = computed(() => {
     const list = [{ label: "All", value: "all", count: toolsPotsProducts.value.length }];
-    if (toolsCatId.value) list.push({ label: "Gardening Tools", value: String(toolsCatId.value), count: byCategory(toolsCatId.value).length });
+    if (toolsCatId.value) list.push({ label: "Tools", value: String(toolsCatId.value), count: byCategory(toolsCatId.value).length });
     if (potsCatId.value) list.push({ label: "Pots & Planters", value: String(potsCatId.value), count: byCategory(potsCatId.value).length });
     return list;
   });
