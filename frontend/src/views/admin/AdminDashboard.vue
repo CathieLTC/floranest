@@ -104,8 +104,8 @@
             <el-table-column prop="stock" label="Stock" width="90" />
             <el-table-column label="Actions" width="160" fixed="right">
               <template #default="{ row }">
-                <el-button size="small" :icon="Edit" @click="openProductDialog(row)">Edit</el-button>
-                <el-button size="small" type="danger" :icon="Delete" @click="deleteProduct(row.productId)">Delete</el-button>
+                <el-button size="small" :icon="Edit" @click="openProductDialog(row)"></el-button>
+                <el-button size="small" type="danger" :icon="Delete" @click="deleteProduct(row.productId)"></el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -130,8 +130,8 @@
             <el-table-column prop="categoryName" label="Category Name" min-width="240" />
             <el-table-column label="Actions" width="160" fixed="right">
               <template #default="{ row }">
-                <el-button size="small" :icon="Edit" @click="openCategoryDialog(row)">Edit</el-button>
-                <el-button size="small" type="danger" :icon="Delete" @click="deleteCategory(row.categoryId)">Delete</el-button>
+                <el-button size="small" :icon="Edit" @click="openCategoryDialog(row)"></el-button>
+                <el-button size="small" type="danger" :icon="Delete" @click="deleteCategory(row.categoryId)"></el-button>
               </template>
             </el-table-column>
           </el-table>
