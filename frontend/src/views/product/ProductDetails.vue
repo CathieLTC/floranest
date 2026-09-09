@@ -23,7 +23,8 @@
           <h1 class="title">{{ product.productName }}</h1>
 
           <div class="meta-line">
-            <el-tag :type="difficultyType" size="small" round>{{ product.difficulty }}</el-tag>
+            <el-tag v-if="product.difficulty" :type="difficultyType" size="small" round>{{ product.difficulty }}</el-tag>
+            <el-tag v-else type="info" size="small" round>Essential</el-tag>
             <span class="category">{{ product.categoryName }}</span>
           </div>
 
@@ -34,7 +35,7 @@
             <span class="price">${{ formatPrice(product.price) }}</span>
           </div>
 
-          <div class="spec-grid">
+          <div v-if="isPlantProduct" class="spec-grid">
             <div class="spec">
               <span class="spec-icon">☀️</span>
               <div class="spec-text">
@@ -85,7 +86,7 @@
       </div>
 
       <!-- CARE GUIDE -->
-      <section v-if="product.productId" class="section care-guide">
+      <section v-if="product.productId && isPlantProduct" class="section care-guide">
         <h2 class="section-title">Complete Care Guide</h2>
         <p class="section-subtitle">Everything you need to know to keep your {{ product.productName }} thriving.</p>
 
@@ -133,8 +134,20 @@
         </div>
       </section>
 
+      <!-- ACCESSORY HIGHLIGHTS (tools & pots) -->
+      <section v-if="product.productId && !isPlantProduct" class="section acc-features">
+        <div class="acc-icon">🧰</div>
+        <h2 class="section-title">Product Highlights</h2>
+        <p class="section-subtitle">{{ product.description }}</p>
+        <div class="acc-grid">
+          <div class="acc-item" v-for="f in accessoryHighlights" :key="f">
+            <span class="acc-check">✓</span>{{ f }}
+          </div>
+        </div>
+      </section>
+
       <!-- COMMON PROBLEMS -->
-      <section v-if="product.productId" class="section problems">
+      <section v-if="product.productId && isPlantProduct" class="section problems">
         <div class="problems-inner">
           <span class="problems-icon">🩺</span>
           <div>
@@ -161,7 +174,7 @@
       </section>
 
       <!-- QUICK TIPS -->
-      <section v-if="product.productId" class="section quick-tips">
+      <section v-if="product.productId && isPlantProduct" class="section quick-tips">
         <h3 class="tips-title">🌱 Quick Tips</h3>
         <ul>
           <li>Check soil moisture before watering — stick your finger 2 inches deep.</li>
@@ -234,6 +247,32 @@
     if (d === "medium") return "warning";
     if (d === "hard") return "danger";
     return "info";
+  });
+
+  // Non-plant items (tools, pots, planters…) don't need plant care content.
+  const isPlantProduct = computed(() =>
+    Boolean(product.value.difficulty || product.value.sunlight || product.value.watering)
+  );
+
+  const isPotAccessory = computed(() =>
+    /pot|planter|terracotta|ceramic|macrame/i.test(product.value.productName || "")
+  );
+
+  const accessoryHighlights = computed(() => {
+    if (isPotAccessory.value) {
+      return [
+        "Drainage-friendly designs that help prevent overwatering",
+        "Suitable for both indoor and outdoor spaces",
+        "Pairs beautifully with the full FloraNest plant range",
+        "Made from durable, easy-to-clean materials"
+      ];
+    }
+    return [
+      "Built to make everyday plant care quick and easy",
+      "Durable, quality materials for long-lasting use",
+      "Comfortable to handle and simple to clean",
+      "A practical companion to every FloraNest plant"
+    ];
   });
 
   // Generate care guide based on product attributes
@@ -585,6 +624,55 @@
   font-size: 14px;
   line-height: 1.7;
   margin: 0;
+}
+
+/* ACCESSORY HIGHLIGHTS */
+.acc-features {
+  background: linear-gradient(180deg, #ffffff, #f6faf6);
+  border-top: 3px solid #2E7D32;
+  text-align: center;
+}
+
+.acc-icon {
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.acc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.acc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #eef2ee;
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.acc-check {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  color: #2E7D32;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 /* VIDEO */

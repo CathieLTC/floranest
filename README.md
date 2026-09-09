@@ -84,7 +84,7 @@ The API starts at `http://localhost:8080`.
 ```bash
 cd frontend
 npm install
-npm run dev
+
 ```
 
 Open `http://localhost:5173` in your browser.

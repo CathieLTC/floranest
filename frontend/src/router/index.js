@@ -12,6 +12,7 @@ import Products    from "@/views/product/Products.vue";
 import ProductDetails from "@/views/product/ProductDetails.vue";
 import Shop          from "@/views/product/Shop.vue";
 import SearchResults from "@/views/product/SearchResults.vue";
+import ToolsPots     from "@/views/product/ToolsPots.vue";
 
 // Cart
 import Cart from "@/views/cart/Cart.vue";
@@ -34,6 +35,9 @@ import Reviews from "@/views/reviews/Reviews.vue";
 // Wishlist
 import Wishlist from "@/views/wishlist/Wishlist.vue";
 
+// About
+import About from "@/views/about/About.vue";
+
 const routes = [
   // Home
   { path: "/",           component: Home },
@@ -47,6 +51,7 @@ const routes = [
   { path: "/shop",           component: Shop },
   { path: "/products",        component: Products },
   { path: "/search",          component: SearchResults },
+  { path: "/tools-and-pots",  component: ToolsPots },
 
   // Cart
   { path: "/cart",           component: Cart },
@@ -68,6 +73,9 @@ const routes = [
 
   // Wishlist
   { path: "/wishlist",       component: Wishlist },
+
+  // About
+  { path: "/about",          component: About },
 ];
 
 const router = createRouter({

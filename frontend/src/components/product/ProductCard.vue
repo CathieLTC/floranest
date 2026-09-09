@@ -28,6 +28,7 @@
         <el-button
           :type="wishlistStore.has(product.productId) ? 'danger' : 'default'"
           size="small"
+          class="wish-btn"
           @click="wishlistStore.toggle(product)"
         >
           {{ wishlistStore.has(product.productId) ? '♥' : '♡' }}
@@ -66,13 +67,18 @@ const openPreview = (src, alt = "") => {
 
 <style scoped>
 .product-card {
-  background: white;
-  border-radius: 12px;
+  background: #fff;
+  border-radius: var(--fn-radius-md);
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-  transition: 0.25s;
+  border: 1px solid var(--fn-border);
+  box-shadow: var(--fn-shadow-sm);
+  transition: all var(--fn-t);
 }
-.product-card:hover { transform: translateY(-5px); }
+.product-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--fn-green-200);
+  box-shadow: var(--fn-shadow-lg);
+}
 
 .media {
   position: relative;
@@ -91,9 +97,8 @@ const openPreview = (src, alt = "") => {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Image grows larger & wider smoothly on hover */
 .media:hover img {
-  transform: scale(1.15);
+  transform: scale(1.12);
 }
 
 /* VIEW DETAILS OVERLAY */
@@ -105,26 +110,25 @@ const openPreview = (src, alt = "") => {
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.4);
+  padding: 7px 16px;
+  background: rgba(0, 0, 0, 0.45);
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--fn-radius-pill);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition: background 0.25s ease, box-shadow 0.25s ease;
+  transition: background var(--fn-t-fast);
 }
 
 .media:hover .view-overlay,
 .view-overlay:hover {
-  background: rgba(21, 94, 25, 0.92);
-  box-shadow: 0 4px 14px rgba(21, 94, 25, 0.4);
+  background: rgba(26, 77, 46, 0.9);
+  color: #fff;
 }
 
 .view-overlay:focus-visible {
@@ -132,8 +136,37 @@ const openPreview = (src, alt = "") => {
   outline-offset: 2px;
 }
 
-.card-body { padding: 15px; text-align: center; }
-.card-body h3 { font-size: 15px; margin-bottom: 6px; }
-.price { font-weight: bold; color: #2E7D32; margin-bottom: 12px; }
-.actions { display: flex; gap: 8px; justify-content: center; }
+.card-body {
+  padding: 16px;
+  text-align: center;
+}
+.card-body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fn-ink);
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 38px;
+}
+.price {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--fn-green-600);
+  margin-bottom: 14px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.wish-btn {
+  width: 36px;
+  padding: 0;
+  font-size: 16px;
+}
 </style>
