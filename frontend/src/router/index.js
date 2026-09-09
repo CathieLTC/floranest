@@ -12,6 +12,7 @@ import Products    from "@/views/product/Products.vue";
 import ProductDetails from "@/views/product/ProductDetails.vue";
 import Shop          from "@/views/product/Shop.vue";
 import SearchResults from "@/views/product/SearchResults.vue";
+import ToolsPots from "@/views/product/ToolsPots.vue";
 
 // Cart
 import Cart from "@/views/cart/Cart.vue";
@@ -34,6 +35,9 @@ import Reviews from "@/views/reviews/Reviews.vue";
 // Wishlist
 import Wishlist from "@/views/wishlist/Wishlist.vue";
 
+// About
+import About from "@/views/about/About.vue";
+
 // Admin
   import AdminDashboard from "@/views/admin/AdminDashboard.vue";
   import ProductManagement from "@/views/admin/ProductManagement.vue";
@@ -41,21 +45,21 @@ import Wishlist from "@/views/wishlist/Wishlist.vue";
   import OrderManagement from "@/views/admin/OrderManagement.vue";
   import UserManagement from "@/views/admin/UserManagement.vue";
   import AdminLayout from "@/components/layout/AdminLayout.vue";
-  import { useUserStore } from "@/stores/user";
+  // import { useUserStore } from "@/stores/user";
 
-  const routes = [
-    {
-      path: "/admin",
-      component: AdminLayout,
-      meta: { requiresAdmin: true },
-      children: [
-        { path: "", component: AdminDashboard }, // Default admin view
-        { path: "products", component: ProductManagement },
-        { path: "categories", component: CategoryManagement },
-        { path: "orders", component: OrderManagement },
-        { path: "users", component: UserManagement },
-      ],
-    },
+const routes = [
+  {
+    path: "/admin",
+    component: AdminLayout,
+    meta: { requiresAdmin: true },
+    children: [
+      { path: "", component: AdminDashboard }, // Default admin view
+      { path: "products", component: ProductManagement },
+      { path: "categories", component: CategoryManagement },
+      { path: "orders", component: OrderManagement },
+      { path: "users", component: UserManagement },
+    ],
+  },
 
   // Home
   { path: "/",           component: Home },
@@ -69,6 +73,7 @@ import Wishlist from "@/views/wishlist/Wishlist.vue";
   { path: "/shop",           component: Shop },
   { path: "/products",        component: Products },
   { path: "/search",          component: SearchResults },
+  { path: "/tools-and-pots", component: ToolsPots },
 
   // Cart
   { path: "/cart",           component: Cart },
@@ -91,8 +96,8 @@ import Wishlist from "@/views/wishlist/Wishlist.vue";
   // Wishlist
   { path: "/wishlist",       component: Wishlist },
 
-  // Admin
-  { path: "/admin",          component: AdminDashboard },
+  // About
+  { path: "/about", component: About },
 ];
 
 const router = createRouter({
@@ -100,18 +105,21 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    const userStore = useUserStore();
-    const user = userStore.user;
-    if (user && user.role === 'admin') {
-      next();
-    } else {
-      next({ path: '/login' }); // Redirect to login or home page
-    }
-  } else {
-    next();
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   // `to`, `from`, and `next` are required parameters for Vue Router navigation guards.
+//   // `from` is used implicitly by the navigation process.
+//   // `next` is replaced by returning values as per Vue Router 4+ guidelines.
+//   if (to.matched.some(record => record.meta.requiresAdmin)) {
+//     const userStore = useUserStore();
+//     const user = userStore.user;
+//     if (user && user.role === 'admin') {
+//       return true;
+//     } else {
+//       return { path: '/login' }; // Redirect to login or home page
+//     }
+//   } else {
+//     return true;
+//   }
+// });
 
 export default router;
