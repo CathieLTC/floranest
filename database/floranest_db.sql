@@ -227,6 +227,31 @@ INSERT INTO `users` VALUES (3, 'leo@gmail.com', '123456', 'Leo Francisco', NULL,
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------
+-- Table structure for reviews
+-- ----------------------------
+CREATE TABLE `reviews`  (
+  `review_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NULL DEFAULT NULL,
+  `review_type` enum('plant','shop') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'plant',
+  `target_name` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `author_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `rating` int(11) NOT NULL DEFAULT 5,
+  `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`review_id`) USING BTREE,
+  INDEX `user_id`(`user_id` ASC) USING BTREE,
+  CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of reviews
+-- ----------------------------
+INSERT INTO `reviews` (`user_id`, `review_type`, `target_name`, `author_name`, `rating`, `comment`, `created_at`) VALUES
+(1, 'plant', 'Monstera Deliciosa', 'Cate Diva', 5, 'Absolutely love this plant! The leaves arrived perfect and it has already grown two new ones.', '2026-09-02 09:15:00'),
+(2, 'shop', 'FloraNest', 'Cissy Diva', 4, 'Great shop, plants are healthy and packaging was solid. Delivery took a couple days longer than expected.', '2026-09-04 14:40:00'),
+(3, 'plant', 'Snake Plant', 'Leo Francisco', 5, 'Very low maintenance and looks amazing on my desk. Highly recommend for beginners!', '2026-09-06 18:05:00');
+
+-- ----------------------------
 -- Upgrade script for EXISTING databases (ran already has city/country)
 -- Run manually against an already-created floranest_db:
 --   ALTER TABLE `users`

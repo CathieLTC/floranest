@@ -52,6 +52,16 @@
             <el-icon><ShoppingCart /></el-icon>
           </button>
 
+          <!-- Password-granted admin session -->
+          <div v-if="isAdminAuthed" class="admin-session">
+            <button class="icon-btn admin-active" @click="router.push('/admin')" title="Admin Dashboard">
+              <el-icon><Setting /></el-icon>
+            </button>
+            <button class="icon-btn" @click="exitAdminAccess" title="Exit admin access">
+              <el-icon><Close /></el-icon>
+            </button>
+          </div>
+
           <div class="auth-area">
             <el-dropdown v-if="user" trigger="hover" placement="bottom" size="default">
               <span class="profile-trigger">
@@ -64,7 +74,8 @@
 
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="router.push('/my-profile')"><el-icon><UserFilled /></el-icon>My Profile</el-dropdown-item>
+                  <el-dropdown-item v-if="isAdmin" @click="router.push('/admin')"><el-icon><Setting /></el-icon>Admin Dashboard</el-dropdown-item>
+                  <el-dropdown-item :divided="isAdmin" @click="router.push('/my-profile')"><el-icon><UserFilled /></el-icon>My Profile</el-dropdown-item>
                   <el-dropdown-item @click="router.push('/my-orders')"><el-icon><Box /></el-icon>My Orders</el-dropdown-item>
                   <el-dropdown-item divided @click="logout"><el-icon><SwitchButton /></el-icon>Logout</el-dropdown-item>
                 </el-dropdown-menu>
@@ -92,9 +103,9 @@
 
 <script setup>
   import { computed, ref } from "vue";
-  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Star, SwitchButton } from "@element-plus/icons-vue";
+  import { Search, ShoppingCart, ArrowDown, UserFilled, Box, Star, SwitchButton, Setting, Close } from "@element-plus/icons-vue";
   import { useRoute, useRouter } from "vue-router";
-  import { ElMessageBox } from "element-plus";
+  import { ElMessage, ElMessageBox } from "element-plus";
   import { useUserStore } from "@/stores/user";
   import { useWishlistStore } from "@/stores/wishlist";
   import AppFooter from '@/components/layout/Footer.vue';
@@ -109,6 +120,10 @@
   const wishlistStore = useWishlistStore();
 
   const user = computed(() => userStore.user);
+  const isAdmin = computed(() =>
+    !!user.value && String(user.value.role || "").toLowerCase() === "admin"
+  );
+  const isAdminAuthed = computed(() => userStore.adminAuthed);
   const searchQuery = ref("");
 
   const goToSearch = () => {
@@ -137,6 +152,12 @@
 
   const logout = () => {
     userStore.logout();
+    router.push("/");
+  };
+
+  const exitAdminAccess = () => {
+    userStore.revokeAdminAccess();
+    ElMessage.info("Admin access closed.");
     router.push("/");
   };
 </script>
@@ -292,6 +313,19 @@
 
   .nav-badge {
     margin-right: 2px;
+  }
+
+  .admin-session {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 2px;
+  }
+
+  .admin-active {
+    border-color: var(--fn-green-500);
+    color: var(--fn-green-600);
+    background: var(--fn-green-50);
   }
 
   /* ======================  AUTH AREA  ====================== */

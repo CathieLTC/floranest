@@ -99,9 +99,11 @@
 
         userStore.login(response.data.user);
 
-        ElMessage.success("Welcome Back!");
+        const isAdmin = String(response.data.user?.role || "").toLowerCase() === "admin";
 
-        router.push("/");
+        ElMessage.success(isAdmin ? "Welcome back, Administrator!" : "Welcome Back!");
+
+        router.push(isAdmin ? "/admin" : "/");
 
       } else {
 

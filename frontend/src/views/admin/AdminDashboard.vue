@@ -16,7 +16,7 @@
         </div>
         <div class="hero-text">
           <h1>Admin Dashboard</h1>
-          <p>Manage products, categories and order status from a dedicated UI</p>
+          <p>Manage products, categories, customer reviews and order status from a dedicated UI</p>
         </div>
       </section>
 
@@ -56,6 +56,15 @@
           <div class="stat-body">
             <span class="stat-value">${{ formatPrice(totalRevenue) }}</span>
             <span class="stat-label">Revenue</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon reviews-icon">
+            <el-icon><ChatLineRound /></el-icon>
+          </div>
+          <div class="stat-body">
+            <span class="stat-value">{{ reviews.length }}</span>
+            <span class="stat-label">Reviews</span>
           </div>
         </div>
       </section>
@@ -183,6 +192,55 @@
           </el-table>
         </div>
       </section>
+
+      <!-- REVIEWS SECTION -->
+      <section v-show="activeTab === 'reviews'" class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Customer Reviews</h2>
+            <p class="panel-subtitle">Read what customers are saying, and remove spam or inappropriate content</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <el-table :data="reviews" style="width: 100%" v-loading="loading.reviews">
+            <el-table-column prop="reviewId" label="ID" width="70" />
+            <el-table-column label="Author" min-width="160">
+              <template #default="{ row }">
+                <div class="author-cell">
+                  <span class="author-avatar">{{ row.authorName.charAt(0).toUpperCase() }}</span>
+                  <div>
+                    <p class="author-name-cell">{{ row.authorName }}</p>
+                    <p class="author-sub">{{ row.userId ? `Account #${row.userId}` : 'Guest' }}</p>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="Type" width="90">
+              <template #default="{ row }">
+                <el-tag :type="row.reviewType === 'plant' ? 'success' : 'warning'" size="small">
+                  {{ row.reviewType === 'plant' ? 'Plant' : 'Shop' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="targetName" label="Target" min-width="140" />
+            <el-table-column label="Rating" width="150">
+              <template #default="{ row }">
+                <el-rate :model-value="row.rating" disabled :max="5" size="small" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="comment" label="Comment" min-width="240" show-overflow-tooltip />
+            <el-table-column label="Date" width="110">
+              <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
+            </el-table-column>
+            <el-table-column label="Actions" width="90" fixed="right">
+              <template #default="{ row }">
+                <el-button size="small" type="danger" :icon="Delete" @click="deleteReview(row.reviewId)">Delete</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
     </div>
 
     <!-- PRODUCT FORM DIALOG -->
@@ -265,17 +323,20 @@ const activeTab = ref('products');
 const tabs = [
   { key: 'products', label: 'Products', icon: 'Goods' },
   { key: 'categories', label: 'Categories', icon: 'FolderOpened' },
-  { key: 'orders', label: 'Orders', icon: 'Box' }
+  { key: 'orders', label: 'Orders', icon: 'Box' },
+  { key: 'reviews', label: 'Reviews', icon: 'ChatLineRound' }
 ];
 
 const products = ref([]);
 const categories = ref([]);
 const orders = ref([]);
+const reviews = ref([]);
 
 const loading = reactive({
   products: false,
   categories: false,
-  orders: false
+  orders: false,
+  reviews: false
 });
 
 const dialogs = reactive({
@@ -488,9 +549,55 @@ const updateOrderStatus = async (orderId, status) => {
   }
 };
 
+const loadReviews = async () => {
+  loading.reviews = true;
+  try {
+    const { data } = await api.get('/reviews');
+    reviews.value = Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error(err);
+    ElMessage.error('Failed to load reviews.');
+  } finally {
+    loading.reviews = false;
+  }
+};
+
+const deleteReview = async (id) => {
+  try {
+    await ElMessageBox.confirm(
+      'Delete this customer review? This cannot be undone.',
+      'Confirm',
+      { type: 'warning' }
+    );
+    const { data } = await api.delete(`/reviews/${id}`);
+    if (data.success) {
+      ElMessage.success('Review deleted.');
+      await loadReviews();
+    } else {
+      ElMessage.error(data.message);
+    }
+  } catch (err) {
+    if (err !== 'cancel') {
+      console.error(err);
+      ElMessage.error('Failed to delete review.');
+    }
+  }
+};
+
+const formatDate = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value).slice(0, 10);
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
 onMounted(async () => {
   await loadCategories();
-  await Promise.all([loadProducts(), loadOrders()]);
+  await Promise.all([loadProducts(), loadOrders(), loadReviews()]);
 });
 </script>
 
@@ -594,6 +701,7 @@ onMounted(async () => {
 .categories-icon { background: #e3f2fd; color: #1976d2; }
 .orders-icon { background: #fff3e0; color: #f57c00; }
 .revenue-icon { background: #f3e5f5; color: #7b1fa2; }
+.reviews-icon { background: #e0f2f1; color: #00695c; }
 
 .stat-body {
   display: flex;
@@ -705,6 +813,40 @@ onMounted(async () => {
 
 .status-select {
   width: 140px;
+}
+
+/* Reviews author cell */
+.author-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.author-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2E7D32, #1b4d1e);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.author-name-cell {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.author-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #9e9e9e;
 }
 
 /* ---------- FORMS ---------- */

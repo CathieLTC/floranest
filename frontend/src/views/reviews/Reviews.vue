@@ -27,7 +27,19 @@
           </el-form-item>
 
           <el-form-item label="Your Name">
-            <el-input v-model="form.authorName" placeholder="Your name" />
+            <div v-if="loggedInUser" class="account-author">
+              <span class="account-avatar">{{ loggedInUser.fullName?.charAt(0).toUpperCase() || 'U' }}</span>
+              <span>
+                {{ loggedInUser.fullName }}
+                <small>Posting under your account</small>
+              </span>
+            </div>
+            <template v-else>
+              <el-input v-model="form.authorName" placeholder="Your name" :disabled="posting" />
+              <p class="field-hint">
+                Tip: <router-link to="/login">Login</router-link> to post under your account.
+              </p>
+            </template>
           </el-form-item>
 
           <el-form-item label="Rating">
@@ -38,17 +50,17 @@
             <el-input v-model="form.comment" type="textarea" :rows="4" placeholder="Share your experience..." />
           </el-form-item>
 
-          <el-button type="success" size="large" @click="submitReview" :disabled="!canSubmit">
+          <el-button type="success" size="large" @click="submitReview" :disabled="!canSubmit" :loading="posting">
             Submit Review
           </el-button>
         </el-form>
       </div>
 
       <!-- RIGHT: Recent reviews -->
-      <div class="feed-section">
-        <h2>Recent Reviews</h2>
+      <div class="feed-section" v-loading="feedLoading">
+        <h2>Recent Reviews <span class="feed-count">{{ reviews.length }}</span></h2>
 
-        <div v-if="reviews.length === 0" class="empty">
+        <div v-if="reviews.length === 0 && !feedLoading" class="empty">
           <div class="empty-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L13.5 7.5L19 9L13.5 10.5L12 16L10.5 10.5L5 9L10.5 7.5L12 2Z"/></svg>
           </div>
@@ -62,15 +74,15 @@
                 <div class="avatar">{{ review.authorName.charAt(0).toUpperCase() }}</div>
                 <div>
                   <p class="author-name">{{ review.authorName }}</p>
-                  <p class="review-date">{{ review.date }}</p>
+                  <p class="review-date">{{ formatDate(review.createdAt) }}</p>
                 </div>
               </div>
               <el-rate :model-value="review.rating" disabled :max="5" size="small" />
             </div>
 
             <div class="review-target">
-              <el-tag :type="review.type === 'plant' ? 'success' : 'warning'" size="small">
-                {{ review.type === 'plant' ? 'Plant' : 'Shop' }}
+              <el-tag :type="review.reviewType === 'plant' ? 'success' : 'warning'" size="small">
+                {{ review.reviewType === 'plant' ? 'Plant' : 'Shop' }}
               </el-tag>
               <span class="target-name">{{ review.targetName }}</span>
             </div>
@@ -86,10 +98,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { ElMessage } from "element-plus";
+import api from "@/api/axios";
+import { useUserStore } from "@/stores/user";
 
-const STORAGE_KEY = "floranest_reviews";
+const userStore = useUserStore();
+const loggedInUser = computed(() => userStore.user);
 
 const form = ref({
   type: "plant",
@@ -99,45 +114,95 @@ const form = ref({
   comment: ""
 });
 
-const reviews = ref(JSON.parse(localStorage.getItem(STORAGE_KEY)) || []);
+const reviews = ref([]);
+const feedLoading = ref(false);
+const posting = ref(false);
 
-const canSubmit = computed(() =>
-  form.value.targetName.trim() &&
-  form.value.authorName.trim() &&
-  form.value.comment.trim()
-);
+const canSubmit = computed(() => {
+  const authorOk = loggedInUser.value
+    ? Boolean(loggedInUser.value.fullName && loggedInUser.value.fullName.trim())
+    : Boolean(form.value.authorName.trim());
+  return (
+    Boolean(form.value.targetName.trim()) &&
+    authorOk &&
+    Boolean(form.value.comment.trim())
+  );
+});
 
 const sortedReviews = computed(() =>
-  [...reviews.value].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+  [...reviews.value].sort((a, b) =>
+    new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+  )
 );
 
-const submitReview = () => {
+const formatDate = (value) => {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value).slice(0, 10);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+};
+
+const loadReviews = async () => {
+  feedLoading.value = true;
+  try {
+    const { data } = await api.get("/reviews");
+    reviews.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(error);
+    reviews.value = [];
+  } finally {
+    feedLoading.value = false;
+  }
+};
+
+const submitReview = async () => {
   if (!canSubmit.value) {
     ElMessage.warning("Please fill in all fields.");
     return;
   }
 
-  const now = new Date();
-  const newReview = {
-    type: form.value.type,
-    targetName: form.value.targetName.trim(),
-    authorName: form.value.authorName.trim(),
-    rating: form.value.rating,
-    comment: form.value.comment.trim(),
-    date: now.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
-    timestamp: now.toISOString()
-  };
+  posting.value = true;
 
-  reviews.value.unshift(newReview);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews.value));
+  try {
+    const user = loggedInUser.value;
 
-  ElMessage.success("Review submitted! Thank you for sharing.");
+    const response = await api.post("/reviews", {
+      reviewType: form.value.type,
+      targetName: form.value.targetName.trim(),
+      authorName: user && user.fullName ? user.fullName.trim() : form.value.authorName.trim(),
+      rating: form.value.rating,
+      comment: form.value.comment.trim(),
+      userId: user ? user.userId : null
+    });
 
-  form.value.targetName = "";
-  form.value.authorName = "";
-  form.value.rating = 5;
-  form.value.comment = "";
+    if (response.data.success) {
+      ElMessage.success("Review submitted! Thank you for sharing.");
+      form.value.targetName = "";
+      form.value.rating = 5;
+      form.value.comment = "";
+      await loadReviews();
+    } else {
+      ElMessage.error(response.data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    ElMessage.error("Unable to connect to the server. Please try again.");
+  } finally {
+    posting.value = false;
+  }
 };
+
+watch(loggedInUser, (user) => {
+  if (user && user.fullName) {
+    form.value.authorName = user.fullName;
+  }
+}, { immediate: true });
+
+onMounted(loadReviews);
 </script>
 
 <style scoped>
@@ -197,6 +262,69 @@ const submitReview = () => {
   font-size: 1.3rem;
   margin-bottom: 20px;
   letter-spacing: -0.02em;
+}
+
+.feed-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--fn-green-50);
+  color: var(--fn-green-700);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* Account chip inside the "Your Name" field */
+.account-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--fn-surface-2);
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius);
+  color: var(--fn-ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.account-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--fn-green-600), var(--fn-green-700));
+  color: #fff;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.account-author small {
+  display: block;
+  font-size: 12px;
+  color: var(--fn-text-3);
+  font-weight: 400;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--fn-text-3);
+}
+
+.field-hint a {
+  color: var(--fn-green-600);
+  font-weight: 600;
+  text-decoration: none;
 }
 
 /* Review card */

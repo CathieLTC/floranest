@@ -8,11 +8,11 @@ import Login    from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 
 // Product
-import Products    from "@/views/product/Products.vue";
+import Products       from "@/views/product/Products.vue";
 import ProductDetails from "@/views/product/ProductDetails.vue";
-import Shop          from "@/views/product/Shop.vue";
-import SearchResults from "@/views/product/SearchResults.vue";
-import ToolsPots from "@/views/product/ToolsPots.vue";
+import Shop           from "@/views/product/Shop.vue";
+import SearchResults  from "@/views/product/SearchResults.vue";
+import ToolsPots      from "@/views/product/ToolsPots.vue";
 
 // Cart
 import Cart from "@/views/cart/Cart.vue";
@@ -39,28 +39,10 @@ import Wishlist from "@/views/wishlist/Wishlist.vue";
 import About from "@/views/about/About.vue";
 
 // Admin
-  import AdminDashboard from "@/views/admin/AdminDashboard.vue";
-  import ProductManagement from "@/views/admin/ProductManagement.vue";
-  import CategoryManagement from "@/views/admin/CategoryManagement.vue";
-  import OrderManagement from "@/views/admin/OrderManagement.vue";
-  import UserManagement from "@/views/admin/UserManagement.vue";
-  import AdminLayout from "@/components/layout/AdminLayout.vue";
-  // import { useUserStore } from "@/stores/user";
+import AdminDashboard from "@/views/admin/AdminDashboard.vue";
+import { useUserStore } from "@/stores/user";
 
 const routes = [
-  {
-    path: "/admin",
-    component: AdminLayout,
-    meta: { requiresAdmin: true },
-    children: [
-      { path: "", component: AdminDashboard }, // Default admin view
-      { path: "products", component: ProductManagement },
-      { path: "categories", component: CategoryManagement },
-      { path: "orders", component: OrderManagement },
-      { path: "users", component: UserManagement },
-    ],
-  },
-
   // Home
   { path: "/",           component: Home },
 
@@ -71,8 +53,8 @@ const routes = [
   // Product
   { path: "/product/:id",    component: ProductDetails },
   { path: "/shop",           component: Shop },
-  { path: "/products",        component: Products },
-  { path: "/search",          component: SearchResults },
+  { path: "/products",       component: Products },
+  { path: "/search",         component: SearchResults },
   { path: "/tools-and-pots", component: ToolsPots },
 
   // Cart
@@ -97,7 +79,10 @@ const routes = [
   { path: "/wishlist",       component: Wishlist },
 
   // About
-  { path: "/about", component: About },
+  { path: "/about",          component: About },
+
+  // Admin
+  { path: "/admin",          component: AdminDashboard, meta: { requiresAdmin: true } },
 ];
 
 const router = createRouter({
@@ -105,21 +90,22 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   // `to`, `from`, and `next` are required parameters for Vue Router navigation guards.
-//   // `from` is used implicitly by the navigation process.
-//   // `next` is replaced by returning values as per Vue Router 4+ guidelines.
-//   if (to.matched.some(record => record.meta.requiresAdmin)) {
-//     const userStore = useUserStore();
-//     const user = userStore.user;
-//     if (user && user.role === 'admin') {
-//       return true;
-//     } else {
-//       return { path: '/login' }; // Redirect to login or home page
-//     }
-//   } else {
-//     return true;
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    const userStore = useUserStore();
+    const user = userStore.user;
+    const isAdminUser =
+      !!user && String(user.role || "").toLowerCase() === "admin";
+    // Allow admins either by role (existing accounts) or by the
+    // password-based admin session granted on the Sign Up page.
+    if (isAdminUser || userStore.adminAuthed) {
+      next();
+    } else {
+      next({ path: "/login" }); // Redirect to login or home page
+    }
+  } else {
+    next();
+  }
+});
 
 export default router;
